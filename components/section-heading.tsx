@@ -27,14 +27,14 @@ export function SectionHeading({
     >
       <div
         className={cn(
-          'flex items-center gap-3',
+          'flex items-center gap-2.5',
           align === 'center' && 'justify-center',
         )}
       >
         {number && (
           <span
             className={cn(
-              'font-serif text-4xl font-bold leading-none tracking-tighter opacity-20 sm:text-5xl',
+              'font-serif text-3xl font-bold leading-none tracking-tighter opacity-15 sm:text-4xl',
               dark ? 'text-primary' : 'text-secondary',
             )}
           >
@@ -43,10 +43,10 @@ export function SectionHeading({
         )}
         <span
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.12em]',
+            'inline-flex items-center rounded-full px-3 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] sm:text-[0.7rem]',
             dark
-              ? 'bg-primary/20 text-primary ring-1 ring-primary/30'
-              : 'bg-primary/15 text-foreground ring-1 ring-primary/25',
+              ? 'bg-primary/20 text-primary ring-1 ring-primary/25'
+              : 'bg-primary/15 text-foreground ring-1 ring-primary/20',
           )}
         >
           {eyebrow}
@@ -54,7 +54,7 @@ export function SectionHeading({
       </div>
       <h2
         className={cn(
-          'mt-3 font-serif text-2xl font-semibold leading-[1.15] tracking-tight sm:text-3xl lg:text-4xl text-balance',
+          'mt-2 font-serif text-xl font-semibold leading-[1.15] tracking-tight sm:text-2xl lg:text-3xl text-balance',
           dark ? 'text-secondary-foreground' : 'text-foreground',
         )}
       >
@@ -63,8 +63,8 @@ export function SectionHeading({
       {intro && (
         <p
           className={cn(
-            'mt-3 text-sm leading-relaxed sm:text-base text-pretty',
-            dark ? 'text-secondary-foreground/75' : 'text-muted-foreground',
+            'mt-1.5 text-xs leading-relaxed sm:text-sm text-pretty',
+            dark ? 'text-secondary-foreground/70' : 'text-muted-foreground',
           )}
         >
           {intro}

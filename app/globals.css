@@ -52,6 +52,9 @@
 :root {
   color-scheme: light;
   --radius: 1rem;
+  --header-h: 4rem;
+  --section-py: clamp(2rem, 4vw, 3rem);
+  --section-gap: clamp(1rem, 2.5vw, 1.75rem);
 
   --background: oklch(0.972 0.018 88);
   --foreground: oklch(0.22 0.045 255);
@@ -96,9 +99,15 @@
   --sidebar-ring: oklch(0.80 0.17 86);
 }
 
+@media (min-width: 640px) {
+  :root {
+    --header-h: 4.25rem;
+  }
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(var(--float-rotate, 0deg)); }
-  50% { transform: translateY(-10px) rotate(var(--float-rotate, 0deg)); }
+  50% { transform: translateY(-8px) rotate(var(--float-rotate, 0deg)); }
 }
 
 @keyframes marquee {
@@ -106,14 +115,9 @@
   to { transform: translateX(-50%); }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.05); }
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.04); }
 }
 
 @layer base {
@@ -132,7 +136,7 @@
     color: oklch(0.18 0.045 255);
   }
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
   }
   ::-webkit-scrollbar-track {
     background: oklch(0.95 0.015 88);
@@ -140,11 +144,24 @@
   ::-webkit-scrollbar-thumb {
     background: oklch(0.80 0.17 86 / 0.6);
     border-radius: 999px;
-    border: 2px solid oklch(0.95 0.015 88);
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.80 0.17 86);
-  }
+}
+
+@utility section-shell {
+  scroll-margin-top: var(--header-h);
+  padding-block: var(--section-py);
+}
+
+@utility section-inner {
+  margin-inline: auto;
+  max-width: 72rem;
+  padding-inline: clamp(1rem, 3vw, 1.5rem);
+}
+
+@utility section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
 }
 
 @utility grid-paper {
@@ -167,19 +184,13 @@
 }
 
 @utility glass {
-  background: oklch(0.997 0.004 90 / 0.72);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-}
-
-@utility glass-dark {
-  background: oklch(0.27 0.05 255 / 0.75);
+  background: oklch(0.997 0.004 90 / 0.85);
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
 }
 
 @utility section-glow {
-  background: radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.80 0.17 86 / 0.15), transparent);
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.80 0.17 86 / 0.12), transparent);
 }
 
 @utility card-shine {
@@ -227,5 +238,13 @@
     border-radius: 999px;
     z-index: -1;
     transform: skewX(-3deg);
+  }
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

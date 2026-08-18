@@ -11,10 +11,10 @@ type RevealProps = {
 }
 
 const directionClasses = {
-  up: 'translate-y-10',
-  down: '-translate-y-10',
-  left: 'translate-x-10',
-  right: '-translate-x-10',
+  up: 'translate-y-6 sm:translate-y-8',
+  down: '-translate-y-6 sm:-translate-y-8',
+  left: 'translate-x-6 sm:translate-x-8',
+  right: '-translate-x-6 sm:-translate-x-8',
   none: '',
 }
 
@@ -37,7 +37,7 @@ export function Reveal({
           observer.disconnect()
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -48px 0px' },
+      { threshold: 0.08, rootMargin: '0px 0px -24px 0px' },
     )
     observer.observe(el)
     return () => observer.disconnect()
@@ -48,7 +48,7 @@ export function Reveal({
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
       className={cn(
-        'transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]',
+        'overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
         visible ? 'translate-x-0 translate-y-0 opacity-100' : cn('opacity-0', directionClasses[direction]),
         className,
       )}

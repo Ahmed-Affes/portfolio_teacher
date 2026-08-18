@@ -7,11 +7,7 @@ import { SectionHeading } from '@/components/section-heading'
 import { AUDIENCES } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
-const ICONS = {
-  students: GraduationCap,
-  parents: Heart,
-  teachers: Users,
-} as const
+const ICONS = { students: GraduationCap, parents: Heart, teachers: Users } as const
 
 export function WhoIServe() {
   const [active, setActive] = useState(AUDIENCES[0].id)
@@ -19,22 +15,20 @@ export function WhoIServe() {
   const Icon = ICONS[current.id as keyof typeof ICONS]
 
   return (
-    <section id="serve" className="relative scroll-mt-20 py-16 sm:py-20 lg:py-24">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-48 section-glow" />
-
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <section id="serve" className="section-shell relative">
+      <div className="section-inner section-stack">
         <Reveal>
           <SectionHeading
             number="05"
             eyebrow="Services"
             title="Who I serve"
-            intro="Tailored support and materials for everyone in the learning journey — pick the path that fits you."
+            intro="Support for students, parents, and educators."
             align="center"
           />
         </Reveal>
 
-        <Reveal delay={80}>
-          <div className="mx-auto mt-8 flex max-w-lg flex-wrap justify-center gap-1.5 rounded-2xl border border-border/60 bg-card/80 p-2 shadow-sm backdrop-blur-sm">
+        <Reveal delay={40}>
+          <div className="mx-auto flex max-w-md gap-1 rounded-xl border border-border/60 bg-card p-1">
             {AUDIENCES.map((a) => {
               const TabIcon = ICONS[a.id as keyof typeof ICONS]
               return (
@@ -43,58 +37,38 @@ export function WhoIServe() {
                   type="button"
                   onClick={() => setActive(a.id)}
                   className={cn(
-                    'flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-semibold transition-all duration-300 sm:text-sm',
-                    active === a.id
-                      ? 'bg-secondary text-secondary-foreground shadow-md'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    'flex flex-1 items-center justify-center gap-1 rounded-lg px-2 py-2 text-[0.65rem] font-semibold sm:text-xs',
+                    active === a.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
                   )}
                 >
-                  <TabIcon className="size-4" />
-                  {a.title.replace('For ', '')}
+                  <TabIcon className="size-3.5" />
+                  <span className="hidden sm:inline">{a.title.replace('For ', '')}</span>
+                  <span className="sm:hidden">{a.title.replace('For ', '').slice(0, 3)}</span>
                 </button>
               )
             })}
           </div>
         </Reveal>
 
-        <Reveal delay={160}>
-          <div
-            key={current.id}
-            className="mx-auto mt-8 grid max-w-4xl gap-6 overflow-hidden rounded-3xl border border-border/70 bg-card shadow-lg transition-all duration-500 animate-in fade-in md:grid-cols-[1fr_1.4fr]"
-          >
-            <div className="relative flex flex-col justify-center gap-4 bg-secondary p-6 text-secondary-foreground sm:p-8">
-              <div className="absolute -right-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-              <span className="relative flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
-                <Icon className="size-6" />
-              </span>
-              <h3 className="relative font-serif text-2xl font-semibold leading-tight">
-                {current.title}
-              </h3>
-              <p className="relative text-sm leading-relaxed text-secondary-foreground/80 text-pretty">
-                {current.intro}
-              </p>
+        <Reveal delay={80}>
+          <div key={current.id} className="grid gap-4 rounded-2xl border border-border/60 bg-card p-4 sm:grid-cols-2 sm:p-5">
+            <div className="rounded-xl bg-secondary p-4 text-secondary-foreground">
+              <Icon className="size-5 text-primary" />
+              <h3 className="mt-2 font-serif text-lg font-semibold">{current.title}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-secondary-foreground/80">{current.intro}</p>
             </div>
-
-            <div className="flex flex-col justify-center p-6 sm:p-8">
-              <ul className="flex flex-col gap-3">
+            <div className="flex flex-col justify-center">
+              <ul className="space-y-2">
                 {current.points.map((point) => (
-                  <li key={point} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-foreground ring-1 ring-primary/25">
-                      <Check className="size-3.5" />
-                    </span>
-                    <span className="text-sm leading-relaxed text-foreground">{point}</span>
+                  <li key={point} className="flex items-start gap-2 text-xs sm:text-sm">
+                    <Check className="mt-0.5 size-3.5 shrink-0 text-primary" />
+                    {point}
                   </li>
                 ))}
               </ul>
-
-              <div className="mt-6 border-t border-border/60 pt-5">
-                <a
-                  href="#contact"
-                  className="inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
-                >
-                  Let&apos;s work together
-                </a>
-              </div>
+              <a href="#contact" className="mt-4 inline-flex w-fit rounded-full bg-secondary px-4 py-2 text-xs font-semibold text-secondary-foreground">
+                Let&apos;s work together
+              </a>
             </div>
           </div>
         </Reveal>

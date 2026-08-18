@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { ArrowUpRight, Maximize2, X } from 'lucide-react'
+import { Maximize2, X } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
 import { WORK_ITEMS, type WorkCategory, type WorkItem } from '@/lib/data'
@@ -10,9 +10,9 @@ import { cn } from '@/lib/utils'
 
 const FILTERS: { id: WorkCategory; label: string }[] = [
   { id: 'all', label: 'All work' },
-  { id: 'posters', label: 'Posters & guides' },
-  { id: 'flyers', label: 'Flyers & events' },
-  { id: 'classroom', label: 'Classroom moments' },
+  { id: 'posters', label: 'Posters' },
+  { id: 'flyers', label: 'Flyers' },
+  { id: 'classroom', label: 'Classroom' },
 ]
 
 export function WorkShowcase() {
@@ -36,32 +36,29 @@ export function WorkShowcase() {
   }, [active])
 
   return (
-    <section id="work" className="relative scroll-mt-20 py-16 sm:py-20 lg:py-24">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 section-glow" />
-
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+    <section id="work" className="section-shell relative">
+      <div className="section-inner section-stack">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <Reveal>
             <SectionHeading
               number="02"
               eyebrow="Portfolio"
               title="Teaching in action & visual aids"
-              intro="Classroom activities, educational posters, and custom learning tools."
+              intro="Posters, flyers, and classroom moments."
             />
           </Reveal>
-
-          <Reveal delay={80}>
-            <div className="flex flex-wrap gap-1.5 rounded-full border border-border/60 bg-card/80 p-1.5 shadow-sm backdrop-blur-sm">
+          <Reveal delay={40}>
+            <div className="scrollbar-hide flex gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible">
               {FILTERS.map((f) => (
                 <button
                   key={f.id}
                   type="button"
                   onClick={() => setFilter(f.id)}
                   className={cn(
-                    'rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300',
+                    'shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all',
                     filter === f.id
-                      ? 'bg-secondary text-secondary-foreground shadow-md'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      ? 'bg-secondary text-secondary-foreground'
+                      : 'border border-border/60 bg-card text-muted-foreground hover:text-foreground',
                   )}
                 >
                   {f.label}
@@ -71,39 +68,34 @@ export function WorkShowcase() {
           </Reveal>
         </div>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {items.map((item, i) => (
-            <Reveal key={item.id} delay={i * 50}>
+            <Reveal key={item.id} delay={i * 40}>
               <button
                 type="button"
                 onClick={() => setActive(item)}
-                className="card-shine group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/25 hover:shadow-xl hover:shadow-foreground/8"
+                className="group flex h-full w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-2xl"
               >
-                <div className="relative aspect-[16/11] w-full overflow-hidden bg-muted">
+                <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                   <Image
                     src={item.image || '/placeholder.svg'}
                     alt={item.title}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/70 via-secondary/10 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80" />
-                  <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-primary-foreground shadow-md">
+                  <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[0.6rem] font-bold uppercase text-primary-foreground">
                     {item.tag}
                   </span>
-                  <span className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur transition-all duration-300 group-hover:opacity-100">
-                    <Maximize2 className="size-4" />
+                  <span className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full bg-card/90 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Maximize2 className="size-3.5" />
                   </span>
-                  <div className="absolute inset-x-0 bottom-0 flex translate-y-2 items-end justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <span className="text-sm font-semibold text-white">{item.title}</span>
-                    <ArrowUpRight className="size-4 text-primary" />
-                  </div>
                 </div>
-                <div className="flex flex-1 flex-col p-5">
-                  <h3 className="font-serif text-lg font-semibold leading-tight text-foreground">
+                <div className="p-3 sm:p-3.5">
+                  <h3 className="font-serif text-sm font-semibold leading-snug text-foreground line-clamp-1 sm:text-base">
                     {item.title}
                   </h3>
-                  <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                  <p className="mt-1 text-[0.65rem] leading-relaxed text-muted-foreground line-clamp-2 sm:text-xs">
                     {item.description}
                   </p>
                 </div>
@@ -119,39 +111,29 @@ export function WorkShowcase() {
           aria-modal="true"
           aria-label={active.title}
           onClick={() => setActive(null)}
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-secondary/90 p-4 backdrop-blur-md duration-300 animate-in fade-in"
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-secondary/90 p-3 backdrop-blur-md sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-card shadow-2xl duration-300 animate-in zoom-in-95 slide-in-from-bottom-4"
+            className="relative flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-card shadow-2xl sm:rounded-3xl"
           >
             <button
               type="button"
               aria-label="Close modal"
               onClick={() => setActive(null)}
-              className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-secondary/80 text-white backdrop-blur transition-colors hover:bg-secondary"
+              className="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-full bg-secondary/80 text-white"
             >
-              <X className="size-5" />
+              <X className="size-4" />
             </button>
-            <div className="relative aspect-[4/3] w-full bg-muted">
-              <Image
-                src={active.image || '/placeholder.svg'}
-                alt={active.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 672px"
-                className="object-cover"
-              />
+            <div className="relative aspect-[4/3] bg-muted">
+              <Image src={active.image || '/placeholder.svg'} alt={active.title} fill className="object-cover" />
             </div>
-            <div className="p-6 sm:p-8">
-              <span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground ring-1 ring-primary/30">
+            <div className="p-4 sm:p-5">
+              <span className="rounded-full bg-primary/20 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase text-foreground">
                 {active.tag}
               </span>
-              <h3 className="mt-3 font-serif text-2xl font-semibold text-foreground">
-                {active.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {active.description}
-              </p>
+              <h3 className="mt-2 font-serif text-lg font-semibold text-foreground sm:text-xl">{active.title}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">{active.description}</p>
             </div>
           </div>
         </div>

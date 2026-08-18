@@ -13,7 +13,7 @@ export function SiteHeader() {
   const { count, openCart } = useCart()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
+    const onScroll = () => setScrolled(window.scrollY > 12)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -30,11 +30,16 @@ export function SiteHeader() {
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
         if (visible[0]) setActive(visible[0].target.id)
       },
-      { rootMargin: '-15% 0px -65% 0px', threshold: [0, 0.2, 0.5, 0.8] },
+      { rootMargin: '-10% 0px -70% 0px', threshold: [0, 0.25, 0.5] },
     )
     sections.forEach((s) => observer.observe(s))
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [menuOpen])
 
   const handleNav = (id: string, e?: React.MouseEvent) => {
     if (e) e.preventDefault()
@@ -50,46 +55,40 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-500',
-        scrolled
-          ? 'border-b border-border/50 glass shadow-sm shadow-foreground/5'
-          : 'bg-transparent',
+        'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+        scrolled || menuOpen
+          ? 'border-b border-border/50 glass shadow-sm'
+          : 'bg-background/80 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none',
       )}
     >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:h-[4.5rem] sm:px-6">
+      <nav className="section-inner flex h-16 items-center justify-between gap-3 sm:h-[var(--header-h)]">
         <a
           href="#home"
           onClick={(e) => handleNav('home', e)}
-          className="group flex items-center gap-2.5"
+          className="group flex min-w-0 items-center gap-2"
         >
-          <span className="relative flex size-10 items-center justify-center overflow-hidden rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-primary/30">
-            <Sparkles className="size-5 transition-transform duration-300 group-hover:rotate-12" />
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm sm:size-10 sm:rounded-xl">
+            <Sparkles className="size-4 sm:size-5" />
           </span>
-          <div className="flex flex-col">
-            <span className="font-serif text-lg font-semibold leading-none tracking-tight">
-              Farah Affes
-            </span>
-            <span className="mt-0.5 hidden text-[0.65rem] font-medium uppercase tracking-widest text-muted-foreground sm:block">
-              Educator
-            </span>
-          </div>
+          <span className="truncate font-serif text-base font-semibold leading-none sm:text-lg">
+            Farah Affes
+          </span>
         </a>
 
-        <ul className="hidden items-center gap-0.5 rounded-full border border-border/50 bg-card/60 p-1 backdrop-blur-sm lg:flex">
+        {/* Desktop nav — only on xl+ where 9 items fit */}
+        <ul className="hidden items-center gap-0.5 rounded-full border border-border/50 bg-card/70 p-1 xl:flex">
           {NAV_ITEMS.map((item) => (
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
                 onClick={(e) => handleNav(item.id, e)}
                 className={cn(
-                  'relative rounded-full px-3.5 py-2 text-[0.8125rem] font-medium transition-all duration-300',
-                  active === item.id
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground',
+                  'relative whitespace-nowrap rounded-full px-2.5 py-1.5 text-[0.75rem] font-medium transition-colors 2xl:px-3.5 2xl:text-[0.8125rem]',
+                  active === item.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {active === item.id && (
-                  <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 shadow-inner" />
+                  <span className="absolute inset-0 -z-10 rounded-full bg-primary/30" />
                 )}
                 {item.label}
               </a>
@@ -97,16 +96,16 @@ export function SiteHeader() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={openCart}
             aria-label={`Open cart, ${count} items`}
-            className="relative flex size-10 items-center justify-center rounded-full border border-border/60 bg-card/80 text-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:bg-card hover:shadow-md"
+            className="relative flex size-9 items-center justify-center rounded-full border border-border/60 bg-card text-foreground sm:size-10"
           >
-            <ShoppingBag className="size-4.5" />
+            <ShoppingBag className="size-4" />
             {count > 0 && (
-              <span className="absolute -right-1 -top-1 flex min-w-5 items-center justify-center rounded-full bg-secondary px-1.5 py-0.5 text-[0.65rem] font-bold text-secondary-foreground ring-2 ring-background">
+              <span className="absolute -right-0.5 -top-0.5 flex min-w-4 items-center justify-center rounded-full bg-secondary px-1 py-px text-[0.6rem] font-bold text-secondary-foreground ring-2 ring-background">
                 {count}
               </span>
             )}
@@ -115,9 +114,9 @@ export function SiteHeader() {
           <a
             href="#contact"
             onClick={(e) => handleNav('contact', e)}
-            className="hidden rounded-full bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground shadow-md shadow-secondary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg sm:inline-flex"
+            className="hidden rounded-full bg-secondary px-4 py-2 text-xs font-semibold text-secondary-foreground sm:inline-flex sm:text-sm"
           >
-            Get in touch
+            Contact
           </a>
 
           <button
@@ -125,38 +124,36 @@ export function SiteHeader() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex size-10 items-center justify-center rounded-full border border-border/60 bg-card/80 text-foreground backdrop-blur-sm lg:hidden"
+            className="flex size-9 items-center justify-center rounded-full border border-border/60 bg-card xl:hidden sm:size-10"
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
         </div>
       </nav>
 
-      <div
-        className={cn(
-          'overflow-hidden border-b border-border/50 glass transition-all duration-500 lg:hidden',
-          menuOpen ? 'max-h-[36rem]' : 'max-h-0 border-b-0',
-        )}
-      >
-        <ul className="mx-auto grid max-w-6xl gap-1 px-4 py-4 sm:px-6">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.id}>
-              <a
-                href={`#${item.id}`}
-                onClick={(e) => handleNav(item.id, e)}
-                className={cn(
-                  'block rounded-xl px-4 py-3 text-base font-medium transition-colors',
-                  active === item.id
-                    ? 'bg-primary/25 font-semibold text-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                )}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Mobile + tablet menu */}
+      {menuOpen && (
+        <div className="fixed inset-0 top-16 z-40 bg-background/95 backdrop-blur-lg xl:hidden sm:top-[var(--header-h)]">
+          <ul className="section-inner grid max-h-[calc(100dvh-var(--header-h))] grid-cols-2 gap-1.5 overflow-y-auto py-4 content-start">
+            {NAV_ITEMS.map((item) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => handleNav(item.id, e)}
+                  className={cn(
+                    'block rounded-xl px-3 py-3 text-sm font-medium transition-colors',
+                    active === item.id
+                      ? 'bg-primary/25 font-semibold text-foreground'
+                      : 'text-muted-foreground hover:bg-muted',
+                  )}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </header>
   )
 }
