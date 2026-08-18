@@ -17,3 +17,5 @@ node_modules/
 .next/
 .DS_Store
 *.tsbuildinfo
+AGENTS.md
+CLAUDE.md
