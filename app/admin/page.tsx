@@ -5,11 +5,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowLeft,
+  Bell,
+  BellOff,
   BellRing,
   BookOpen,
   CheckCircle2,
   Copy,
-  Database,
   Download,
   Edit3,
   ExternalLink,
@@ -39,6 +40,7 @@ import {
   Upload,
   Video,
   Volume2,
+  VolumeX,
   X,
 } from 'lucide-react'
 import {
@@ -56,6 +58,16 @@ import {
 import { useToast } from '@/components/toast-provider'
 import { cn } from '@/lib/utils'
 
+// Public Components for 100% High-Fidelity Live Preview
+import { Hero } from '@/components/hero'
+import { About } from '@/components/about'
+import { WorkShowcase } from '@/components/work-showcase'
+import { Videos } from '@/components/videos'
+import { ResourceShop } from '@/components/resource-shop'
+import { WhoIServe } from '@/components/who-i-serve'
+import { Testimonials } from '@/components/testimonials'
+import { Faq } from '@/components/faq'
+
 type AdminTab =
   | 'overview'
   | 'hero'
@@ -69,7 +81,6 @@ type AdminTab =
   | 'contact'
   | 'inbox'
   | 'orders'
-  | 'database'
   | 'settings'
 
 export default function AdminPage() {
@@ -77,6 +88,8 @@ export default function AdminPage() {
     state,
     isRealtimeConnected,
     hasNotificationPermission,
+    isNotificationsMuted,
+    toggleNotificationsMuted,
     requestNotifications,
     testNotificationChime,
     updateHero,
@@ -98,8 +111,6 @@ export default function AdminPage() {
     updateAudience,
     toggleAudienceActive,
     deleteAudience,
-    addAudiencePoint,
-    removeAudiencePoint,
     addTestimonial,
     updateTestimonial,
     toggleTestimonialActive,
@@ -154,9 +165,6 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isAddingProduct, setIsAddingProduct] = useState(false)
 
-  const [editingAudience, setEditingAudience] = useState<Audience | null>(null)
-  const [isAddingAudience, setIsAddingAudience] = useState(false)
-
   const [editingTestimonial, setEditingTestimonial] = useState<TestimonialItem | null>(null)
   const [isAddingTestimonial, setIsAddingTestimonial] = useState(false)
 
@@ -175,7 +183,7 @@ export default function AdminPage() {
       toast('Welcome back, Farah! Admin Studio is unlocked.')
     } else {
       setPinError(true)
-      toast('Incorrect PIN. Default is farah2026')
+      toast('Incorrect PIN. Please try again.')
     }
   }
 
@@ -187,7 +195,7 @@ export default function AdminPage() {
     setStatsForm(state.stats)
   }
 
-  // If not authenticated, render Luxury PIN Unlock Gate
+  // If not authenticated, render Clean Minimal PIN Unlock Gate
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
@@ -228,7 +236,7 @@ export default function AdminPage() {
                     setEnteredPin(e.target.value)
                     setPinError(false)
                   }}
-                  placeholder="Enter PIN (e.g. farah2026)"
+                  placeholder="••••••••"
                   className={cn(
                     'w-full rounded-xl border bg-background py-2.5 pl-10 pr-4 text-sm font-medium tracking-wider text-foreground outline-none transition-all focus:ring-2',
                     pinError
@@ -253,11 +261,10 @@ export default function AdminPage() {
             </button>
           </form>
 
-          <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs text-muted-foreground">
+          <div className="mt-6 flex items-center justify-center border-t border-border/60 pt-4 text-xs text-muted-foreground">
             <Link href="/" className="inline-flex items-center gap-1 hover:text-foreground">
               <ArrowLeft className="size-3.5" /> Back to Portfolio
             </Link>
-            <span className="text-[0.7rem]">Default: farah2026</span>
           </div>
         </div>
       </div>
@@ -284,7 +291,7 @@ export default function AdminPage() {
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Sparkles className="size-3.5" />
               </span>
-              <span className="font-serif text-sm font-bold sm:text-base">Farah Studio Portal</span>
+              <span className="font-serif text-sm font-bold sm:text-base">Farah Studio</span>
               <span
                 className={cn(
                   'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
@@ -294,50 +301,55 @@ export default function AdminPage() {
                 )}
               >
                 <span className={cn('size-1.5 rounded-full', isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-primary')} />
-                {isRealtimeConnected ? 'Realtime Live' : 'Studio v2.5'}
+                {isRealtimeConnected ? 'Realtime Connected' : 'Studio Active'}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Realtime Push Notification Permission Toggle */}
-            <button
-              type="button"
-              onClick={async () => {
-                const granted = await requestNotifications()
-                if (granted) {
-                  toast('Device notifications enabled for new orders & inquiries!')
-                } else {
-                  toast('Please allow notifications in your browser settings.')
-                }
-              }}
-              title={hasNotificationPermission ? 'Device Notifications Active' : 'Enable Device Push Notifications'}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-all',
-                hasNotificationPermission
-                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                  : 'border-amber-500/30 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20',
-              )}
-            >
-              <BellRing className="size-3.5" />
-              <span className="hidden sm:inline">
-                {hasNotificationPermission ? 'Push Active' : 'Enable Push Alerts'}
-              </span>
-            </button>
-
-            {/* Test Notification Chime */}
+            {/* Global Notification On/Off Mute Toggle */}
             <button
               type="button"
               onClick={() => {
-                testNotificationChime()
-                toast('Played notification chime & sent test alert!')
+                toggleNotificationsMuted()
+                toast(isNotificationsMuted ? 'Alerts and sounds unmuted!' : 'Alerts and sounds muted.')
               }}
-              title="Test Notification Sound & Alert"
-              className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted md:inline-flex"
+              title={isNotificationsMuted ? 'Unmute Alerts' : 'Mute All Alerts'}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-all',
+                isNotificationsMuted
+                  ? 'border-muted-foreground/30 bg-muted text-muted-foreground'
+                  : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+              )}
             >
-              <Volume2 className="size-3.5 text-primary" />
-              Test Chime
+              {isNotificationsMuted ? (
+                <>
+                  <BellOff className="size-3.5" />
+                  <span className="hidden sm:inline">Alerts Muted</span>
+                </>
+              ) : (
+                <>
+                  <Bell className="size-3.5" />
+                  <span className="hidden sm:inline">Alerts ON</span>
+                </>
+              )}
             </button>
+
+            {/* Test Tone */}
+            {!isNotificationsMuted && (
+              <button
+                type="button"
+                onClick={() => {
+                  testNotificationChime()
+                  toast('Played notification chime & test alert!')
+                }}
+                title="Test Notification Sound"
+                className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted md:inline-flex"
+              >
+                <Volume2 className="size-3.5 text-primary" />
+                Test Sound
+              </button>
+            )}
 
             <button
               type="button"
@@ -400,7 +412,6 @@ export default function AdminPage() {
                 badge: state.orders.filter((o) => o.status === 'pending').length,
                 badgeAlert: true,
               },
-              { id: 'database', label: 'Supabase SQL', icon: Database, badge: null },
               { id: 'settings', label: 'Studio Settings', icon: Settings, badge: null },
             ].map((item) => {
               const Icon = item.icon
@@ -455,10 +466,10 @@ export default function AdminPage() {
                         <Sparkles className="size-3.5 text-primary" /> Farah Affes Studio Control
                       </span>
                       <h2 className="mt-2 font-serif text-2xl font-bold sm:text-3xl">
-                        Welcome to your Realtime Studio
+                        Welcome to your Studio Portal
                       </h2>
                       <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                        Full CRUD control over every photo, text, DIY prop, rental item, incoming inquiry, and customer order in Sfax.
+                        Manage your photos, texts, DIY props, rental requests, and student inquiries with instant live sync across all devices.
                       </p>
                     </div>
 
@@ -526,7 +537,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Quick Action Shortcuts */}
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -558,20 +569,6 @@ export default function AdminPage() {
                     <div>
                       <h4 className="text-xs font-bold text-foreground">Add Shop Resource</h4>
                       <p className="text-[0.7rem] text-muted-foreground">Set buy &amp; rental pricing in TND</p>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('database')}
-                    className="flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 text-left shadow-xs transition-all hover:border-primary hover:shadow-md"
-                  >
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/20 text-foreground">
-                      <Database className="size-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-foreground">Supabase Database SQL</h4>
-                      <p className="text-[0.7rem] text-muted-foreground">Copy complete database schema &amp; setup</p>
                     </div>
                   </button>
                 </div>
@@ -747,7 +744,7 @@ export default function AdminPage() {
                   <div>
                     <h3 className="font-serif text-base font-bold">Real Numerical Stats (Above the Fold)</h3>
                     <p className="text-xs text-muted-foreground">
-                      Ensure all numbers reflect your genuine experience, learner impact, and props created.
+                      Update your genuine numbers for experience, learners, and crafted props.
                     </p>
                   </div>
 
@@ -1473,7 +1470,7 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 8. TESTIMONIALS TAB (CRUD + ACTIVATE/DEACTIVATE) */}
+            {/* 8. TESTIMONIALS TAB (CRUD + ACTIVATE/DEACTIVATE + OPTIONAL STARS) */}
             {activeTab === 'testimonials' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -1482,7 +1479,7 @@ export default function AdminPage() {
                       Community Testimonials ({state.testimonials.length})
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      Add, update, activate/deactivate, and manage endorsements from parents and teachers.
+                      Add, update, activate/deactivate, and configure endorsements with or without star ratings.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -1508,6 +1505,8 @@ export default function AdminPage() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {state.testimonials.map((test) => {
                     const isTestActive = test.isActive !== false
+                    const hasStars = test.showRating !== false && (test.rating ?? 0) > 0
+
                     return (
                       <div
                         key={test.id}
@@ -1518,11 +1517,17 @@ export default function AdminPage() {
                       >
                         <div>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1 text-primary">
-                              {Array.from({ length: test.rating || 5 }).map((_, i) => (
-                                <Star key={i} className="size-3.5 fill-current" />
-                              ))}
-                            </div>
+                            {hasStars ? (
+                              <div className="flex items-center gap-1 text-primary">
+                                {Array.from({ length: test.rating || 5 }).map((_, i) => (
+                                  <Star key={i} className="size-3.5 fill-current" />
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold text-muted-foreground">
+                                Quote only (No stars)
+                              </span>
+                            )}
                             <button
                               type="button"
                               onClick={() => {
@@ -1721,7 +1726,7 @@ export default function AdminPage() {
                         type="email"
                         value={contactForm.email}
                         onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                        placeholder="farah.affes@education.tn"
+                        placeholder="affesfarah6@gmail.com"
                         className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
                       />
                     </div>
@@ -1744,7 +1749,7 @@ export default function AdminPage() {
                       id="openForWorkshops"
                       checked={contactForm.openForWorkshops}
                       onChange={(e) => setContactForm({ ...contactForm, openForWorkshops: e.target.checked })}
-                      className="size-4 rounded text-primary focus:ring-primary"
+                      className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
                     />
                     <label htmlFor="openForWorkshops" className="text-xs font-semibold text-foreground cursor-pointer">
                       Show &quot;Open for workshops &amp; commissions&quot; active badge in About section
@@ -1764,14 +1769,16 @@ export default function AdminPage() {
                       Messages sent directly through the portfolio web app (no Outlook or external client required).
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={testNotificationChime}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                  >
-                    <Volume2 className="size-3.5 text-primary" />
-                    Test Alert Tone
-                  </button>
+                  {!isNotificationsMuted && (
+                    <button
+                      type="button"
+                      onClick={testNotificationChime}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
+                    >
+                      <Volume2 className="size-3.5 text-primary" />
+                      Test Tone
+                    </button>
+                  )}
                 </div>
 
                 {state.messages.length === 0 ? (
@@ -1779,7 +1786,7 @@ export default function AdminPage() {
                     <Inbox className="size-10 text-muted-foreground" />
                     <p className="mt-2 font-serif text-base font-semibold">No messages yet</p>
                     <p className="text-xs text-muted-foreground">
-                      When visitors send an inquiry through the contact form, it will pop up here instantly in real-time with an alert chime.
+                      When visitors send an inquiry through the contact form, it will pop up here instantly in real-time.
                     </p>
                   </div>
                 ) : (
@@ -1873,14 +1880,16 @@ export default function AdminPage() {
                       Track customer purchase and rental requests. Send direct 1-click WhatsApp confirmations.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={testNotificationChime}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                  >
-                    <Volume2 className="size-3.5 text-primary" />
-                    Test Alert Tone
-                  </button>
+                  {!isNotificationsMuted && (
+                    <button
+                      type="button"
+                      onClick={testNotificationChime}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
+                    >
+                      <Volume2 className="size-3.5 text-primary" />
+                      Test Tone
+                    </button>
+                  )}
                 </div>
 
                 {state.orders.length === 0 ? (
@@ -2046,126 +2055,13 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 13. SUPABASE DATABASE SCHEMA TAB */}
-            {activeTab === 'database' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Supabase PostgreSQL Schema</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Run this clean deadlock-free script in your Supabase SQL Editor.
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const sqlScript = `-- 100% Deadlock-Free Supabase Schema for Farah Affes Portfolio\nCREATE EXTENSION IF NOT EXISTS "uuid-ossp";\n\nCREATE TABLE IF NOT EXISTS public.contact_messages (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    name TEXT NOT NULL,\n    email TEXT NOT NULL,\n    role TEXT DEFAULT 'Student',\n    topic TEXT DEFAULT 'General question',\n    message TEXT NOT NULL,\n    status TEXT DEFAULT 'unread'\n);\n\nCREATE TABLE IF NOT EXISTS public.orders (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    customer_name TEXT DEFAULT 'Guest',\n    customer_email TEXT DEFAULT 'Not provided',\n    customer_phone TEXT NOT NULL,\n    customer_location TEXT DEFAULT 'Sfax, Tunisia',\n    items JSONB NOT NULL DEFAULT '[]'::jsonb,\n    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,\n    currency TEXT DEFAULT 'TND',\n    status TEXT DEFAULT 'pending',\n    rental_dates TEXT,\n    notes TEXT\n);\n\nCREATE TABLE IF NOT EXISTS public.portfolio_settings (\n    id TEXT PRIMARY KEY DEFAULT 'current_state',\n    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    hero JSONB NOT NULL DEFAULT '{}'::jsonb,\n    about JSONB NOT NULL DEFAULT '{}'::jsonb,\n    stats JSONB NOT NULL DEFAULT '[]'::jsonb,\n    contact JSONB NOT NULL DEFAULT '{}'::jsonb,\n    admin_pin TEXT DEFAULT 'farah2026'\n);\n\nALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;\n\nDO $$\nBEGIN\n    DROP POLICY IF EXISTS "Public access on contact_messages" ON public.contact_messages;\n    CREATE POLICY "Public access on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\n\n    DROP POLICY IF EXISTS "Public access on orders" ON public.orders;\n    CREATE POLICY "Public access on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\n\n    DROP POLICY IF EXISTS "Public access on portfolio_settings" ON public.portfolio_settings;\n    CREATE POLICY "Public access on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\nEND $$;\n\nDO $$\nDECLARE\n    tbl text;\n    tables_to_add text[] := ARRAY['contact_messages', 'orders', 'portfolio_settings'];\nBEGIN\n    FOREACH tbl IN ARRAY tables_to_add\n    LOOP\n        IF NOT EXISTS (\n            SELECT 1 FROM pg_publication_tables \n            WHERE pubname = 'supabase_realtime' \n              AND schemaname = 'public' \n              AND tablename = tbl\n        ) THEN\n            EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', tbl);\n        END IF;\n    END LOOP;\nEND $$;`
-                      navigator.clipboard.writeText(sqlScript)
-                      toast('Full Supabase SQL copied to clipboard!')
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                  >
-                    <Copy className="size-3.5" />
-                    Copy Clean SQL
-                  </button>
-                </div>
-
-                <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
-                  <div className="flex items-center gap-3 rounded-xl bg-primary/10 p-3.5 text-xs text-foreground">
-                    <Sparkles className="size-4 shrink-0 text-primary" />
-                    <p>
-                      <strong>How to install in Supabase:</strong> Open your Supabase project dashboard, click <strong>SQL Editor</strong> on the left sidebar, click <strong>New Query</strong>, paste this code, and click <strong>Run</strong>.
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-border bg-muted/40 p-4 font-mono text-xs text-foreground overflow-x-auto">
-                    <pre>{`-- 1. Create table for Contact Messages
-CREATE TABLE IF NOT EXISTS public.contact_messages (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    role TEXT DEFAULT 'Student',
-    topic TEXT DEFAULT 'General question',
-    message TEXT NOT NULL,
-    status TEXT DEFAULT 'unread'
-);
-
--- 2. Create table for Material & Resource Orders (Buy & Rent)
-CREATE TABLE IF NOT EXISTS public.orders (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    customer_name TEXT DEFAULT 'Guest',
-    customer_email TEXT DEFAULT 'Not provided',
-    customer_phone TEXT NOT NULL,
-    customer_location TEXT DEFAULT 'Sfax, Tunisia',
-    items JSONB NOT NULL DEFAULT '[]'::jsonb,
-    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
-    currency TEXT DEFAULT 'TND',
-    status TEXT DEFAULT 'pending',
-    rental_dates TEXT,
-    notes TEXT
-);
-
--- 3. Create table for Live Dynamic Portfolio Settings
-CREATE TABLE IF NOT EXISTS public.portfolio_settings (
-    id TEXT PRIMARY KEY DEFAULT 'current_state',
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    hero JSONB NOT NULL DEFAULT '{}'::jsonb,
-    about JSONB NOT NULL DEFAULT '{}'::jsonb,
-    stats JSONB NOT NULL DEFAULT '[]'::jsonb,
-    contact JSONB NOT NULL DEFAULT '{}'::jsonb,
-    admin_pin TEXT DEFAULT 'farah2026'
-);
-
--- 4. Enable Row Level Security (RLS) & Clean Policies
-ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;
-
-DO $$
-BEGIN
-    DROP POLICY IF EXISTS "Public access on contact_messages" ON public.contact_messages;
-    CREATE POLICY "Public access on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
-
-    DROP POLICY IF EXISTS "Public access on orders" ON public.orders;
-    CREATE POLICY "Public access on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
-
-    DROP POLICY IF EXISTS "Public access on portfolio_settings" ON public.portfolio_settings;
-    CREATE POLICY "Public access on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
-END $$;
-
--- 5. Safe & Idempotent Realtime Publication Setup
-DO $$
-DECLARE
-    tbl text;
-    tables_to_add text[] := ARRAY['contact_messages', 'orders', 'portfolio_settings'];
-BEGIN
-    FOREACH tbl IN ARRAY tables_to_add
-    LOOP
-        IF NOT EXISTS (
-            SELECT 1 FROM pg_publication_tables 
-            WHERE pubname = 'supabase_realtime' 
-              AND schemaname = 'public' 
-              AND tablename = tbl
-        ) THEN
-            EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', tbl);
-        END IF;
-    END LOOP;
-END $$;`}</pre>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 14. STUDIO SETTINGS & BACKUP TAB */}
+            {/* 13. STUDIO SETTINGS & BACKUP TAB */}
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-serif text-xl font-bold">Studio Security &amp; Data Management</h2>
+                  <h2 className="font-serif text-xl font-bold">Studio Settings &amp; Data Management</h2>
                   <p className="text-xs text-muted-foreground">
-                    Update your admin access PIN, export full portfolio backups, or restore previous states.
+                    Control notification preferences, update your PIN, or export full backups.
                   </p>
                 </div>
 
@@ -2173,24 +2069,33 @@ END $$;`}</pre>
                 <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-serif text-base font-bold">Device &amp; Mobile Push Alerts</h3>
+                      <h3 className="font-serif text-base font-bold">Notification Controls</h3>
                       <p className="text-xs text-muted-foreground">
-                        Receive instant SMS-style sound &amp; push alerts when visitors send inquiries or place orders.
+                        Turn audio chimes and pop-up notifications ON or OFF.
                       </p>
                     </div>
                     <button
                       type="button"
-                      onClick={testNotificationChime}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                      onClick={() => {
+                        toggleNotificationsMuted()
+                        toast(isNotificationsMuted ? 'Notifications enabled.' : 'Notifications muted.')
+                      }}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                        isNotificationsMuted
+                          ? 'bg-muted text-muted-foreground'
+                          : 'bg-emerald-500 text-white',
+                      )}
                     >
-                      <Volume2 className="size-3.5 text-primary" /> Test Tone
+                      {isNotificationsMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                      {isNotificationsMuted ? 'Muted (OFF)' : 'Active (ON)'}
                     </button>
                   </div>
 
                   <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3.5">
                     <div className="flex items-center gap-3">
                       <BellRing className="size-4 text-primary" />
-                      <span className="text-xs font-semibold">Browser &amp; OS Push Notifications</span>
+                      <span className="text-xs font-semibold">Browser &amp; OS Push Permission</span>
                     </div>
                     <button
                       type="button"
@@ -2209,7 +2114,7 @@ END $$;`}</pre>
                           : 'bg-primary text-primary-foreground',
                       )}
                     >
-                      {hasNotificationPermission ? 'Enabled ✓' : 'Enable Push'}
+                      {hasNotificationPermission ? 'Granted ✓' : 'Enable Push'}
                     </button>
                   </div>
                 </div>
@@ -2389,7 +2294,7 @@ END $$;`}</pre>
         />
       )}
 
-      {/* MODAL: ADD / EDIT TESTIMONIAL */}
+      {/* MODAL: ADD / EDIT TESTIMONIAL (WITH OPTIONAL STAR RATING) */}
       {(isAddingTestimonial || editingTestimonial) && (
         <TestimonialModal
           item={editingTestimonial}
@@ -2433,14 +2338,10 @@ END $$;`}</pre>
         />
       )}
 
-      {/* LIVE SECTION PREVIEW MODAL */}
+      {/* 100% HIGH-FIDELITY LIVE SECTION PREVIEW MODAL */}
       {previewSection && (
         <LivePreviewModal
           section={previewSection}
-          heroData={heroForm}
-          aboutData={aboutForm}
-          statsData={statsForm}
-          state={state}
           onClose={() => setPreviewSection(null)}
         />
       )}
@@ -2603,7 +2504,7 @@ function WorkModal({
               id="workActiveCheckbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary"
+              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
             />
             <label htmlFor="workActiveCheckbox" className="text-xs font-semibold cursor-pointer">
               Active (Visible on public portfolio website)
@@ -2764,7 +2665,7 @@ function VideoModal({
               id="vidActiveCheckbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary"
+              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
             />
             <label htmlFor="vidActiveCheckbox" className="text-xs font-semibold cursor-pointer">
               Active (Visible on public portfolio website)
@@ -2930,7 +2831,7 @@ function ProductModal({
               id="prodActiveCheckbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary"
+              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
             />
             <label htmlFor="prodActiveCheckbox" className="text-xs font-semibold cursor-pointer">
               Active (Visible in public shop &amp; cart checkout)
@@ -2968,14 +2869,22 @@ function TestimonialModal({
   onSave: (data: Partial<TestimonialItem>) => void
 }) {
   const [name, setName] = useState(item?.name || '')
-  const [role, setRole] = useState(item?.role || 'Parent of 4th Grader • Sfax')
+  const [role, setRole] = useState(item?.role || 'Parent • Sfax')
   const [quote, setQuote] = useState(item?.quote || '')
   const [rating, setRating] = useState(item?.rating || 5)
+  const [showRating, setShowRating] = useState(item?.showRating !== false)
   const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ name, role, quote, rating, isActive })
+    onSave({
+      name,
+      role,
+      quote,
+      rating: showRating ? rating : 0,
+      showRating,
+      isActive,
+    })
   }
 
   return (
@@ -3015,17 +2924,31 @@ function TestimonialModal({
             />
           </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-semibold">Rating (1 to 5 Stars)</label>
-            <select
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            >
-              <option value={5}>5 Stars ★★★★★</option>
-              <option value={4}>4 Stars ★★★★☆</option>
-              <option value={3}>3 Stars ★★★☆☆</option>
-            </select>
+          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold">Show Star Rating?</label>
+              <input
+                type="checkbox"
+                checked={showRating}
+                onChange={(e) => setShowRating(e.target.checked)}
+                className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
+              />
+            </div>
+
+            {showRating && (
+              <div>
+                <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">Rating</label>
+                <select
+                  value={rating}
+                  onChange={(e) => setRating(Number(e.target.value))}
+                  className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                >
+                  <option value={5}>5 Stars ★★★★★</option>
+                  <option value={4}>4 Stars ★★★★☆</option>
+                  <option value={3}>3 Stars ★★★☆☆</option>
+                </select>
+              </div>
+            )}
           </div>
 
           <div>
@@ -3046,7 +2969,7 @@ function TestimonialModal({
               id="testActiveCheckbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary"
+              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
             />
             <label htmlFor="testActiveCheckbox" className="text-xs font-semibold cursor-pointer">
               Active (Visible on public testimonials slider)
@@ -3133,7 +3056,7 @@ function FaqModal({
               id="faqActiveCheckbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary"
+              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
             />
             <label htmlFor="faqActiveCheckbox" className="text-xs font-semibold cursor-pointer">
               Active (Visible in public FAQ accordion)
@@ -3162,238 +3085,63 @@ function FaqModal({
 }
 
 // ----------------------------------------------------
-// LIVE SECTION PREVIEW MODAL
+// 100% HIGH-FIDELITY LIVE SECTION PREVIEW MODAL
+// Renders the exact public components with rich styling
 // ----------------------------------------------------
 
 function LivePreviewModal({
   section,
-  heroData,
-  aboutData,
-  statsData,
-  state,
   onClose,
 }: {
   section: string
-  heroData: typeof state.hero
-  aboutData: typeof state.about
-  statsData: typeof state.stats
-  state: ReturnType<typeof usePortfolio>['state']
   onClose: () => void
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
-      <div className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border bg-card px-6 py-4">
-          <div className="flex items-center gap-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-md">
+      <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border bg-card px-6 py-3.5">
+          <div className="flex items-center gap-2.5">
             <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Eye className="size-4" />
             </span>
-            <h3 className="font-serif text-base font-bold capitalize">
-              Live Preview: {section} Section
-            </h3>
-            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.65rem] font-bold text-foreground">
-              Draft Simulation
-            </span>
+            <div>
+              <h3 className="font-serif text-sm font-bold capitalize sm:text-base">
+                100% Exact Live Preview: <span className="text-primary">{section} Section</span>
+              </h3>
+              <p className="text-[0.7rem] text-muted-foreground">
+                Simulating the live public portfolio with your current active settings.
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-full hover:bg-muted"
+            className="flex size-8 items-center justify-center rounded-full bg-muted/60 hover:bg-muted"
           >
             <X className="size-4" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          {section === 'hero' && (
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-center">
-                <div>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-foreground">
-                    <span className="size-2 rounded-full bg-primary animate-ping" />
-                    {heroData.eyebrow}
-                  </span>
-
-                  <h1 className="mt-4 font-serif text-3xl font-bold sm:text-4xl">
-                    {heroData.titlePrefix}{' '}
-                    <span className="highlight-underline">{heroData.highlightWord}</span>{' '}
-                    <span className="text-gradient">{heroData.titleSuffix}</span>
-                  </h1>
-
-                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                    {heroData.bio}
-                  </p>
-
-                  <div className="mt-5 flex gap-3">
-                    <span className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground shadow-md">
-                      {heroData.ctaWorkText || 'Explore my materials'}
-                    </span>
-                    <span className="rounded-full border border-border px-5 py-2 text-xs font-semibold text-foreground">
-                      {heroData.ctaContactText || 'Get in touch'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="relative aspect-[4/4.4] w-full overflow-hidden rounded-2xl border-2 border-white/80 shadow-xl">
-                  <Image
-                    src={heroData.image || '/images/hero-classroom.png'}
-                    alt="Hero Preview"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-4">
-                {statsData.map((s, i) => (
-                  <div key={i}>
-                    <p className="font-serif text-2xl font-bold text-foreground">{s.value}</p>
-                    <p className="text-[0.65rem] font-bold uppercase text-muted-foreground">{s.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {section === 'about' && (
-            <div className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-                <div className="relative aspect-[4/4.7] w-full overflow-hidden rounded-2xl border-2 border-white/80 shadow-xl">
-                  <Image
-                    src={aboutData.portraitImage || '/images/farah-portrait.png'}
-                    alt="Portrait Preview"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                <div className="rounded-2xl border border-border bg-card p-6">
-                  <span className="text-xs font-bold uppercase text-primary">{aboutData.eyebrow}</span>
-                  <h2 className="mt-1 font-serif text-2xl font-bold">{aboutData.title}</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">{aboutData.intro}</p>
-
-                  <div className="mt-4 space-y-2 text-xs text-muted-foreground">
-                    <p>{aboutData.bio1}</p>
-                    <p>{aboutData.bio2}</p>
-                  </div>
-
-                  <div className="mt-4 rounded-xl border border-primary/20 bg-secondary p-4 text-secondary-foreground">
-                    <p className="font-serif text-sm italic">&ldquo;{aboutData.manifestoQuote}&rdquo;</p>
-                    <p className="mt-2 text-xs font-semibold text-primary">
-                      — {aboutData.manifestoAuthor}, {aboutData.manifestoLocation}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                {aboutData.pillars.map((p, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-card p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-serif text-sm font-bold">{p.title}</span>
-                      <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.65rem] font-bold">
-                        {p.subtitle}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{p.description}</p>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {p.highlights.map((h, i) => (
-                        <span key={i} className="rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-medium">
-                          ✓ {h}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {section === 'works' && (
-            <div className="grid gap-4 sm:grid-cols-3">
-              {state.works.filter((w) => w.isActive !== false).slice(0, 6).map((w) => (
-                <div key={w.id} className="rounded-xl border border-border bg-card p-3 shadow-xs">
-                  <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                    <Image src={w.image || '/placeholder.svg'} alt={w.title} fill className="object-cover" />
-                  </div>
-                  <h4 className="mt-2 font-serif text-xs font-bold truncate">{w.title}</h4>
-                  <p className="text-[0.65rem] text-muted-foreground line-clamp-2">{w.description}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {section === 'videos' && (
-            <div className="grid gap-4 sm:grid-cols-3">
-              {state.videos.filter((v) => v.isActive !== false).slice(0, 3).map((v) => (
-                <div key={v.id} className="rounded-xl border border-border bg-card p-3">
-                  <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                    <Image src={v.thumbnail || '/placeholder.svg'} alt={v.title} fill className="object-cover" />
-                  </div>
-                  <h4 className="mt-2 font-serif text-xs font-bold truncate">{v.title}</h4>
-                  <p className="text-[0.65rem] text-muted-foreground">
-                    {v.takeaways && v.takeaways.length > 0 ? v.takeaways[0] : 'Lesson clip'}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {section === 'shop' && (
-            <div className="grid gap-4 sm:grid-cols-3">
-              {state.products.filter((p) => p.isActive !== false).slice(0, 3).map((p) => (
-                <div key={p.id} className="rounded-xl border border-border bg-card p-3">
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted">
-                    <Image src={p.image || '/placeholder.svg'} alt={p.name} fill className="object-cover" />
-                  </div>
-                  <h4 className="mt-2 font-serif text-xs font-bold">{p.name}</h4>
-                  <p className="text-xs font-bold text-primary mt-1">Buy: {p.buyPrice} TND | Rent: {p.rentPrice} TND</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {section === 'testimonials' && (
-            <div className="grid gap-4 sm:grid-cols-3">
-              {state.testimonials.filter((t) => t.isActive !== false).slice(0, 3).map((t) => (
-                <div key={t.id} className="rounded-xl border border-border bg-card p-4">
-                  <div className="flex text-primary text-xs">★★★★★</div>
-                  <p className="mt-2 text-xs italic">&ldquo;{t.quote}&rdquo;</p>
-                  <p className="mt-2 text-xs font-bold">{t.name}</p>
-                  <p className="text-[0.65rem] text-muted-foreground">{t.role}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {section === 'faqs' && (
-            <div className="space-y-3">
-              {state.faqs.filter((f) => f.isActive !== false).slice(0, 4).map((f) => (
-                <div key={f.id} className="rounded-xl border border-border bg-card p-3">
-                  <h4 className="font-serif text-xs font-bold">{f.q}</h4>
-                  <p className="mt-1 text-xs text-muted-foreground">{f.a}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {section === 'audiences' && (
-            <div className="grid gap-4 sm:grid-cols-3">
-              {state.audiences.filter((a) => a.isActive !== false).map((a) => (
-                <div key={a.id} className="rounded-xl border border-border bg-card p-4">
-                  <h4 className="font-serif text-sm font-bold">{a.title}</h4>
-                  <p className="mt-1 text-xs text-muted-foreground">{a.intro}</p>
-                </div>
-              ))}
-            </div>
-          )}
+        {/* Real Public Section Container */}
+        <div className="flex-1 overflow-y-auto bg-background">
+          {section === 'hero' && <Hero />}
+          {section === 'about' && <About />}
+          {section === 'works' && <WorkShowcase />}
+          {section === 'videos' && <Videos />}
+          {section === 'shop' && <ResourceShop />}
+          {section === 'audiences' && <WhoIServe />}
+          {section === 'testimonials' && <Testimonials />}
+          {section === 'faqs' && <Faq />}
         </div>
 
-        <div className="border-t border-border bg-card p-4 flex justify-end">
+        <div className="border-t border-border bg-card px-6 py-3 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            Changes saved in Admin Studio appear on the public site in real-time.
+          </span>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground"
+            className="rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground shadow-md hover:shadow-lg"
           >
             Close Preview
           </button>

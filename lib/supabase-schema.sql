@@ -46,6 +46,12 @@ CREATE TABLE IF NOT EXISTS public.portfolio_settings (
     about JSONB NOT NULL DEFAULT '{}'::jsonb,
     stats JSONB NOT NULL DEFAULT '[]'::jsonb,
     contact JSONB NOT NULL DEFAULT '{}'::jsonb,
+    works JSONB NOT NULL DEFAULT '[]'::jsonb,
+    videos JSONB NOT NULL DEFAULT '[]'::jsonb,
+    products JSONB NOT NULL DEFAULT '[]'::jsonb,
+    audiences JSONB NOT NULL DEFAULT '[]'::jsonb,
+    testimonials JSONB NOT NULL DEFAULT '[]'::jsonb,
+    faqs JSONB NOT NULL DEFAULT '[]'::jsonb,
     admin_pin TEXT DEFAULT 'farah2026'
 );
 

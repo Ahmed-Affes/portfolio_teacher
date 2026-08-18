@@ -179,9 +179,46 @@ export async function syncPortfolioSettingsToDb(payload: Record<string, unknown>
   }
 }
 
+/**
+ * Fetch entire portfolio settings & collections snapshot from Supabase
+ */
+export async function fetchPortfolioSettingsFromDb() {
+  if (!supabase) return null
+  try {
+    const { data, error } = await supabase
+      .from('portfolio_settings')
+      .select('*')
+      .eq('id', 'current_state')
+      .maybeSingle()
+
+    if (error) throw error
+    return data
+  } catch (err) {
+    console.warn('Failed to fetch portfolio settings from Supabase:', err)
+    return null
+  }
+}
+
 // ----------------------------------------------------
-// PUSH & SMS-STYLE DEVICE NOTIFICATIONS
+// PUSH & SMS-STYLE DEVICE NOTIFICATIONS WITH MUTE TOGGLE
 // ----------------------------------------------------
+
+let notificationsMuted = false
+
+export function setNotificationsMuted(muted: boolean) {
+  notificationsMuted = muted
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('farah_notifications_muted', muted ? 'true' : 'false')
+  }
+}
+
+export function isNotificationsMuted(): boolean {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('farah_notifications_muted')
+    if (stored !== null) return stored === 'true'
+  }
+  return notificationsMuted
+}
 
 /**
  * Request notification permissions for Browser & Mobile Home-Screen / PWA
@@ -204,6 +241,8 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
  */
 export function playNotificationSound() {
   if (typeof window === 'undefined') return
+  if (isNotificationsMuted()) return
+
   try {
     const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     if (!AudioCtx) return
@@ -241,6 +280,7 @@ export function playNotificationSound() {
  */
 export function sendDeviceNotification(title: string, options?: { body?: string; icon?: string; tag?: string }) {
   if (typeof window === 'undefined' || !('Notification' in window)) return
+  if (isNotificationsMuted()) return
 
   // Play audio chime immediately
   playNotificationSound()

@@ -25,6 +25,11 @@ import {
   playNotificationSound,
   sendDeviceNotification,
   syncPortfolioSettingsToDb,
+  fetchPortfolioSettingsFromDb,
+  fetchContactMessages,
+  fetchOrders,
+  isNotificationsMuted as getStoredNotificationsMuted,
+  setNotificationsMuted as setStoredNotificationsMuted,
 } from '@/lib/supabase'
 
 export type { WorkItem, Video, Product, Audience, WorkCategory, VideoCategory }
@@ -77,6 +82,7 @@ export type TestimonialItem = {
   name: string
   role: string
   rating?: number
+  showRating?: boolean
   isActive?: boolean
 }
 
@@ -146,46 +152,46 @@ export type PortfolioState = {
   adminPin: string
 }
 
-const STORAGE_KEY = 'farah_portfolio_state_v2'
+const STORAGE_KEY = 'farah_portfolio_state_v3'
+const SYNC_EVENT_KEY = 'farah_portfolio_sync_event'
 
 const INITIAL_STATE: PortfolioState = {
   hero: {
-    eyebrow: 'Interactive English & Phonics Educator',
+    eyebrow: 'Passionate Primary & Middle School English Teacher • Sfax, Tunisia',
     titlePrefix: 'Making English',
-    highlightWord: 'tactile, intuitive,',
-    titleSuffix: 'and unforgettable.',
-    bio: 'Empowering young learners, supporting dedicated parents, and equipping passionate teachers with handcrafted DIY props, phonics toolkits, and dynamic classroom experiences.',
-    ctaWorkText: 'Explore handcrafted materials',
-    ctaContactText: 'Get in touch for workshops',
+    highlightWord: 'tactile, playful',
+    titleSuffix: '& unforgettable.',
+    bio: 'Dedicated primary and middle school educator bridging phonetic mastery, immersive storytelling, and handcrafted DIY props to empower young English learners.',
+    ctaWorkText: 'Explore my materials',
+    ctaContactText: 'Get in touch',
     image: '/images/hero-classroom.png',
     marqueeItems: [
-      'Interactive DIY Props',
-      'Tactile Phonics Wheels',
-      'Kinesthetic Speaking Games',
-      'Printable ESL Activity Bundles',
+      'Phonics & Literacy Mastery',
+      'Handmade Classroom Props',
+      'Printable PDF Worksheets',
       'Teacher Training Workshops',
-      'Montessori-Inspired Kits',
-      'Custom Classroom Posters',
+      'ESL Curriculum Design',
+      'Interactive Storytelling Kits',
     ],
   },
   stats: [
-    { id: 's1', value: '6+', label: 'Years Teaching' },
-    { id: 's2', value: '900+', label: 'Learners Inspired' },
-    { id: 's3', value: '80+', label: 'DIY Props Crafted' },
-    { id: 's4', value: '25+', label: 'Workshops Given' },
+    { id: 's1', value: DEFAULT_STATS[0].value, label: DEFAULT_STATS[0].label },
+    { id: 's2', value: DEFAULT_STATS[1].value, label: DEFAULT_STATS[1].label },
+    { id: 's3', value: DEFAULT_STATS[2].value, label: DEFAULT_STATS[2].label },
+    { id: 's4', value: DEFAULT_STATS[3].value, label: DEFAULT_STATS[3].label },
   ],
   about: {
-    eyebrow: 'Meet Farah Affes',
-    title: 'A passionate educator turning abstract linguistics into tangible wonder.',
+    eyebrow: 'Pedagogy & Philosophy',
+    title: 'Transforming language learning into a hands-on adventure.',
     intro:
-      'English Teacher, Educational Content Creator & Kinesthetic Material Designer based in Sfax, Tunisia.',
+      'Hello! I am Farah Affes — an English educator based in Sfax, Tunisia. I believe that children acquire language most naturally when they can touch, manipulate, and play with concepts.',
     bio1:
-      'For over six years, I have dedicated myself to transforming language acquisition from a passive chore into an active, tactile adventure. I believe children learn best when they can touch, rotate, build, and discover language with their own hands.',
+      'Over the past 6+ years in primary and preparatory classrooms, I have observed that traditional rote drills often create anxiety for emerging bilingual learners. My response was to build physical, tactile learning aids: rotating phonics wheels that make sound blending intuitive, oversized action dice for dynamic speaking games, and character-driven storytelling kits.',
     bio2:
-      'Every phonics spinner, storytelling felt board, and printable quest I create is tested directly in real classrooms to spark curiosity, eliminate intimidation, and foster genuine conversational confidence.',
+      'Beyond daily classroom instruction, I design print-ready worksheets, guide teachers through hands-on material making workshops, and provide classroom prop sets for rent across schools and tutoring centers in Tunisia.',
     portraitImage: '/images/farah-portrait.png',
     manifestoQuote:
-      'Language is not a formula to memorize — it is a world to inhabit, touch, and celebrate.',
+      'When a child touches a word, moves a syllable with their hands, and acts out a story, English stops being a school subject and becomes their voice.',
     manifestoAuthor: 'Farah Affes',
     manifestoLocation: 'Sfax, Tunisia',
     pillars: DEFAULT_PILLARS.map((p) => ({
@@ -197,16 +203,29 @@ const INITIAL_STATE: PortfolioState = {
       highlights: p.highlights,
     })),
   },
-  works: DEFAULT_WORKS.map((w) => ({ ...w, isActive: true })),
-  videos: DEFAULT_VIDEOS.map((v) => ({ ...v, isActive: true })),
-  products: DEFAULT_PRODUCTS.map((p) => ({ ...p, isActive: true })),
-  audiences: DEFAULT_AUDIENCES.map((a) => ({ ...a, isActive: true })),
+  works: DEFAULT_WORKS.map((w) => ({
+    ...w,
+    isActive: true,
+  })),
+  videos: DEFAULT_VIDEOS.map((v) => ({
+    ...v,
+    isActive: true,
+  })),
+  products: DEFAULT_PRODUCTS.map((p) => ({
+    ...p,
+    isActive: true,
+  })),
+  audiences: DEFAULT_AUDIENCES.map((a) => ({
+    ...a,
+    isActive: true,
+  })),
   testimonials: DEFAULT_TESTIMONIALS.map((t, idx) => ({
     id: `t_${idx + 1}`,
-    quote: t.quote,
     name: t.name,
     role: t.role,
+    quote: t.quote,
     rating: 5,
+    showRating: true,
     isActive: true,
   })),
   faqs: DEFAULT_FAQS.map((f, idx) => ({
@@ -233,78 +252,75 @@ interface PortfolioContextType {
   isLoaded: boolean
   isRealtimeConnected: boolean
   hasNotificationPermission: boolean
+  isNotificationsMuted: boolean
+  toggleNotificationsMuted: () => void
   requestNotifications: () => Promise<boolean>
   testNotificationChime: () => void
 
-  // Hero & Stats
+  // Content Mutators
   updateHero: (hero: Partial<HeroData>) => void
+  updateAbout: (about: Partial<AboutData>) => void
+  updateContact: (contact: Partial<ContactData>) => void
   updateStats: (stats: StatItem[]) => void
 
-  // About & Pillars
-  updateAbout: (about: Partial<AboutData>) => void
-  updatePillar: (id: string, updates: Partial<AboutPillar>) => void
-
-  // Works
+  // Works CRUD
   addWork: (work: Omit<WorkItem, 'id'>) => void
-  updateWork: (id: string, updates: Partial<WorkItem>) => void
+  updateWork: (id: string, work: Partial<WorkItem>) => void
   toggleWorkActive: (id: string) => void
   deleteWork: (id: string) => void
-  reorderWorks: (items: WorkItem[]) => void
 
-  // Videos
+  // Videos CRUD
   addVideo: (video: Omit<Video, 'id'>) => void
-  updateVideo: (id: string, updates: Partial<Video>) => void
+  updateVideo: (id: string, video: Partial<Video>) => void
   toggleVideoActive: (id: string) => void
   deleteVideo: (id: string) => void
 
-  // Products
+  // Products CRUD
   addProduct: (product: Omit<Product, 'id'>) => void
-  updateProduct: (id: string, updates: Partial<Product>) => void
+  updateProduct: (id: string, product: Partial<Product>) => void
   toggleProductActive: (id: string) => void
   deleteProduct: (id: string) => void
 
-  // Audiences
+  // Audiences CRUD
   addAudience: (audience: Omit<Audience, 'id'>) => void
-  updateAudience: (id: string, updates: Partial<Audience>) => void
+  updateAudience: (id: string, audience: Partial<Audience>) => void
   toggleAudienceActive: (id: string) => void
   deleteAudience: (id: string) => void
   addAudiencePoint: (audienceId: string, point: string) => void
   removeAudiencePoint: (audienceId: string, index: number) => void
 
-  // Testimonials
-  addTestimonial: (testimonial: Omit<TestimonialItem, 'id'>) => void
-  updateTestimonial: (id: string, updates: Partial<TestimonialItem>) => void
+  // Testimonials CRUD
+  addTestimonial: (item: Omit<TestimonialItem, 'id'>) => void
+  updateTestimonial: (id: string, item: Partial<TestimonialItem>) => void
   toggleTestimonialActive: (id: string) => void
   deleteTestimonial: (id: string) => void
 
-  // FAQs
+  // FAQ CRUD
   addFaq: (faq: Omit<FaqItem, 'id'>) => void
-  updateFaq: (id: string, updates: Partial<FaqItem>) => void
+  updateFaq: (id: string, faq: Partial<FaqItem>) => void
   toggleFaqActive: (id: string) => void
   deleteFaq: (id: string) => void
 
-  // Contact Info
-  updateContact: (contact: Partial<ContactData>) => void
-
-  // Admin Security
-  updateAdminPin: (newPin: string) => void
-
-  // Messages Inbox
-  addMessage: (msg: Omit<StoredMessage, 'id' | 'created_at' | 'status'>) => void
-  updateMessageStatus: (id: string, status: StoredMessage['status']) => void
+  // Messages & Orders
+  addMessage: (msg: {
+    name: string
+    email: string
+    role: string
+    topic: string
+    message: string
+    status?: StoredMessage['status']
+  }) => void
   markMessageRead: (id: string, status?: StoredMessage['status']) => void
   deleteMessage: (id: string) => void
 
-  // Orders Tracker
   addOrder: (order: Omit<StoredOrder, 'id' | 'created_at'>) => void
   updateOrderStatus: (id: string, status: StoredOrder['status']) => void
   deleteOrder: (id: string) => void
 
-  // System State Management
+  // Admin PIN & Backups
+  updateAdminPin: (newPin: string) => void
   resetToDefaults: () => void
-  exportBackupJson: () => string
   exportDataJson: () => string
-  importBackupJson: (jsonString: string) => boolean
   importDataJson: (jsonString: string) => boolean
 }
 
@@ -315,68 +331,160 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false)
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false)
+  const [isNotificationsMuted, setIsNotificationsMutedState] = useState(false)
 
-  // 1. Initial State Load from LocalStorage
-  useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        if ('Notification' in window) {
-          setHasNotificationPermission(Notification.permission === 'granted')
-        }
-
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          setState((prev) => ({
-            ...prev,
-            ...parsed,
-            hero: { ...prev.hero, ...(parsed.hero || {}) },
-            about: { ...prev.about, ...(parsed.about || {}) },
-            contact: { ...prev.contact, ...(parsed.contact || {}) },
-            works: (parsed.works || prev.works).map((w: WorkItem) => ({
-              ...w,
-              isActive: w.isActive !== undefined ? w.isActive : true,
-            })),
-            videos: (parsed.videos || prev.videos).map((v: Video) => ({
-              ...v,
-              isActive: v.isActive !== undefined ? v.isActive : true,
-            })),
-            products: (parsed.products || prev.products).map((p: Product) => ({
-              ...p,
-              isActive: p.isActive !== undefined ? p.isActive : true,
-            })),
-            audiences: (parsed.audiences || prev.audiences).map((a: Audience) => ({
-              ...a,
-              isActive: a.isActive !== undefined ? a.isActive : true,
-            })),
-            testimonials: (parsed.testimonials || prev.testimonials).map((t: TestimonialItem) => ({
-              ...t,
-              isActive: t.isActive !== undefined ? t.isActive : true,
-            })),
-            faqs: (parsed.faqs || prev.faqs).map((f: FaqItem) => ({
-              ...f,
-              isActive: f.isActive !== undefined ? f.isActive : true,
-            })),
-            messages: parsed.messages || prev.messages,
-            orders: parsed.orders || prev.orders,
-          }))
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load portfolio state from localStorage:', e)
-    } finally {
-      setIsLoaded(true)
-    }
-  }, [])
-
-  // 2. Persist State to LocalStorage helper
-  const persistState = useCallback((newState: PortfolioState) => {
+  // 1. Persist State and Broadcast Cross-Tab & Supabase helper
+  const broadcastAndPersist = useCallback((newState: PortfolioState) => {
     try {
       if (typeof window !== 'undefined') {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+        // Dispatch local event for same-tab & cross-tab instant responsiveness
+        window.dispatchEvent(new CustomEvent(SYNC_EVENT_KEY, { detail: newState }))
       }
     } catch (e) {
-      console.warn('Failed to save portfolio state to localStorage:', e)
+      console.warn('Failed to save to localStorage:', e)
+    }
+
+    // Also sync snapshot to Supabase cloud database
+    syncPortfolioSettingsToDb({
+      hero: newState.hero,
+      about: newState.about,
+      stats: newState.stats,
+      contact: newState.contact,
+      works: newState.works,
+      videos: newState.videos,
+      products: newState.products,
+      audiences: newState.audiences,
+      testimonials: newState.testimonials,
+      faqs: newState.faqs,
+      admin_pin: newState.adminPin,
+    })
+  }, [])
+
+  // 2. Initial Mount: Load Local + Fetch Cloud Database snapshot
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Notification states
+    setIsNotificationsMutedState(getStoredNotificationsMuted())
+    if ('Notification' in window) {
+      setHasNotificationPermission(Notification.permission === 'granted')
+    }
+
+    // Step A: Load from localStorage immediately (fast 0ms paint)
+    let current = INITIAL_STATE
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        current = {
+          ...INITIAL_STATE,
+          ...parsed,
+          hero: { ...INITIAL_STATE.hero, ...(parsed.hero || {}) },
+          about: { ...INITIAL_STATE.about, ...(parsed.about || {}) },
+          contact: { ...INITIAL_STATE.contact, ...(parsed.contact || {}) },
+          works: (parsed.works || INITIAL_STATE.works).map((w: WorkItem) => ({
+            ...w,
+            isActive: w.isActive !== undefined ? w.isActive : true,
+          })),
+          videos: (parsed.videos || INITIAL_STATE.videos).map((v: Video) => ({
+            ...v,
+            isActive: v.isActive !== undefined ? v.isActive : true,
+          })),
+          products: (parsed.products || INITIAL_STATE.products).map((p: Product) => ({
+            ...p,
+            isActive: p.isActive !== undefined ? p.isActive : true,
+          })),
+          audiences: (parsed.audiences || INITIAL_STATE.audiences).map((a: Audience) => ({
+            ...a,
+            isActive: a.isActive !== undefined ? a.isActive : true,
+          })),
+          testimonials: (parsed.testimonials || INITIAL_STATE.testimonials).map((t: TestimonialItem) => ({
+            ...t,
+            isActive: t.isActive !== undefined ? t.isActive : true,
+            showRating: t.showRating !== undefined ? t.showRating : true,
+          })),
+          faqs: (parsed.faqs || INITIAL_STATE.faqs).map((f: FaqItem) => ({
+            ...f,
+            isActive: f.isActive !== undefined ? f.isActive : true,
+          })),
+          messages: parsed.messages || [],
+          orders: parsed.orders || [],
+        }
+        setState(current)
+      }
+    } catch (e) {
+      console.warn('LocalStorage parse error:', e)
+    } finally {
+      setIsLoaded(true)
+    }
+
+    // Step B: Fetch latest Cloud State from Supabase (for mobile & multi-device sync)
+    async function loadCloudState() {
+      try {
+        const [cloudSettings, cloudMessages, cloudOrders] = await Promise.all([
+          fetchPortfolioSettingsFromDb(),
+          fetchContactMessages(),
+          fetchOrders(),
+        ])
+
+        if (cloudSettings) {
+          setState((prev) => {
+            const merged: PortfolioState = {
+              ...prev,
+              hero: { ...prev.hero, ...(cloudSettings.hero || {}) },
+              about: { ...prev.about, ...(cloudSettings.about || {}) },
+              stats: (cloudSettings.stats as StatItem[]) || prev.stats,
+              contact: { ...prev.contact, ...(cloudSettings.contact || {}) },
+              works: (cloudSettings.works as WorkItem[]) || prev.works,
+              videos: (cloudSettings.videos as Video[]) || prev.videos,
+              products: (cloudSettings.products as Product[]) || prev.products,
+              audiences: (cloudSettings.audiences as Audience[]) || prev.audiences,
+              testimonials: (cloudSettings.testimonials as TestimonialItem[]) || prev.testimonials,
+              faqs: (cloudSettings.faqs as FaqItem[]) || prev.faqs,
+              adminPin: (cloudSettings.admin_pin as string) || prev.adminPin,
+              messages: cloudMessages && cloudMessages.length > 0 ? (cloudMessages as StoredMessage[]) : prev.messages,
+              orders: cloudOrders && cloudOrders.length > 0 ? (cloudOrders as StoredOrder[]) : prev.orders,
+            }
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+            } catch {
+              // ignore
+            }
+            return merged
+          })
+        }
+      } catch (err) {
+        console.warn('Could not sync cloud state from Supabase:', err)
+      }
+    }
+
+    loadCloudState()
+
+    // Step C: Listen to same-tab and cross-tab storage events
+    const handleSyncEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<PortfolioState>
+      if (customEvent.detail) {
+        setState(customEvent.detail)
+      }
+    }
+
+    const handleStorageEvent = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          setState(JSON.parse(e.newValue))
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    window.addEventListener(SYNC_EVENT_KEY, handleSyncEvent)
+    window.addEventListener('storage', handleStorageEvent)
+
+    return () => {
+      window.removeEventListener(SYNC_EVENT_KEY, handleSyncEvent)
+      window.removeEventListener('storage', handleStorageEvent)
     }
   }, [])
 
@@ -385,7 +493,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     if (!isSupabaseConfigured || !supabase) return
 
     const channel = supabase
-      .channel('public_realtime_portfolio')
+      .channel('public_realtime_portfolio_v3')
       // Listen to new contact messages
       .on(
         'postgres_changes',
@@ -394,14 +502,15 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           if (payload.eventType === 'INSERT') {
             const newRow = payload.new as StoredMessage
             setState((prev) => {
-              // Avoid duplicates
               if (prev.messages.some((m) => m.id === newRow.id)) return prev
               const updated = [newRow, ...prev.messages]
-              persistState({ ...prev, messages: updated })
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, messages: updated }))
+              } catch {}
               return { ...prev, messages: updated }
             })
 
-            // Trigger sound & push notification
+            // Trigger notification
             sendDeviceNotification(`📬 New Message: ${newRow.name}`, {
               body: `${newRow.topic || 'Inquiry'}: "${newRow.message.slice(0, 80)}..."`,
               icon: '/images/farah-portrait.png',
@@ -410,14 +519,18 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             const updatedRow = payload.new as StoredMessage
             setState((prev) => {
               const updated = prev.messages.map((m) => (m.id === updatedRow.id ? updatedRow : m))
-              persistState({ ...prev, messages: updated })
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, messages: updated }))
+              } catch {}
               return { ...prev, messages: updated }
             })
           } else if (payload.eventType === 'DELETE') {
             const oldRow = payload.old as { id: string }
             setState((prev) => {
               const updated = prev.messages.filter((m) => m.id !== oldRow.id)
-              persistState({ ...prev, messages: updated })
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, messages: updated }))
+              } catch {}
               return { ...prev, messages: updated }
             })
           }
@@ -430,7 +543,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           setState((prev) => {
             if (prev.orders.some((o) => o.id === newOrder.id)) return prev
             const updated = [newOrder, ...prev.orders]
-            persistState({ ...prev, orders: updated })
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, orders: updated }))
+            } catch {}
             return { ...prev, orders: updated }
           })
 
@@ -442,34 +557,47 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           const updatedOrder = payload.new as StoredOrder
           setState((prev) => {
             const updated = prev.orders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
-            persistState({ ...prev, orders: updated })
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, orders: updated }))
+            } catch {}
             return { ...prev, orders: updated }
           })
         } else if (payload.eventType === 'DELETE') {
           const oldOrder = payload.old as { id: string }
           setState((prev) => {
             const updated = prev.orders.filter((o) => o.id !== oldOrder.id)
-            persistState({ ...prev, orders: updated })
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, orders: updated }))
+            } catch {}
             return { ...prev, orders: updated }
           })
         }
       })
-      // Listen to portfolio settings changes
+      // Listen to portfolio settings / content changes across devices
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'portfolio_settings' },
         (payload) => {
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const newSettings = payload.new as Partial<PortfolioState>
+            const newSettings = payload.new as Record<string, unknown>
             setState((prev) => {
-              const merged = {
+              const merged: PortfolioState = {
                 ...prev,
-                hero: { ...prev.hero, ...(newSettings.hero || {}) },
-                about: { ...prev.about, ...(newSettings.about || {}) },
+                hero: newSettings.hero ? { ...prev.hero, ...(newSettings.hero as Partial<HeroData>) } : prev.hero,
+                about: newSettings.about ? { ...prev.about, ...(newSettings.about as Partial<AboutData>) } : prev.about,
                 stats: (newSettings.stats as StatItem[]) || prev.stats,
-                contact: { ...prev.contact, ...(newSettings.contact || {}) },
+                contact: newSettings.contact ? { ...prev.contact, ...(newSettings.contact as Partial<ContactData>) } : prev.contact,
+                works: (newSettings.works as WorkItem[]) || prev.works,
+                videos: (newSettings.videos as Video[]) || prev.videos,
+                products: (newSettings.products as Product[]) || prev.products,
+                audiences: (newSettings.audiences as Audience[]) || prev.audiences,
+                testimonials: (newSettings.testimonials as TestimonialItem[]) || prev.testimonials,
+                faqs: (newSettings.faqs as FaqItem[]) || prev.faqs,
+                adminPin: (newSettings.admin_pin as string) || prev.adminPin,
               }
-              persistState(merged)
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+              } catch {}
               return merged
             })
           }
@@ -488,7 +616,16 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         supabase.removeChannel(channel)
       }
     }
-  }, [persistState])
+  }, [])
+
+  // Toggle Mute Notifications
+  const toggleNotificationsMuted = useCallback(() => {
+    setIsNotificationsMutedState((prev) => {
+      const next = !prev
+      setStoredNotificationsMuted(next)
+      return next
+    })
+  }, [])
 
   // Notification Permission Request
   const requestNotifications = useCallback(async () => {
@@ -503,7 +640,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const testNotificationChime = useCallback(() => {
     playNotificationSound()
-    sendDeviceNotification('Farah Affes Studio Test Alert', {
+    sendDeviceNotification('Farah Affes Studio Alert Test', {
       body: 'Notifications are active and connected in real-time!',
     })
   }, [])
@@ -514,71 +651,65 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => {
         const nextHero = { ...prev.hero, ...heroUpdates }
         const newState = { ...prev, hero: nextHero }
-        persistState(newState)
-        syncPortfolioSettingsToDb({ hero: nextHero })
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const updateStats = useCallback(
-    (stats: StatItem[]) => {
+    (newStats: StatItem[]) => {
       setState((prev) => {
-        const newState = { ...prev, stats }
-        persistState(newState)
-        syncPortfolioSettingsToDb({ stats })
+        const newState = { ...prev, stats: newStats }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  // --- About & Pillars Mutators ---
+  // --- About Mutators ---
   const updateAbout = useCallback(
     (aboutUpdates: Partial<AboutData>) => {
       setState((prev) => {
         const nextAbout = { ...prev.about, ...aboutUpdates }
         const newState = { ...prev, about: nextAbout }
-        persistState(newState)
-        syncPortfolioSettingsToDb({ about: nextAbout })
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  const updatePillar = useCallback(
-    (id: string, updates: Partial<AboutPillar>) => {
+  // --- Contact Mutator ---
+  const updateContact = useCallback(
+    (contactUpdates: Partial<ContactData>) => {
       setState((prev) => {
-        const updatedPillars = prev.about.pillars.map((p) =>
-          p.id === id ? { ...p, ...updates } : p,
-        )
-        const nextAbout = { ...prev.about, pillars: updatedPillars }
-        const newState = { ...prev, about: nextAbout }
-        persistState(newState)
-        syncPortfolioSettingsToDb({ about: nextAbout })
+        const nextContact = { ...prev.contact, ...contactUpdates }
+        const newState = { ...prev, contact: nextContact }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  // --- Works Mutators (with Activate / Deactivate) ---
+  // --- Works Showcase CRUD ---
   const addWork = useCallback(
-    (work: Omit<WorkItem, 'id'>) => {
+    (workData: Omit<WorkItem, 'id'>) => {
       setState((prev) => {
         const newWork: WorkItem = {
-          ...work,
-          id: `w_${Date.now()}`,
-          isActive: work.isActive !== undefined ? work.isActive : true,
+          ...workData,
+          id: `work_${Date.now()}`,
+          isActive: workData.isActive !== undefined ? workData.isActive : true,
         }
         const newState = { ...prev, works: [newWork, ...prev.works] }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const updateWork = useCallback(
@@ -586,11 +717,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => {
         const updatedWorks = prev.works.map((w) => (w.id === id ? { ...w, ...updates } : w))
         const newState = { ...prev, works: updatedWorks }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const toggleWorkActive = useCallback(
@@ -600,50 +731,40 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           w.id === id ? { ...w, isActive: w.isActive === false ? true : false } : w,
         )
         const newState = { ...prev, works: updatedWorks }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const deleteWork = useCallback(
     (id: string) => {
       setState((prev) => {
-        const newState = { ...prev, works: prev.works.filter((w) => w.id !== id) }
-        persistState(newState)
+        const updatedWorks = prev.works.filter((w) => w.id !== id)
+        const newState = { ...prev, works: updatedWorks }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  const reorderWorks = useCallback(
-    (items: WorkItem[]) => {
-      setState((prev) => {
-        const newState = { ...prev, works: items }
-        persistState(newState)
-        return newState
-      })
-    },
-    [persistState],
-  )
-
-  // --- Videos Mutators (with Activate / Deactivate) ---
+  // --- Video Lessons CRUD ---
   const addVideo = useCallback(
-    (video: Omit<Video, 'id'>) => {
+    (videoData: Omit<Video, 'id'>) => {
       setState((prev) => {
         const newVideo: Video = {
-          ...video,
-          id: `v_${Date.now()}`,
-          isActive: video.isActive !== undefined ? video.isActive : true,
+          ...videoData,
+          id: `vid_${Date.now()}`,
+          isActive: videoData.isActive !== undefined ? videoData.isActive : true,
         }
         const newState = { ...prev, videos: [newVideo, ...prev.videos] }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const updateVideo = useCallback(
@@ -651,11 +772,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => {
         const updatedVideos = prev.videos.map((v) => (v.id === id ? { ...v, ...updates } : v))
         const newState = { ...prev, videos: updatedVideos }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const toggleVideoActive = useCallback(
@@ -665,53 +786,52 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           v.id === id ? { ...v, isActive: v.isActive === false ? true : false } : v,
         )
         const newState = { ...prev, videos: updatedVideos }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const deleteVideo = useCallback(
     (id: string) => {
       setState((prev) => {
-        const newState = { ...prev, videos: prev.videos.filter((v) => v.id !== id) }
-        persistState(newState)
+        const updatedVideos = prev.videos.filter((v) => v.id !== id)
+        const newState = { ...prev, videos: updatedVideos }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  // --- Products Mutators (with Activate / Deactivate) ---
+  // --- Products CRUD ---
   const addProduct = useCallback(
-    (product: Omit<Product, 'id'>) => {
+    (productData: Omit<Product, 'id'>) => {
       setState((prev) => {
         const newProduct: Product = {
-          ...product,
-          id: `p_${Date.now()}`,
-          isActive: product.isActive !== undefined ? product.isActive : true,
+          ...productData,
+          id: `prod_${Date.now()}`,
+          isActive: productData.isActive !== undefined ? productData.isActive : true,
         }
         const newState = { ...prev, products: [newProduct, ...prev.products] }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const updateProduct = useCallback(
     (id: string, updates: Partial<Product>) => {
       setState((prev) => {
-        const updatedProducts = prev.products.map((p) =>
-          p.id === id ? { ...p, ...updates } : p,
-        )
+        const updatedProducts = prev.products.map((p) => (p.id === id ? { ...p, ...updates } : p))
         const newState = { ...prev, products: updatedProducts }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const toggleProductActive = useCallback(
@@ -721,131 +841,128 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           p.id === id ? { ...p, isActive: p.isActive === false ? true : false } : p,
         )
         const newState = { ...prev, products: updatedProducts }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const deleteProduct = useCallback(
     (id: string) => {
       setState((prev) => {
-        const newState = { ...prev, products: prev.products.filter((p) => p.id !== id) }
-        persistState(newState)
+        const updatedProducts = prev.products.filter((p) => p.id !== id)
+        const newState = { ...prev, products: updatedProducts }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  // --- Audiences Mutators (with Activate / Deactivate) ---
+  // --- Audiences CRUD ---
   const addAudience = useCallback(
-    (audience: Omit<Audience, 'id'>) => {
+    (audienceData: Omit<Audience, 'id'>) => {
       setState((prev) => {
-        const newAudience: Audience = {
-          ...audience,
+        const newAud: Audience = {
+          ...audienceData,
           id: `aud_${Date.now()}`,
-          isActive: audience.isActive !== undefined ? audience.isActive : true,
+          isActive: audienceData.isActive !== undefined ? audienceData.isActive : true,
         }
-        const newState = { ...prev, audiences: [...prev.audiences, newAudience] }
-        persistState(newState)
+        const newState = { ...prev, audiences: [...prev.audiences, newAud] }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const updateAudience = useCallback(
     (id: string, updates: Partial<Audience>) => {
       setState((prev) => {
-        const updatedAudiences = prev.audiences.map((a) =>
-          a.id === id ? { ...a, ...updates } : a,
-        )
-        const newState = { ...prev, audiences: updatedAudiences }
-        persistState(newState)
+        const updated = prev.audiences.map((a) => (a.id === id ? { ...a, ...updates } : a))
+        const newState = { ...prev, audiences: updated }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const toggleAudienceActive = useCallback(
     (id: string) => {
       setState((prev) => {
-        const updatedAudiences = prev.audiences.map((a) =>
+        const updated = prev.audiences.map((a) =>
           a.id === id ? { ...a, isActive: a.isActive === false ? true : false } : a,
         )
-        const newState = { ...prev, audiences: updatedAudiences }
-        persistState(newState)
+        const newState = { ...prev, audiences: updated }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const deleteAudience = useCallback(
     (id: string) => {
       setState((prev) => {
-        const newState = { ...prev, audiences: prev.audiences.filter((a) => a.id !== id) }
-        persistState(newState)
+        const updated = prev.audiences.filter((a) => a.id !== id)
+        const newState = { ...prev, audiences: updated }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const addAudiencePoint = useCallback(
     (audienceId: string, point: string) => {
       if (!point.trim()) return
       setState((prev) => {
-        const updated = prev.audiences.map((a) => {
-          if (a.id === audienceId) {
-            return { ...a, points: [...a.points, point.trim()] }
-          }
-          return a
-        })
+        const updated = prev.audiences.map((a) =>
+          a.id === audienceId ? { ...a, points: [...a.points, point.trim()] } : a,
+        )
         const newState = { ...prev, audiences: updated }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const removeAudiencePoint = useCallback(
     (audienceId: string, index: number) => {
       setState((prev) => {
         const updated = prev.audiences.map((a) => {
-          if (a.id === audienceId) {
-            return { ...a, points: a.points.filter((_, i) => i !== index) }
-          }
-          return a
+          if (a.id !== audienceId) return a
+          const newPoints = [...a.points]
+          newPoints.splice(index, 1)
+          return { ...a, points: newPoints }
         })
         const newState = { ...prev, audiences: updated }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  // --- Testimonials Mutators (with Activate / Deactivate) ---
+  // --- Testimonials CRUD ---
   const addTestimonial = useCallback(
-    (testimonial: Omit<TestimonialItem, 'id'>) => {
+    (itemData: Omit<TestimonialItem, 'id'>) => {
       setState((prev) => {
         const newTest: TestimonialItem = {
-          ...testimonial,
-          id: `t_${Date.now()}`,
-          rating: testimonial.rating || 5,
-          isActive: testimonial.isActive !== undefined ? testimonial.isActive : true,
+          ...itemData,
+          id: `test_${Date.now()}`,
+          isActive: itemData.isActive !== undefined ? itemData.isActive : true,
+          showRating: itemData.showRating !== undefined ? itemData.showRating : true,
         }
         const newState = { ...prev, testimonials: [newTest, ...prev.testimonials] }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const updateTestimonial = useCallback(
@@ -853,11 +970,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => {
         const updated = prev.testimonials.map((t) => (t.id === id ? { ...t, ...updates } : t))
         const newState = { ...prev, testimonials: updated }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const toggleTestimonialActive = useCallback(
@@ -867,42 +984,40 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           t.id === id ? { ...t, isActive: t.isActive === false ? true : false } : t,
         )
         const newState = { ...prev, testimonials: updated }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const deleteTestimonial = useCallback(
     (id: string) => {
       setState((prev) => {
-        const newState = {
-          ...prev,
-          testimonials: prev.testimonials.filter((t) => t.id !== id),
-        }
-        persistState(newState)
+        const updated = prev.testimonials.filter((t) => t.id !== id)
+        const newState = { ...prev, testimonials: updated }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  // --- FAQs Mutators (with Activate / Deactivate) ---
+  // --- FAQ CRUD ---
   const addFaq = useCallback(
-    (faq: Omit<FaqItem, 'id'>) => {
+    (faqData: Omit<FaqItem, 'id'>) => {
       setState((prev) => {
         const newFaq: FaqItem = {
-          ...faq,
+          ...faqData,
           id: `faq_${Date.now()}`,
-          isActive: faq.isActive !== undefined ? faq.isActive : true,
+          isActive: faqData.isActive !== undefined ? faqData.isActive : true,
         }
         const newState = { ...prev, faqs: [...prev.faqs, newFaq] }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const updateFaq = useCallback(
@@ -910,11 +1025,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => {
         const updated = prev.faqs.map((f) => (f.id === id ? { ...f, ...updates } : f))
         const newState = { ...prev, faqs: updated }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const toggleFaqActive = useCallback(
@@ -924,204 +1039,177 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           f.id === id ? { ...f, isActive: f.isActive === false ? true : false } : f,
         )
         const newState = { ...prev, faqs: updated }
-        persistState(newState)
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
   const deleteFaq = useCallback(
     (id: string) => {
       setState((prev) => {
-        const newState = { ...prev, faqs: prev.faqs.filter((f) => f.id !== id) }
-        persistState(newState)
+        const updated = prev.faqs.filter((f) => f.id !== id)
+        const newState = { ...prev, faqs: updated }
+        broadcastAndPersist(newState)
         return newState
       })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  // --- Contact Data Mutators ---
-  const updateContact = useCallback(
-    (contactUpdates: Partial<ContactData>) => {
-      setState((prev) => {
-        const nextContact = { ...prev.contact, ...contactUpdates }
-        const newState = { ...prev, contact: nextContact }
-        persistState(newState)
-        syncPortfolioSettingsToDb({ contact: nextContact })
-        return newState
-      })
-    },
-    [persistState],
-  )
-
-  // --- Admin Security ---
-  const updateAdminPin = useCallback(
-    (newPin: string) => {
-      setState((prev) => {
-        const newState = { ...prev, adminPin: newPin }
-        persistState(newState)
-        syncPortfolioSettingsToDb({ admin_pin: newPin })
-        return newState
-      })
-    },
-    [persistState],
-  )
-
-  // --- Messages Inbox Mutators ---
+  // --- Messages & Orders Management ---
   const addMessage = useCallback(
-    (msg: Omit<StoredMessage, 'id' | 'created_at' | 'status'>) => {
-      const newMsg: StoredMessage = {
-        ...msg,
-        id: `msg_${Date.now()}`,
-        created_at: new Date().toISOString(),
-        status: 'unread',
-      }
+    (msgData: {
+      name: string
+      email: string
+      role: string
+      topic: string
+      message: string
+      status?: StoredMessage['status']
+    }) => {
       setState((prev) => {
+        const newMsg: StoredMessage = {
+          ...msgData,
+          status: msgData.status || 'unread',
+          id: `msg_${Date.now()}`,
+          created_at: new Date().toISOString(),
+        }
         const updated = [newMsg, ...prev.messages]
         const newState = { ...prev, messages: updated }
-        persistState(newState)
-        return newState
-      })
-
-      // Send immediate local notification & sound
-      sendDeviceNotification(`📬 New Message: ${msg.name}`, {
-        body: `${msg.topic || 'Inquiry'}: "${msg.message.slice(0, 80)}..."`,
-      })
-    },
-    [persistState],
-  )
-
-  const updateMessageStatus = useCallback(
-    (id: string, status: StoredMessage['status']) => {
-      setState((prev) => {
-        const updated = prev.messages.map((m) => (m.id === id ? { ...m, status } : m))
-        const newState = { ...prev, messages: updated }
-        persistState(newState)
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+        } catch {}
         return newState
       })
     },
-    [persistState],
+    [],
   )
 
   const markMessageRead = useCallback(
     (id: string, status: StoredMessage['status'] = 'read') => {
-      updateMessageStatus(id, status)
-    },
-    [updateMessageStatus],
-  )
-
-  const deleteMessage = useCallback(
-    (id: string) => {
       setState((prev) => {
-        const updated = prev.messages.filter((m) => m.id !== id)
+        const updated = prev.messages.map((m) => (m.id === id ? { ...m, status } : m))
         const newState = { ...prev, messages: updated }
-        persistState(newState)
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+        } catch {}
         return newState
       })
     },
-    [persistState],
+    [],
   )
 
-  // --- Orders Tracker Mutators ---
-  const addOrder = useCallback(
-    (order: Omit<StoredOrder, 'id' | 'created_at'>) => {
+  const deleteMessage = useCallback((id: string) => {
+    setState((prev) => {
+      const updated = prev.messages.filter((m) => m.id !== id)
+      const newState = { ...prev, messages: updated }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+      } catch {}
+      return newState
+    })
+  }, [])
+
+  const addOrder = useCallback((orderData: Omit<StoredOrder, 'id' | 'created_at'>) => {
+    setState((prev) => {
       const newOrder: StoredOrder = {
-        ...order,
+        ...orderData,
         id: `ord_${Date.now()}`,
         created_at: new Date().toISOString(),
       }
+      const updated = [newOrder, ...prev.orders]
+      const newState = { ...prev, orders: updated }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+      } catch {}
+      return newState
+    })
+  }, [])
+
+  const updateOrderStatus = useCallback((id: string, status: StoredOrder['status']) => {
+    setState((prev) => {
+      const updated = prev.orders.map((o) => (o.id === id ? { ...o, status } : o))
+      const newState = { ...prev, orders: updated }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+      } catch {}
+      return newState
+    })
+  }, [])
+
+  const deleteOrder = useCallback((id: string) => {
+    setState((prev) => {
+      const updated = prev.orders.filter((o) => o.id !== id)
+      const newState = { ...prev, orders: updated }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+      } catch {}
+      return newState
+    })
+  }, [])
+
+  // --- Admin PIN & System Backups ---
+  const updateAdminPin = useCallback(
+    (newPin: string) => {
       setState((prev) => {
-        const updated = [newOrder, ...prev.orders]
-        const newState = { ...prev, orders: updated }
-        persistState(newState)
+        const newState = { ...prev, adminPin: newPin }
+        broadcastAndPersist(newState)
         return newState
       })
-
-      sendDeviceNotification(`🛍️ New Order: ${order.customer_name}`, {
-        body: `Total: ${order.subtotal} TND (${order.customer_phone})`,
-      })
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  const updateOrderStatus = useCallback(
-    (id: string, status: StoredOrder['status']) => {
-      setState((prev) => {
-        const updated = prev.orders.map((o) => (o.id === id ? { ...o, status } : o))
-        const newState = { ...prev, orders: updated }
-        persistState(newState)
-        return newState
-      })
-    },
-    [persistState],
-  )
-
-  const deleteOrder = useCallback(
-    (id: string) => {
-      setState((prev) => {
-        const updated = prev.orders.filter((o) => o.id !== id)
-        const newState = { ...prev, orders: updated }
-        persistState(newState)
-        return newState
-      })
-    },
-    [persistState],
-  )
-
-  // --- System Reset & Backup Management ---
   const resetToDefaults = useCallback(() => {
     setState(INITIAL_STATE)
-    persistState(INITIAL_STATE)
-  }, [persistState])
+    broadcastAndPersist(INITIAL_STATE)
+  }, [broadcastAndPersist])
 
-  const exportBackupJson = useCallback((): string => {
+  const exportDataJson = useCallback(() => {
     return JSON.stringify(state, null, 2)
   }, [state])
 
-  const exportDataJson = exportBackupJson
-
-  const importBackupJson = useCallback(
-    (jsonString: string): boolean => {
+  const importDataJson = useCallback(
+    (jsonString: string) => {
       try {
         const parsed = JSON.parse(jsonString)
-        if (parsed && typeof parsed === 'object' && parsed.hero && parsed.about) {
-          setState((prev) => ({
-            ...prev,
+        if (parsed && typeof parsed === 'object') {
+          const merged: PortfolioState = {
+            ...INITIAL_STATE,
             ...parsed,
-          }))
-          persistState(parsed)
+          }
+          setState(merged)
+          broadcastAndPersist(merged)
           return true
         }
         return false
-      } catch (e) {
-        console.error('Import failed:', e)
+      } catch (err) {
+        console.error('Failed to import JSON data:', err)
         return false
       }
     },
-    [persistState],
+    [broadcastAndPersist],
   )
 
-  const importDataJson = importBackupJson
-
-  const value = useMemo(
+  const contextValue = useMemo<PortfolioContextType>(
     () => ({
       state,
       isLoaded,
       isRealtimeConnected,
       hasNotificationPermission,
+      isNotificationsMuted,
+      toggleNotificationsMuted,
       requestNotifications,
       testNotificationChime,
       updateHero,
-      updateStats,
       updateAbout,
-      updatePillar,
+      updateContact,
+      updateStats,
       addWork,
       updateWork,
       toggleWorkActive,
       deleteWork,
-      reorderWorks,
       addVideo,
       updateVideo,
       toggleVideoActive,
@@ -1144,19 +1232,15 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       updateFaq,
       toggleFaqActive,
       deleteFaq,
-      updateContact,
-      updateAdminPin,
       addMessage,
-      updateMessageStatus,
       markMessageRead,
       deleteMessage,
       addOrder,
       updateOrderStatus,
       deleteOrder,
+      updateAdminPin,
       resetToDefaults,
-      exportBackupJson,
       exportDataJson,
-      importBackupJson,
       importDataJson,
     }),
     [
@@ -1164,17 +1248,18 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       isLoaded,
       isRealtimeConnected,
       hasNotificationPermission,
+      isNotificationsMuted,
+      toggleNotificationsMuted,
       requestNotifications,
       testNotificationChime,
       updateHero,
-      updateStats,
       updateAbout,
-      updatePillar,
+      updateContact,
+      updateStats,
       addWork,
       updateWork,
       toggleWorkActive,
       deleteWork,
-      reorderWorks,
       addVideo,
       updateVideo,
       toggleVideoActive,
@@ -1197,24 +1282,20 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       updateFaq,
       toggleFaqActive,
       deleteFaq,
-      updateContact,
-      updateAdminPin,
       addMessage,
-      updateMessageStatus,
       markMessageRead,
       deleteMessage,
       addOrder,
       updateOrderStatus,
       deleteOrder,
+      updateAdminPin,
       resetToDefaults,
-      exportBackupJson,
       exportDataJson,
-      importBackupJson,
       importDataJson,
     ],
   )
 
-  return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>
+  return <PortfolioContext.Provider value={contextValue}>{children}</PortfolioContext.Provider>
 }
 
 export function usePortfolio() {
