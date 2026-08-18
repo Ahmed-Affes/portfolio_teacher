@@ -22,22 +22,22 @@ export function ResourceShop() {
   }
 
   return (
-    <section id="shop" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="shop" className="scroll-mt-20 py-10 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           eyebrow="Resource hub"
           title="Educational materials & rental shop"
-          intro="High-quality DIY props, printable games, and physical classroom sets available for purchase or temporary rental for local workshops and lessons."
+          intro="DIY props, printable games, and physical classroom sets to buy or rent."
           align="center"
         />
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PRODUCTS.map((product) => (
             <div
               key={product.id}
-              className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-foreground/10"
+              className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/10"
             >
-              <div className="relative aspect-square w-full overflow-hidden bg-muted">
+              <div className="relative aspect-[4/3.2] w-full overflow-hidden bg-muted">
                 <Image
                   src={product.image || '/placeholder.svg'}
                   alt={product.name}
@@ -45,51 +45,51 @@ export function ResourceShop() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className="object-cover"
                 />
-                <span className="absolute left-3 top-3 rounded-full bg-card/95 px-3 py-1 text-xs font-semibold text-foreground backdrop-blur shadow-sm">
+                <span className="absolute left-2.5 top-2.5 rounded-full bg-card/95 px-2.5 py-0.5 text-[0.7rem] font-semibold text-foreground backdrop-blur shadow-xs">
                   {product.category}
                 </span>
               </div>
 
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="font-serif text-lg font-semibold leading-tight text-foreground">
+              <div className="flex flex-1 flex-col p-4">
+                <h3 className="font-serif text-base font-semibold leading-tight text-foreground">
                   {product.name}
                 </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-1 flex-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                   {product.description}
                 </p>
 
-                <div className="mt-5 flex items-end gap-4 border-t border-border/70 pt-4">
+                <div className="mt-3.5 flex items-end gap-3 border-t border-border/70 pt-3">
                   {product.buyPrice != null && (
                     <div>
-                      <span className="block text-xs font-medium text-muted-foreground">Buy</span>
-                      <span className="font-serif text-xl font-bold text-foreground">
-                        {product.buyPrice} <span className="text-sm font-sans font-normal text-muted-foreground">TND</span>
+                      <span className="block text-[0.7rem] font-medium text-muted-foreground">Buy</span>
+                      <span className="font-serif text-lg font-bold text-foreground">
+                        {product.buyPrice} <span className="text-xs font-sans font-normal text-muted-foreground">TND</span>
                       </span>
                     </div>
                   )}
                   {product.rentPrice != null && (
                     <div>
-                      <span className="block text-xs font-medium text-muted-foreground">
+                      <span className="block text-[0.7rem] font-medium text-muted-foreground">
                         Rent / day
                       </span>
-                      <span className="font-serif text-xl font-bold text-foreground">
-                        {product.rentPrice} <span className="text-sm font-sans font-normal text-muted-foreground">TND</span>
+                      <span className="font-serif text-lg font-bold text-foreground">
+                        {product.rentPrice} <span className="text-xs font-sans font-normal text-muted-foreground">TND</span>
                       </span>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-1.5">
                   {product.options.includes('buy') && (
                     <button
                       type="button"
                       onClick={() => handleAdd(product, 'buy')}
-                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow"
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:-translate-y-0.5 hover:shadow"
                     >
                       {product.category === 'Digital Download' ? (
-                        <Download className="size-4" />
+                        <Download className="size-3.5" />
                       ) : (
-                        <ShoppingBag className="size-4" />
+                        <ShoppingBag className="size-3.5" />
                       )}
                       {product.category === 'Digital Download' ? 'Download' : 'Buy'}
                     </button>
@@ -98,9 +98,9 @@ export function ResourceShop() {
                     <button
                       type="button"
                       onClick={() => handleAdd(product, 'rent')}
-                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-muted hover:-translate-y-0.5"
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground shadow-xs transition-all hover:bg-muted hover:-translate-y-0.5"
                     >
-                      <Repeat className="size-4" />
+                      <Repeat className="size-3.5" />
                       Rent
                     </button>
                   )}
@@ -110,7 +110,7 @@ export function ResourceShop() {
           ))}
         </div>
 
-        <p className="mx-auto mt-10 max-w-2xl text-center text-sm font-medium text-muted-foreground text-pretty">
+        <p className="mx-auto mt-6 max-w-xl text-center text-xs font-medium text-muted-foreground text-pretty">
           💡 Rentals are available locally in Tunis. Add items to your cart and Farah will
           confirm availability and pickup details.
         </p>

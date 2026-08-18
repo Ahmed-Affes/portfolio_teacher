@@ -52,17 +52,17 @@ export function SiteHeader() {
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-300',
         scrolled
-          ? 'border-b border-border/70 bg-background/90 shadow-sm backdrop-blur-md'
-          : 'bg-background/40 backdrop-blur-sm',
+          ? 'border-b border-border/70 bg-background/90 shadow-xs backdrop-blur-md'
+          : 'bg-background/50 backdrop-blur-sm',
       )}
     >
-      <nav className="mx-auto flex h-20 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <nav className="mx-auto flex h-16 sm:h-18 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <a
           href="#home"
           onClick={(e) => handleNav('home', e)}
           className="group flex items-center gap-2.5"
         >
-          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/40 transition-transform group-hover:scale-105">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs transition-transform group-hover:scale-105">
             <Sparkles className="size-5" />
           </span>
           <span className="font-serif text-xl font-semibold leading-none tracking-tight">

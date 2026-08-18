@@ -35,43 +35,45 @@ export function WorkShowcase() {
   }, [active])
 
   return (
-    <section id="work" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="work" className="scroll-mt-20 py-10 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeading
-          eyebrow="Portfolio"
-          title="Teaching in action & DIY visual aids"
-          intro="A glimpse into my classroom activities, educational posters, and custom learning tools designed to inspire students."
-        />
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <SectionHeading
+            eyebrow="Portfolio"
+            title="Teaching in action & visual aids"
+            intro="Classroom activities, educational posters, and custom learning tools."
+          />
 
-        {/* Filters */}
-        <div className="mt-8 flex flex-wrap gap-2.5">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => setFilter(f.id)}
-              className={cn(
-                'rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200',
-                filter === f.id
-                  ? 'border-transparent bg-secondary text-secondary-foreground shadow-sm'
-                  : 'border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground',
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+          {/* Compact Filters */}
+          <div className="flex flex-wrap gap-1.5 self-start sm:self-auto">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilter(f.id)}
+                className={cn(
+                  'rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200',
+                  filter === f.id
+                    ? 'border-transparent bg-secondary text-secondary-foreground shadow-xs'
+                    : 'border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground',
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Grid */}
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setActive(item)}
-              className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-foreground/10"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/10"
             >
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+              <div className="relative aspect-[16/11] w-full overflow-hidden bg-muted">
                 <Image
                   src={item.image || '/placeholder.svg'}
                   alt={item.title}
@@ -79,18 +81,18 @@ export function WorkShowcase() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
+                <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2.5 py-0.5 text-[0.7rem] font-semibold text-primary-foreground shadow-xs">
                   {item.tag}
                 </span>
-                <span className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100 shadow-sm">
-                  <Maximize2 className="size-4" />
+                <span className="absolute right-2.5 top-2.5 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100 shadow-xs">
+                  <Maximize2 className="size-3.5" />
                 </span>
               </div>
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="font-serif text-lg font-semibold leading-tight text-foreground">
+              <div className="flex flex-1 flex-col p-4">
+                <h3 className="font-serif text-base font-semibold leading-tight text-foreground">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                   {item.description}
                 </p>
               </div>
@@ -110,33 +112,33 @@ export function WorkShowcase() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-card shadow-2xl duration-200 animate-in zoom-in-95"
+            className="relative flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-card shadow-2xl duration-200 animate-in zoom-in-95"
           >
             <button
               type="button"
               aria-label="Close modal"
               onClick={() => setActive(null)}
-              className="absolute right-3 top-3 z-10 flex size-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition-colors hover:bg-black/75"
+              className="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition-colors hover:bg-black/75"
             >
-              <X className="size-5" />
+              <X className="size-4.5" />
             </button>
             <div className="relative aspect-[4/3] w-full bg-muted">
               <Image
                 src={active.image || '/placeholder.svg'}
                 alt={active.title}
                 fill
-                sizes="(max-width: 768px) 100vw, 800px"
+                sizes="(max-width: 768px) 100vw, 600px"
                 className="object-cover"
               />
             </div>
-            <div className="p-6">
-              <span className="rounded-full bg-primary/25 px-3 py-1 text-xs font-semibold text-foreground">
+            <div className="p-5">
+              <span className="rounded-full bg-primary/25 px-2.5 py-0.5 text-xs font-semibold text-foreground">
                 {active.tag}
               </span>
-              <h3 className="mt-2 font-serif text-2xl font-semibold text-foreground">
+              <h3 className="mt-1.5 font-serif text-xl font-semibold text-foreground">
                 {active.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
                 {active.description}
               </p>
             </div>
