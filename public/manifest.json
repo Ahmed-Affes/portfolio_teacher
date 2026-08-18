@@ -1,0 +1,27 @@
+{
+  "name": "Farah Affes — Teacher Studio",
+  "short_name": "Farah Studio",
+  "description": "English Educator & DIY Learning Material Designer in Sfax, Tunisia",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#F7C948",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-light-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}

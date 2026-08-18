@@ -455,6 +455,41 @@ export default function AdminPage() {
 
           {/* Tab Content Area */}
           <main className="space-y-6">
+            {/* Native OS & Phone Lock Screen Push Banner */}
+            {!hasNotificationPermission && (
+              <div className="flex flex-col gap-3 rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/20 via-card to-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                    <BellRing className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-sm font-bold text-foreground">
+                      Enable Lock-Screen &amp; Phone Alerts
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Get real-time popups on your phone and computer even when the app or screen is locked.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const granted = await requestNotifications()
+                    if (granted) {
+                      toast('🎉 Device push alerts activated! Test alert sent.')
+                    } else {
+                      toast('Please tap "Allow" in your browser prompt.')
+                    }
+                  }}
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary/90"
+                >
+                  <Bell className="size-3.5" />
+                  <span>Enable Device Notifications</span>
+                </button>
+              </div>
+            )}
+
             {/* 1. OVERVIEW TAB */}
             {activeTab === 'overview' && (
               <div className="space-y-6">

@@ -581,6 +581,13 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 
   try {
     const permission = await Notification.requestPermission()
+    if (permission === 'granted') {
+      // Send immediate confirmation push notification to test OS & phone lockscreen
+      sendDeviceNotification('🔔 Device Alerts Activated!', {
+        body: 'You will now receive notifications outside this app on your phone lock screen and notification bar!',
+        href: '/admin',
+      })
+    }
     return permission
   } catch {
     return 'denied'
@@ -638,7 +645,7 @@ export type PushNotificationData = {
 export const PUSH_EVENT_KEY = 'farah_device_push_notification'
 
 /**
- * Send an SMS-style high priority browser / OS / mobile notification
+ * Send an SMS-style high priority browser / OS / mobile notification (Outside & Inside App)
  */
 export function sendDeviceNotification(
   title: string,
@@ -653,13 +660,13 @@ export function sendDeviceNotification(
   // 2. Vibrate mobile device (if supported) - SMS pattern: buzz, pause, buzz
   if ('navigator' in window && 'vibrate' in navigator) {
     try {
-      navigator.vibrate([200, 100, 200, 100, 300])
+      navigator.vibrate([300, 100, 300, 100, 400])
     } catch {
       // ignore
     }
   }
 
-  // 3. Dispatch In-App Visual Push Popup Banner (always visible on screen on phone & PC)
+  // 3. Dispatch In-App Visual Push Popup Banner
   try {
     const event = new CustomEvent<PushNotificationData>(PUSH_EVENT_KEY, {
       detail: {
@@ -676,40 +683,52 @@ export function sendDeviceNotification(
     console.warn('In-app push event dispatch error:', err)
   }
 
-  // 4. Trigger OS / Mobile System Push Notification (if permission granted)
-  if (typeof Notification !== 'undefined') {
-    if (Notification.permission === 'granted') {
+  // 4. Trigger Native OS / Mobile Lock-Screen & System Tray Notification via Service Worker
+  if (typeof window !== 'undefined') {
+    // A) Post to active Service Worker Controller
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       try {
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.ready
-            .then((registration) => {
-              registration.showNotification(title, {
-                body: options?.body || 'New update in Farah Affes Studio',
-                icon: options?.icon || '/images/farah-portrait.png',
-                badge: '/favicon.ico',
-                tag: options?.tag || 'farah-portfolio-alert',
-                data: { url: options?.href || '/admin' },
-              })
-            })
-            .catch(() => {
-              new Notification(title, {
-                body: options?.body || 'New update in Farah Affes Studio',
-                icon: options?.icon || '/images/farah-portrait.png',
-                badge: '/favicon.ico',
-                tag: options?.tag || 'farah-portfolio-alert',
-              })
-            })
-        } else {
-          new Notification(title, {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SHOW_OS_NOTIFICATION',
+          title,
+          options,
+        })
+      } catch {}
+    }
+
+    // B) Use navigator.serviceWorker.ready
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready
+        .then((registration) => {
+          registration.showNotification(title, {
             body: options?.body || 'New update in Farah Affes Studio',
             icon: options?.icon || '/images/farah-portrait.png',
             badge: '/favicon.ico',
-            tag: options?.tag || 'farah-portfolio-alert',
-          })
-        }
-      } catch (err) {
-        console.warn('Browser notification error:', err)
-      }
+            vibrate: [300, 100, 300, 100, 400],
+            tag: options?.tag || 'farah-alert-' + Date.now(),
+            requireInteraction: true,
+            data: { url: options?.href || '/admin' },
+          } as any)
+        })
+        .catch(() => {
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            new Notification(title, {
+              body: options?.body || 'New update in Farah Affes Studio',
+              icon: options?.icon || '/images/farah-portrait.png',
+              badge: '/favicon.ico',
+              tag: options?.tag || 'farah-alert-' + Date.now(),
+            })
+          }
+        })
+    } else if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      try {
+        new Notification(title, {
+          body: options?.body || 'New update in Farah Affes Studio',
+          icon: options?.icon || '/images/farah-portrait.png',
+          badge: '/favicon.ico',
+          tag: options?.tag || 'farah-alert-' + Date.now(),
+        })
+      } catch {}
     }
   }
 }
