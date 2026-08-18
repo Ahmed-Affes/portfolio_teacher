@@ -32,15 +32,15 @@ export function ResourceShop() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
           {PRODUCTS.map((product, i) => (
             <Reveal key={product.id} delay={i * 50}>
-              <div className="card-shine group flex h-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5">
+              <div className="card-shine group flex h-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 will-change-transform">
                 {/* Product Image */}
-                <div className="relative aspect-[4/3.2] w-full overflow-hidden bg-muted">
+                <div className="relative aspect-[4/3.2] w-full overflow-hidden isolate bg-muted">
                   <Image
                     src={product.image || '/placeholder.svg'}
                     alt={product.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-108"
+                    className="object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <span className="absolute left-3 top-3 rounded-full bg-card/95 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-foreground shadow-md backdrop-blur-sm">

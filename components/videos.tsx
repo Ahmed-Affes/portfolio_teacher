@@ -121,22 +121,22 @@ export function Videos() {
               <button
                 type="button"
                 onClick={() => setActiveVideo(video)}
-                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] text-left shadow-lg backdrop-blur-xs transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:bg-white/[0.08] hover:shadow-2xl hover:shadow-black/30"
+                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] text-left shadow-lg backdrop-blur-xs transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:bg-white/[0.08] hover:shadow-xl hover:shadow-black/30 will-change-transform"
               >
                 {/* Video Thumbnail Screen */}
-                <div className="relative aspect-video w-full overflow-hidden bg-black/40">
+                <div className="relative aspect-video w-full overflow-hidden isolate bg-black/40">
                   <Image
                     src={video.thumbnail || '/placeholder.svg'}
                     alt={video.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-108"
+                    className="object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30" />
 
                   {/* Pulsing Play Button */}
                   <span
-                    className="absolute left-1/2 top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-4 ring-white/15 transition-all duration-300 group-hover:scale-115 group-hover:ring-primary/40 sm:size-14"
+                    className="absolute left-1/2 top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-4 ring-white/15 transform-gpu transition-transform duration-300 ease-out group-hover:scale-110 group-hover:ring-primary/40 sm:size-14"
                     aria-hidden="true"
                   >
                     <Play className="ml-1 size-5 fill-current sm:size-6" />

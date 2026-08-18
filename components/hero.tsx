@@ -24,11 +24,11 @@ export function Hero() {
         <div className="noise-overlay absolute inset-0 opacity-[0.025]" />
         <div className="grid-paper absolute inset-0 opacity-50" />
         <div
-          className="absolute -left-32 top-16 size-80 rounded-full bg-primary/25 blur-[100px] sm:size-96"
+          className="absolute -left-32 top-16 size-80 rounded-full bg-primary/25 blur-[100px] sm:size-96 transform-gpu will-change-transform"
           style={{ animation: 'pulse-glow 8s ease-in-out infinite' }}
         />
         <div
-          className="absolute -right-24 top-36 size-72 rounded-full bg-accent/30 blur-[90px] sm:size-80"
+          className="absolute -right-24 top-36 size-72 rounded-full bg-accent/30 blur-[90px] sm:size-80 transform-gpu will-change-transform"
           style={{ animation: 'pulse-glow 10s ease-in-out infinite 2s' }}
         />
       </div>
@@ -105,21 +105,21 @@ export function Hero() {
               <div className="absolute -inset-3 rounded-[2.25rem] bg-gradient-to-br from-primary/30 via-transparent to-secondary/20 blur-md" />
 
               {/* Framed Hero Image */}
-              <div className="relative aspect-[4/4.4] w-full overflow-hidden rounded-[2rem] border-2 border-white/80 bg-card shadow-2xl shadow-foreground/15 ring-1 ring-border/50">
+              <div className="relative aspect-[4/4.4] w-full overflow-hidden isolate rounded-[2rem] border-2 border-white/80 bg-card shadow-2xl shadow-foreground/15 ring-1 ring-border/50">
                 <Image
                   src="/images/hero-classroom.png"
                   alt="Farah teaching in a bright, engaging English classroom"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 480px"
-                  className="object-cover object-center transition-transform duration-700 hover:scale-105"
+                  className="object-cover object-center transform-gpu transition-transform duration-500 ease-out hover:scale-105 will-change-transform"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary/35 via-transparent to-transparent" />
               </div>
 
               {/* Top-Left Floating Badge: New Worksheet */}
               <div
-                className="animate-float absolute -left-4 top-8 hidden w-52 -rotate-3 rounded-2xl border border-border/70 bg-card/95 p-3.5 shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-105 sm:block"
+                className="animate-float absolute -left-4 top-8 hidden w-52 rounded-2xl border border-border/70 bg-card/95 p-3.5 shadow-xl backdrop-blur-md transform-gpu transition-transform duration-300 hover:scale-105 sm:block will-change-transform"
                 style={{ '--float-rotate': '-3deg' } as React.CSSProperties}
               >
                 <div className="flex items-center gap-3">
@@ -135,7 +135,7 @@ export function Hero() {
 
               {/* Bottom-Right Floating Badge: Educator Testimonial */}
               <div
-                className="animate-float absolute -bottom-5 right-0 w-60 rotate-2 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-105 sm:right-2"
+                className="animate-float absolute -bottom-5 right-0 w-60 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-xl backdrop-blur-md transform-gpu transition-transform duration-300 hover:scale-105 sm:right-2 will-change-transform"
                 style={{ '--float-rotate': '2deg', animationDelay: '1.5s' } as React.CSSProperties}
               >
                 <div className="flex items-center gap-0.5 text-primary">
@@ -167,7 +167,7 @@ export function Hero() {
       <div className="relative mt-8 overflow-hidden border-y border-border/60 bg-muted/40 py-3 sm:mt-10">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent sm:w-28" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent sm:w-28" />
-        <div className="flex animate-marquee whitespace-nowrap">
+        <div className="flex animate-marquee whitespace-nowrap transform-gpu will-change-transform">
           {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
             <span
               key={`${item}-${i}`}

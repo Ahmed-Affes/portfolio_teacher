@@ -63,14 +63,14 @@ export function About() {
                 {/* Glow ring */}
                 <div className="absolute -inset-2.5 rounded-[2.25rem] bg-gradient-to-tr from-primary/30 via-primary/10 to-secondary/20 blur-md transition-all duration-700 group-hover:blur-lg" />
 
-                <div className="relative aspect-[4/4.7] w-full overflow-hidden rounded-[2rem] border-2 border-white/80 bg-card shadow-2xl shadow-foreground/10 ring-1 ring-border/50">
+                <div className="relative aspect-[4/4.7] w-full overflow-hidden isolate rounded-[2rem] border-2 border-white/80 bg-card shadow-2xl shadow-foreground/10 ring-1 ring-border/50">
                   <Image
                     src="/images/farah-portrait.png"
                     alt="Portrait of Farah Affes holding an educational prop"
                     fill
                     priority
                     sizes="(max-width: 1024px) 100vw, 440px"
-                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover object-top transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-transparent to-transparent opacity-80" />
 
@@ -107,12 +107,12 @@ export function About() {
                     <span className="text-xs font-bold uppercase tracking-wider">The Core Manifesto</span>
                   </div>
                   {/* Animated sound wave decoration */}
-                  <div className="flex items-center gap-0.5" title="Interactive phonics rhythm">
+                  <div className="flex h-6 items-end gap-0.5" title="Interactive phonics rhythm">
                     <Volume2 className="mr-1 size-3.5 text-primary/75" />
-                    {[8, 16, 12, 22, 14, 18, 10, 15, 6].map((h, idx) => (
+                    {[10, 18, 14, 22, 16, 20, 12, 16, 8].map((h, idx) => (
                       <span
                         key={idx}
-                        className="w-0.5 rounded-full bg-primary/80 transition-all duration-300 group-hover:bg-primary"
+                        className="w-0.5 origin-bottom rounded-full bg-primary/80 transition-colors duration-300 group-hover:bg-primary will-change-transform"
                         style={{
                           height: `${h}px`,
                           animation: `soundwave 1.2s ease-in-out infinite ${idx * 0.12}s`,

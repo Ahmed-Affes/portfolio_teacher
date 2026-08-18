@@ -247,16 +247,16 @@ export function WorkShowcase() {
                   <button
                     type="button"
                     onClick={() => setActiveItemIndex(actualIndex)}
-                    className="card-shine group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl hover:shadow-foreground/5"
+                    className="card-shine group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-foreground/5 will-change-transform"
                   >
                     {/* Media Thumbnail */}
-                    <div className="relative aspect-[16/10.5] w-full overflow-hidden bg-muted">
+                    <div className="relative aspect-[16/10.5] w-full overflow-hidden isolate bg-muted">
                       <Image
                         src={item.image || '/placeholder.svg'}
                         alt={item.title}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-108"
+                        className="object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/15 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-85" />
 
@@ -266,7 +266,7 @@ export function WorkShowcase() {
                       </span>
 
                       {/* Maximize Icon */}
-                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur-sm transition-all duration-300 group-hover:opacity-100 group-hover:scale-105">
+                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur-sm transform-gpu transition-[opacity,transform] duration-300 group-hover:opacity-100 group-hover:scale-105">
                         <Maximize2 className="size-3.5" />
                       </span>
 
@@ -332,14 +332,14 @@ export function WorkShowcase() {
                     type="button"
                     onClick={() => setActiveItemIndex(actualIndex)}
                     className={cn(
-                      'card-shine group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card text-left shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl hover:shadow-foreground/5',
+                      'card-shine group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card text-left shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-foreground/5 will-change-transform',
                       isFeature ? 'md:grid md:grid-cols-[1.1fr_0.9fr]' : 'flex flex-col',
                     )}
                   >
                     {/* Media Image */}
                     <div
                       className={cn(
-                        'relative w-full overflow-hidden bg-muted',
+                        'relative w-full overflow-hidden isolate bg-muted',
                         isFeature ? 'aspect-[16/10] md:h-full md:aspect-auto' : 'aspect-[16/10.5]',
                       )}
                     >
@@ -348,7 +348,7 @@ export function WorkShowcase() {
                         alt={item.title}
                         fill
                         sizes={isFeature ? '(max-width: 1024px) 100vw, 66vw' : '(max-width: 1024px) 50vw, 33vw'}
-                        className="object-cover transition-transform duration-700 group-hover:scale-108"
+                        className="object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/15 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-85" />
 
@@ -356,7 +356,7 @@ export function WorkShowcase() {
                         {item.tag}
                       </span>
 
-                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur-sm transition-all duration-300 group-hover:opacity-100 group-hover:scale-105">
+                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur-sm transform-gpu transition-[opacity,transform] duration-300 group-hover:opacity-100 group-hover:scale-105">
                         <Maximize2 className="size-3.5" />
                       </span>
 
@@ -479,7 +479,7 @@ export function WorkShowcase() {
                       handlePrev()
                     }}
                     aria-label="Previous item"
-                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transition-all hover:scale-115 hover:bg-black"
+                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transform-gpu transition-transform duration-200 hover:scale-110 hover:bg-black will-change-transform"
                   >
                     <ChevronLeft className="size-6" />
                   </button>
@@ -490,7 +490,7 @@ export function WorkShowcase() {
                       handleNext()
                     }}
                     aria-label="Next item"
-                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transition-all hover:scale-115 hover:bg-black"
+                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transform-gpu transition-transform duration-200 hover:scale-110 hover:bg-black will-change-transform"
                   >
                     <ChevronRight className="size-6" />
                   </button>
