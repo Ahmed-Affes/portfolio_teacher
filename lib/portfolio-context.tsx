@@ -29,6 +29,12 @@ import {
   fetchPortfolioSettingsFromDb,
   fetchContactMessages,
   fetchOrders,
+  submitContactMessage,
+  updateContactMessageInDb,
+  deleteContactMessageInDb,
+  submitOrderRequest,
+  updateOrderInDb,
+  deleteOrderInDb,
   isNotificationsMuted as getStoredNotificationsMuted,
   setNotificationsMuted as setStoredNotificationsMuted,
 } from '@/lib/supabase'
@@ -429,32 +435,30 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           fetchOrders(),
         ])
 
-        if (cloudSettings) {
-          setState((prev) => {
-            const merged: PortfolioState = {
-              ...prev,
-              hero: { ...prev.hero, ...(cloudSettings.hero || {}) },
-              about: { ...prev.about, ...(cloudSettings.about || {}) },
-              stats: (cloudSettings.stats as StatItem[]) || prev.stats,
-              contact: { ...prev.contact, ...(cloudSettings.contact || {}) },
-              works: (cloudSettings.works as WorkItem[]) || prev.works,
-              videos: (cloudSettings.videos as Video[]) || prev.videos,
-              products: (cloudSettings.products as Product[]) || prev.products,
-              audiences: (cloudSettings.audiences as Audience[]) || prev.audiences,
-              testimonials: (cloudSettings.testimonials as TestimonialItem[]) || prev.testimonials,
-              faqs: (cloudSettings.faqs as FaqItem[]) || prev.faqs,
-              adminPin: (cloudSettings.admin_pin as string) || prev.adminPin,
-              messages: cloudMessages && cloudMessages.length > 0 ? (cloudMessages as StoredMessage[]) : prev.messages,
-              orders: cloudOrders && cloudOrders.length > 0 ? (cloudOrders as StoredOrder[]) : prev.orders,
-            }
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
-            } catch {
-              // ignore
-            }
-            return merged
-          })
-        }
+        setState((prev) => {
+          const merged: PortfolioState = {
+            ...prev,
+            hero: cloudSettings?.hero ? { ...prev.hero, ...(cloudSettings.hero || {}) } : prev.hero,
+            about: cloudSettings?.about ? { ...prev.about, ...(cloudSettings.about || {}) } : prev.about,
+            stats: (cloudSettings?.stats as StatItem[]) || prev.stats,
+            contact: cloudSettings?.contact ? { ...prev.contact, ...(cloudSettings.contact || {}) } : prev.contact,
+            works: (cloudSettings?.works as WorkItem[]) || prev.works,
+            videos: (cloudSettings?.videos as Video[]) || prev.videos,
+            products: (cloudSettings?.products as Product[]) || prev.products,
+            audiences: (cloudSettings?.audiences as Audience[]) || prev.audiences,
+            testimonials: (cloudSettings?.testimonials as TestimonialItem[]) || prev.testimonials,
+            faqs: (cloudSettings?.faqs as FaqItem[]) || prev.faqs,
+            adminPin: (cloudSettings?.admin_pin as string) || prev.adminPin,
+            messages: cloudMessages && cloudMessages.length > 0 ? (cloudMessages as StoredMessage[]) : prev.messages,
+            orders: cloudOrders && cloudOrders.length > 0 ? (cloudOrders as StoredOrder[]) : prev.orders,
+          }
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+          } catch {
+            // ignore
+          }
+          return merged
+        })
       } catch (err) {
         console.warn('Could not sync cloud state from Supabase:', err)
       }
@@ -1073,6 +1077,17 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       message: string
       status?: StoredMessage['status']
     }) => {
+      // 1. Send to Supabase directly
+      submitContactMessage({
+        name: msgData.name,
+        email: msgData.email,
+        role: msgData.role,
+        topic: msgData.topic,
+        message: msgData.message,
+        status: msgData.status || 'unread',
+      })
+
+      // 2. Update local state
       setState((prev) => {
         const newMsg: StoredMessage = {
           ...msgData,
@@ -1093,6 +1108,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const markMessageRead = useCallback(
     (id: string, status: StoredMessage['status'] = 'read') => {
+      updateContactMessageInDb(id, status)
       setState((prev) => {
         const updated = prev.messages.map((m) => (m.id === id ? { ...m, status } : m))
         const newState = { ...prev, messages: updated }
@@ -1106,6 +1122,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   )
 
   const deleteMessage = useCallback((id: string) => {
+    deleteContactMessageInDb(id)
     setState((prev) => {
       const updated = prev.messages.filter((m) => m.id !== id)
       const newState = { ...prev, messages: updated }
@@ -1117,6 +1134,19 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const addOrder = useCallback((orderData: Omit<StoredOrder, 'id' | 'created_at'>) => {
+    submitOrderRequest({
+      customer_name: orderData.customer_name,
+      customer_email: orderData.customer_email,
+      customer_phone: orderData.customer_phone,
+      customer_location: orderData.customer_location,
+      items: orderData.items,
+      subtotal: orderData.subtotal,
+      currency: orderData.currency,
+      status: orderData.status,
+      rental_dates: orderData.rental_dates,
+      notes: orderData.notes,
+    })
+
     setState((prev) => {
       const newOrder: StoredOrder = {
         ...orderData,
@@ -1133,6 +1163,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const updateOrderStatus = useCallback((id: string, status: StoredOrder['status']) => {
+    updateOrderInDb(id, status)
     setState((prev) => {
       const updated = prev.orders.map((o) => (o.id === id ? { ...o, status } : o))
       const newState = { ...prev, orders: updated }
@@ -1144,6 +1175,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const deleteOrder = useCallback((id: string) => {
+    deleteOrderInDb(id)
     setState((prev) => {
       const updated = prev.orders.filter((o) => o.id !== id)
       const newState = { ...prev, orders: updated }

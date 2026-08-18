@@ -395,22 +395,6 @@ export default function AdminPage() {
               )}
             </button>
 
-            {/* Test Tone */}
-            {!isNotificationsMuted && (
-              <button
-                type="button"
-                onClick={() => {
-                  testNotificationChime()
-                  toast('Played notification chime & test alert!')
-                }}
-                title="Test Notification Sound"
-                className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted md:inline-flex"
-              >
-                <Volume2 className="size-3.5 text-primary" />
-                Test Sound
-              </button>
-            )}
-
             <button
               type="button"
               onClick={() => {
@@ -1822,23 +1806,11 @@ export default function AdminPage() {
             {/* 11. MESSAGES INBOX TAB */}
             {activeTab === 'inbox' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Contact Messages Inbox ({state.messages.length})</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Messages sent directly through the portfolio web app (no Outlook or external client required).
-                    </p>
-                  </div>
-                  {!isNotificationsMuted && (
-                    <button
-                      type="button"
-                      onClick={testNotificationChime}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Volume2 className="size-3.5 text-primary" />
-                      Test Tone
-                    </button>
-                  )}
+                <div>
+                  <h2 className="font-serif text-xl font-bold">Contact Messages Inbox ({state.messages.length})</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Messages sent directly through the portfolio web app (no Outlook or external client required).
+                  </p>
                 </div>
 
                 {state.messages.length === 0 ? (
@@ -1933,23 +1905,11 @@ export default function AdminPage() {
             {/* 12. ORDERS & RENTALS TRACKER TAB */}
             {activeTab === 'orders' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Orders &amp; Rentals Tracker ({state.orders.length})</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Track customer purchase and rental requests. Send direct 1-click WhatsApp confirmations.
-                    </p>
-                  </div>
-                  {!isNotificationsMuted && (
-                    <button
-                      type="button"
-                      onClick={testNotificationChime}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Volume2 className="size-3.5 text-primary" />
-                      Test Tone
-                    </button>
-                  )}
+                <div>
+                  <h2 className="font-serif text-xl font-bold">Orders &amp; Rentals Tracker ({state.orders.length})</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Track customer purchase and rental requests. Send direct 1-click WhatsApp confirmations.
+                  </p>
                 </div>
 
                 {state.orders.length === 0 ? (

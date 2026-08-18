@@ -9,7 +9,10 @@ let cachedKey = ''
  */
 export function getSupabaseConfig(): { url: string; anonKey: string } {
   let url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  let anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  let anonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    ''
 
   if (typeof window !== 'undefined') {
     const customUrl = localStorage.getItem('farah_supabase_url')
@@ -231,6 +234,70 @@ export async function fetchOrders(): Promise<OrderRequest[]> {
   } catch (err) {
     console.warn('Failed to fetch orders from Supabase:', err)
     return []
+  }
+}
+
+/**
+ * Update message status in Supabase
+ */
+export async function updateContactMessageInDb(id: string, status: string) {
+  const client = getSupabase()
+  if (!client) return { success: false }
+  try {
+    const { error } = await client.from('contact_messages').update({ status }).eq('id', id)
+    if (error) throw error
+    return { success: true }
+  } catch (err) {
+    console.warn('Failed to update message in Supabase:', err)
+    return { success: false }
+  }
+}
+
+/**
+ * Delete message from Supabase
+ */
+export async function deleteContactMessageInDb(id: string) {
+  const client = getSupabase()
+  if (!client) return { success: false }
+  try {
+    const { error } = await client.from('contact_messages').delete().eq('id', id)
+    if (error) throw error
+    return { success: true }
+  } catch (err) {
+    console.warn('Failed to delete message in Supabase:', err)
+    return { success: false }
+  }
+}
+
+/**
+ * Update order status in Supabase
+ */
+export async function updateOrderInDb(id: string, status: string) {
+  const client = getSupabase()
+  if (!client) return { success: false }
+  try {
+    const { error } = await client.from('orders').update({ status }).eq('id', id)
+    if (error) throw error
+    return { success: true }
+  } catch (err) {
+    console.warn('Failed to update order in Supabase:', err)
+    return { success: false }
+  }
+}
+
+/**
+ * Delete order from Supabase
+ */
+export async function deleteOrderInDb(id: string) {
+  const client = getSupabase()
+  if (!client) return { success: false }
+  try {
+    const { error } = await client.from('orders').delete().eq('id', id)
+    if (error) throw error
+    return { success: true }
+  } catch (err) {
+    console.warn('Failed to delete order in Supabase:', err)
+    return { success: false }
   }
 }
 
