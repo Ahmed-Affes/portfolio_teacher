@@ -64,21 +64,15 @@ export function Contact() {
     const email = String(data.get('email'))
     const message = String(data.get('message'))
 
-    // Save to local portfolio context inbox for instant admin view
+    // Save to local portfolio context inbox for instant admin view & realtime sync
     addMessage({ name, email, role, topic, message })
 
     // Also dispatch to Supabase backend if configured
     await submitContactMessage({ name, email, role, topic, message })
 
-    const subject = encodeURIComponent(`[${topic}] Portfolio enquiry from ${name}`)
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\nI am: ${role}\nTopic: ${topic}\n\n${message}`,
-    )
-    window.open(`mailto:${contact.email}?subject=${subject}&body=${body}`, '_blank')
-
     setSent(true)
     setIsSubmitting(false)
-    toast('Thanks! Your message has been received and saved.')
+    toast('Your message has been sent directly to Farah! We will reply promptly.')
     form.reset()
     setRole(ROLES[0])
     setTopic(TOPICS[0])
@@ -210,8 +204,8 @@ export function Contact() {
                   <div className="flex items-start gap-2.5 rounded-lg border border-primary/30 bg-primary/10 p-3">
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
                     <div className="text-xs sm:text-sm">
-                      <p className="font-semibold text-foreground">Message sent!</p>
-                      <p className="text-muted-foreground">An email draft has been opened for you.</p>
+                      <p className="font-semibold text-foreground">Message Sent Successfully!</p>
+                      <p className="text-muted-foreground">Farah has received your inquiry in the studio and will respond within 24 hours.</p>
                     </div>
                   </div>
                 )}

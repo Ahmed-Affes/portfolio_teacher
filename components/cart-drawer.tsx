@@ -71,11 +71,11 @@ export function CartDrawer() {
 
     // 1. Save to portfolio context state (Local Storage & Admin Portal)
     addOrder({
-      customerName: customerName.trim(),
-      customerPhone: customerPhone.trim(),
-      customerEmail: customerEmail.trim(),
-      customerLocation: customerLocation.trim(),
-      rentalDates: rentalDates.trim() || undefined,
+      customer_name: customerName.trim(),
+      customer_phone: customerPhone.trim(),
+      customer_email: customerEmail.trim(),
+      customer_location: customerLocation.trim(),
+      rental_dates: rentalDates.trim() || undefined,
       notes: notes.trim() || undefined,
       items: orderItems,
       subtotal,

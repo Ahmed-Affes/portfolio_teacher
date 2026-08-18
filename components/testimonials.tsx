@@ -8,6 +8,7 @@ import { usePortfolio } from '@/lib/portfolio-context'
 export function Testimonials() {
   const { state } = usePortfolio()
   const { testimonials } = state
+  const activeTestimonials = testimonials.filter((t) => t.isActive !== false)
 
   return (
     <section id="testimonials" className="section-shell relative overflow-hidden bg-muted/40">
@@ -23,7 +24,7 @@ export function Testimonials() {
         </Reveal>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
-          {testimonials.map((t, i) => (
+          {activeTestimonials.map((t, i) => (
             <Reveal key={t.id || i} delay={i * 60}>
               <figure className="card-shine group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-border/75 bg-card p-6 shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 will-change-transform sm:p-7">
                 <div>

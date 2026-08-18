@@ -31,6 +31,7 @@ export type WorkItem = {
   year?: string
   format?: string
   highlights?: string[]
+  isActive?: boolean
 }
 
 export const WORK_ITEMS: WorkItem[] = [
@@ -191,6 +192,7 @@ export type Video = {
   thumbnail: string
   src: string
   takeaways?: string[]
+  isActive?: boolean
 }
 
 export const VIDEOS: Video[] = [
@@ -290,6 +292,7 @@ export type Product = {
   buyPrice?: number
   rentPrice?: number
   features?: string[]
+  isActive?: boolean
 }
 
 export const PRODUCTS: Product[] = [
@@ -347,6 +350,7 @@ export type Audience = {
   title: string
   intro: string
   points: string[]
+  isActive?: boolean
 }
 
 export const AUDIENCES: Audience[] = [

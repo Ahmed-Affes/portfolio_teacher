@@ -79,7 +79,7 @@ export function About() {
 
                 <div className="relative aspect-[4/4.7] w-full overflow-hidden isolate rounded-[2rem] border-2 border-white/80 bg-card shadow-2xl shadow-foreground/10 ring-1 ring-border/50">
                   <Image
-                    src="/images/farah-portrait.png"
+                    src={about.portraitImage || '/images/farah-portrait.png'}
                     alt="Portrait of Farah Affes holding an educational prop in Sfax"
                     fill
                     priority

@@ -113,7 +113,7 @@ export function Hero() {
               {/* Framed Hero Image */}
               <div className="relative aspect-[4/4.4] w-full overflow-hidden isolate rounded-[2rem] border-2 border-white/80 bg-card shadow-2xl shadow-foreground/15 ring-1 ring-border/50">
                 <Image
-                  src="/images/hero-classroom.png"
+                  src={hero.image || '/images/hero-classroom.png'}
                   alt="Farah teaching in a bright, engaging English classroom in Sfax"
                   fill
                   priority

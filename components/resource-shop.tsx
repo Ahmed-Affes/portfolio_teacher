@@ -13,6 +13,8 @@ export function ResourceShop() {
   const { products } = state
   const { addItem } = useCart()
 
+  const activeProducts = products.filter((p) => p.isActive !== false)
+
   const handleAdd = (product: Product, mode: 'buy' | 'rent') => {
     const price = mode === 'buy' ? product.buyPrice : product.rentPrice
     if (price == null) return
@@ -33,7 +35,7 @@ export function ResourceShop() {
         </Reveal>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
-          {products.map((product, i) => (
+          {activeProducts.map((product, i) => (
             <Reveal key={product.id} delay={i * 50}>
               <div className="card-shine group flex h-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 will-change-transform">
                 {/* Product Image */}

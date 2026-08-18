@@ -46,20 +46,23 @@ export function WorkShowcase() {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
   const [viewMode, setViewMode] = useState<'grid' | 'bento'>('grid')
 
+  // Only display active works on public site
+  const activeWorks = useMemo(() => works.filter((w) => w.isActive !== false), [works])
+
   // Calculate item counts for each category
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: works.length }
+    const counts: Record<string, number> = { all: activeWorks.length }
     FILTERS.forEach((f) => {
       if (f.id !== 'all') {
-        counts[f.id] = works.filter((item) => item.category === f.id).length
+        counts[f.id] = activeWorks.filter((item) => item.category === f.id).length
       }
     })
     return counts
-  }, [works])
+  }, [activeWorks])
 
   // Filter & Search logic
   const filteredItems = useMemo(() => {
-    return works.filter((item) => {
+    return activeWorks.filter((item) => {
       const matchesCategory = filter === 'all' || item.category === filter
       const matchesSearch =
         searchQuery === '' ||
@@ -69,7 +72,7 @@ export function WorkShowcase() {
         (item.highlights && item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())))
       return matchesCategory && matchesSearch
     })
-  }, [works, filter, searchQuery])
+  }, [activeWorks, filter, searchQuery])
 
   // Reset pagination when filter or search changes
   useEffect(() => {

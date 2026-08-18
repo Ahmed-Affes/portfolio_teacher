@@ -17,15 +17,13 @@ const ICONS = {
 export function WhoIServe() {
   const { state } = usePortfolio()
   const { audiences } = state
-  const [active, setActive] = useState(audiences[0]?.id || 'students')
-  const current = audiences.find((a) => a.id === active) ?? audiences[0] ?? {
+  const activeAudiences = audiences.filter((a) => a.isActive !== false)
+  const [active, setActive] = useState(activeAudiences[0]?.id || 'students')
+  const current = activeAudiences.find((a) => a.id === active) ?? activeAudiences[0] ?? {
     id: 'students',
     title: 'For Students',
-    subtitle: 'Playful mastery of phonics, grammar, and speaking fluency.',
-    bullets: ['Sensory phonics kits', 'Gamified vocabulary cards'],
-    badge: 'K-12 & Young Learners',
-    ctaText: 'Explore student activities',
-    ctaHref: '#work',
+    intro: 'Playful mastery of phonics, grammar, and speaking fluency.',
+    points: ['Sensory phonics kits', 'Gamified vocabulary cards'],
   }
   const Icon = ICONS[current.id as keyof typeof ICONS] || GraduationCap
 
@@ -45,7 +43,7 @@ export function WhoIServe() {
         {/* Tab Buttons */}
         <Reveal delay={60}>
           <div className="mx-auto flex w-full max-w-xl flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-card p-1.5 shadow-sm sm:flex-nowrap sm:rounded-full">
-            {audiences.map((a) => {
+            {activeAudiences.map((a) => {
               const TabIcon = ICONS[a.id as keyof typeof ICONS] || GraduationCap
               const isSelected = active === a.id
               return (
@@ -60,8 +58,8 @@ export function WhoIServe() {
                       : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
                   )}
                 >
-                  <TabIcon className="size-4 shrink-0" />
-                  <span>{a.title.replace('For ', '')}</span>
+                  <TabIcon className="size-3.5 shrink-0" />
+                  {a.title}
                 </button>
               )
             })}

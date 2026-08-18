@@ -31,10 +31,12 @@ export function Videos() {
   const [activeCategory, setActiveCategory] = useState<VideoCategory>('all')
   const [activeVideo, setActiveVideo] = useState<Video | null>(null)
 
+  const activeVideos = useMemo(() => videos.filter((v) => v.isActive !== false), [videos])
+
   const filteredVideos = useMemo(() => {
-    if (activeCategory === 'all') return videos
-    return videos.filter((v) => v.category === activeCategory)
-  }, [videos, activeCategory])
+    if (activeCategory === 'all') return activeVideos
+    return activeVideos.filter((v) => v.category === activeCategory)
+  }, [activeVideos, activeCategory])
 
   useEffect(() => {
     if (!activeVideo) return

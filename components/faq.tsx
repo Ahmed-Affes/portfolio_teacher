@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 export function Faq() {
   const { state } = usePortfolio()
   const { faqs } = state
+  const activeFaqs = faqs.filter((f) => f.isActive !== false)
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
@@ -49,7 +50,7 @@ export function Faq() {
 
           {/* Right Column: Accordion */}
           <ul className="space-y-3">
-            {faqs.map((faq, i) => {
+            {activeFaqs.map((faq, i) => {
               const isOpen = openIndex === i
               return (
                 <Reveal key={faq.id || faq.q || i} delay={i * 40}>

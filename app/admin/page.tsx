@@ -4,19 +4,25 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
+  AlertCircle,
   ArrowLeft,
+  Bell,
+  BellRing,
   BookOpen,
   Check,
   CheckCircle2,
   Copy,
+  Database,
   Download,
   Edit3,
   ExternalLink,
   Eye,
+  EyeOff,
   FileText,
   GraduationCap,
   Heart,
   HelpCircle,
+  Image as ImageIcon,
   Inbox,
   Key,
   LayoutDashboard,
@@ -29,6 +35,7 @@ import {
   Palette,
   Phone,
   Plus,
+  Radio,
   RotateCcw,
   Save,
   Send,
@@ -36,10 +43,13 @@ import {
   ShoppingBag,
   Sparkles,
   Star,
+  ToggleLeft,
+  ToggleRight,
   Trash2,
   Upload,
   User,
   Video,
+  Volume2,
   X,
 } from 'lucide-react'
 import {
@@ -70,33 +80,44 @@ type AdminTab =
   | 'contact'
   | 'inbox'
   | 'orders'
+  | 'database'
   | 'settings'
 
 export default function AdminPage() {
   const {
     state,
+    isRealtimeConnected,
+    hasNotificationPermission,
+    requestNotifications,
+    testNotificationChime,
     updateHero,
     updateAbout,
     updateContact,
     addWork,
     updateWork,
+    toggleWorkActive,
     deleteWork,
     addVideo,
     updateVideo,
+    toggleVideoActive,
     deleteVideo,
     addProduct,
     updateProduct,
+    toggleProductActive,
     deleteProduct,
     addAudience,
     updateAudience,
+    toggleAudienceActive,
     deleteAudience,
     addAudiencePoint,
     removeAudiencePoint,
     addTestimonial,
     updateTestimonial,
+    toggleTestimonialActive,
     deleteTestimonial,
     addFaq,
     updateFaq,
+    toggleFaqActive,
     deleteFaq,
     updateStats,
     updateOrderStatus,
@@ -122,10 +143,10 @@ export default function AdminPage() {
   // Live Section Preview Modal State
   const [previewSection, setPreviewSection] = useState<string | null>(null)
 
-  // Form State for Hero
+  // Form State for Hero (including Hero Image)
   const [heroForm, setHeroForm] = useState(state.hero)
 
-  // Form State for About
+  // Form State for About (including Portrait Image)
   const [aboutForm, setAboutForm] = useState(state.about)
 
   // Form State for Contact
@@ -275,13 +296,60 @@ export default function AdminPage() {
                 <Sparkles className="size-3.5" />
               </span>
               <span className="font-serif text-sm font-bold sm:text-base">Farah Studio Portal</span>
-              <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.65rem] font-bold text-foreground">
-                Admin v2.0
+              <span
+                className={cn(
+                  'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
+                  isRealtimeConnected
+                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-primary/20 text-foreground',
+                )}
+              >
+                <span className={cn('size-1.5 rounded-full', isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-primary')} />
+                {isRealtimeConnected ? 'Realtime Live' : 'Studio v2.5'}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Realtime Push Notification Permission Toggle */}
+            <button
+              type="button"
+              onClick={async () => {
+                const granted = await requestNotifications()
+                if (granted) {
+                  toast('Device notifications enabled for new orders & inquiries!')
+                } else {
+                  toast('Please allow notifications in your browser settings.')
+                }
+              }}
+              title={hasNotificationPermission ? 'Device Notifications Active' : 'Enable Device Push Notifications'}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-all',
+                hasNotificationPermission
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20',
+              )}
+            >
+              <BellRing className="size-3.5" />
+              <span className="hidden sm:inline">
+                {hasNotificationPermission ? 'Push Active' : 'Enable Push Alerts'}
+              </span>
+            </button>
+
+            {/* Test Notification Chime */}
+            <button
+              type="button"
+              onClick={() => {
+                testNotificationChime()
+                toast('Played notification chime & sent test alert!')
+              }}
+              title="Test Notification Sound & Alert"
+              className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted md:inline-flex"
+            >
+              <Volume2 className="size-3.5 text-primary" />
+              Test Chime
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -295,7 +363,7 @@ export default function AdminPage() {
                 toast('Full Portfolio Backup downloaded!')
               }}
               title="Backup Data"
-              className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted sm:inline-flex"
             >
               <Download className="size-3.5" />
               Backup
@@ -320,15 +388,15 @@ export default function AdminPage() {
           <aside className="flex flex-row gap-1 overflow-x-auto rounded-2xl border border-border/80 bg-card p-2 shadow-xs lg:flex-col lg:overflow-visible">
             {[
               { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, badge: null },
-              { id: 'hero', label: 'Hero & Intro', icon: Sparkles, badge: null },
-              { id: 'about', label: 'About & Pedagogy', icon: BookOpen, badge: null },
+              { id: 'hero', label: 'Hero & Photo', icon: Sparkles, badge: null },
+              { id: 'about', label: 'About & Portrait', icon: BookOpen, badge: null },
               { id: 'works', label: 'Work Showcase', icon: Palette, badge: state.works.length },
               { id: 'videos', label: 'Video Lessons', icon: Video, badge: state.videos.length },
               { id: 'shop', label: 'Resource Shop', icon: ShoppingBag, badge: state.products.length },
               { id: 'audiences', label: 'Target Audiences', icon: GraduationCap, badge: state.audiences.length },
               { id: 'testimonials', label: 'Testimonials', icon: Star, badge: state.testimonials.length },
               { id: 'faqs', label: 'FAQ Section', icon: HelpCircle, badge: state.faqs.length },
-              { id: 'contact', label: 'Contact Info', icon: Phone, badge: null },
+              { id: 'contact', label: 'Contact Details', icon: Phone, badge: null },
               {
                 id: 'inbox',
                 label: 'Messages Inbox',
@@ -343,6 +411,7 @@ export default function AdminPage() {
                 badge: state.orders.filter((o) => o.status === 'pending').length,
                 badgeAlert: true,
               },
+              { id: 'database', label: 'Supabase SQL', icon: Database, badge: null },
               { id: 'settings', label: 'Studio Settings', icon: Settings, badge: null },
             ].map((item) => {
               const Icon = item.icon
@@ -397,10 +466,10 @@ export default function AdminPage() {
                         <Sparkles className="size-3.5 text-primary" /> Farah Affes Studio Control
                       </span>
                       <h2 className="mt-2 font-serif text-2xl font-bold sm:text-3xl">
-                        Welcome to your Portfolio Studio
+                        Welcome to your Realtime Studio
                       </h2>
                       <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                        Manage every text, video, DIY prop, rental item, incoming inquiry, and customer order from Sfax and beyond.
+                        Full CRUD control over every photo, text, DIY prop, rental item, incoming inquiry, and customer order in Sfax.
                       </p>
                     </div>
 
@@ -416,9 +485,14 @@ export default function AdminPage() {
                   {/* Summary Metric Cards */}
                   <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <div className="rounded-2xl border border-border/80 bg-background/80 p-4">
-                      <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
-                        Work Showcase
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
+                          Works Showcase
+                        </p>
+                        <span className="text-[0.65rem] font-semibold text-emerald-600">
+                          {state.works.filter((w) => w.isActive !== false).length} Active
+                        </span>
+                      </div>
                       <p className="mt-1 font-serif text-2xl font-bold text-foreground sm:text-3xl">
                         {state.works.length}
                       </p>
@@ -426,9 +500,14 @@ export default function AdminPage() {
                     </div>
 
                     <div className="rounded-2xl border border-border/80 bg-background/80 p-4">
-                      <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
-                        Shop Products
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
+                          Shop Products
+                        </p>
+                        <span className="text-[0.65rem] font-semibold text-emerald-600">
+                          {state.products.filter((p) => p.isActive !== false).length} Active
+                        </span>
+                      </div>
                       <p className="mt-1 font-serif text-2xl font-bold text-foreground sm:text-3xl">
                         {state.products.length}
                       </p>
@@ -495,29 +574,29 @@ export default function AdminPage() {
 
                   <button
                     type="button"
-                    onClick={() => setActiveTab('orders')}
+                    onClick={() => setActiveTab('database')}
                     className="flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 text-left shadow-xs transition-all hover:border-primary hover:shadow-md"
                   >
                     <div className="flex size-10 items-center justify-center rounded-xl bg-primary/20 text-foreground">
-                      <Package className="size-5" />
+                      <Database className="size-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-foreground">View Orders &amp; Rentals</h4>
-                      <p className="text-[0.7rem] text-muted-foreground">Dispatch via WhatsApp to Sfax &amp; Tunisia</p>
+                      <h4 className="text-xs font-bold text-foreground">Supabase Database SQL</h4>
+                      <p className="text-[0.7rem] text-muted-foreground">Copy complete database schema &amp; setup</p>
                     </div>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* 2. HERO & STATS TAB */}
+            {/* 2. HERO & HERO PHOTO TAB */}
             {activeTab === 'hero' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-serif text-xl font-bold">Hero Section &amp; Quick Stats</h2>
+                    <h2 className="font-serif text-xl font-bold">Hero Section &amp; Classroom Photo</h2>
                     <p className="text-xs text-muted-foreground">
-                      Edit the headline, bio introduction, badges, and above-the-fold statistics.
+                      Edit the main headline, bio introduction, hero photo, and above-the-fold statistics.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -534,13 +613,65 @@ export default function AdminPage() {
                       onClick={() => {
                         updateHero(heroForm)
                         updateStats(statsForm)
-                        toast('Hero Section & Stats saved successfully!')
+                        toast('Hero Section, Photo & Stats saved successfully!')
                       }}
                       className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
                     >
                       <Save className="size-3.5" />
                       Save Changes
                     </button>
+                  </div>
+                </div>
+
+                {/* Hero Photo CRUD */}
+                <div className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="size-4 text-primary" />
+                    <h3 className="font-serif text-sm font-bold text-foreground">Home Section Hero Photo</h3>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
+                    <div className="relative aspect-[4/4.4] w-full overflow-hidden rounded-xl border border-border bg-muted">
+                      <Image
+                        src={heroForm.image || '/images/hero-classroom.png'}
+                        alt="Hero Preview"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold">Hero Photo URL / Local Path</label>
+                        <input
+                          type="text"
+                          value={heroForm.image || ''}
+                          onChange={(e) => setHeroForm({ ...heroForm, image: e.target.value })}
+                          placeholder="/images/hero-classroom.png"
+                          className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-[0.65rem] font-bold uppercase text-muted-foreground">Quick Presets:</span>
+                        <div className="mt-1.5 flex flex-wrap gap-2">
+                          {[
+                            { name: 'Classroom Hero', url: '/images/hero-classroom.png' },
+                            { name: 'Phonics Kit', url: '/images/product-phonics-wheel.png' },
+                            { name: 'Farah Portrait', url: '/images/farah-portrait.png' },
+                          ].map((preset) => (
+                            <button
+                              key={preset.url}
+                              type="button"
+                              onClick={() => setHeroForm({ ...heroForm, image: preset.url })}
+                              className="rounded-lg border border-border bg-muted/40 px-2.5 py-1 text-[0.7rem] font-semibold hover:bg-muted"
+                            >
+                              {preset.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -667,14 +798,14 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 3. ABOUT & PEDAGOGY TAB */}
+            {/* 3. ABOUT & PORTRAIT PHOTO TAB */}
             {activeTab === 'about' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-serif text-xl font-bold">About Farah &amp; Pedagogical Pillars</h2>
+                    <h2 className="font-serif text-xl font-bold">About Farah &amp; Portrait Photo</h2>
                     <p className="text-xs text-muted-foreground">
-                      Edit the narrative story, manifesto quote, location, and the 4 methodology pillars.
+                      Edit the narrative story, portrait photo, manifesto quote, location, and the 4 methodology pillars.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -690,13 +821,65 @@ export default function AdminPage() {
                       type="button"
                       onClick={() => {
                         updateAbout(aboutForm)
-                        toast('About Section & Pillars saved successfully!')
+                        toast('About Section, Portrait & Pillars saved successfully!')
                       }}
                       className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
                     >
                       <Save className="size-3.5" />
                       Save Changes
                     </button>
+                  </div>
+                </div>
+
+                {/* About Portrait Photo CRUD */}
+                <div className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="size-4 text-primary" />
+                    <h3 className="font-serif text-sm font-bold text-foreground">About Me Portrait Photo</h3>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
+                    <div className="relative aspect-[4/4.7] w-full overflow-hidden rounded-xl border border-border bg-muted">
+                      <Image
+                        src={aboutForm.portraitImage || '/images/farah-portrait.png'}
+                        alt="Portrait Preview"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold">Portrait Photo URL / Local Path</label>
+                        <input
+                          type="text"
+                          value={aboutForm.portraitImage || ''}
+                          onChange={(e) => setAboutForm({ ...aboutForm, portraitImage: e.target.value })}
+                          placeholder="/images/farah-portrait.png"
+                          className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-[0.65rem] font-bold uppercase text-muted-foreground">Quick Presets:</span>
+                        <div className="mt-1.5 flex flex-wrap gap-2">
+                          {[
+                            { name: 'Default Portrait', url: '/images/farah-portrait.png' },
+                            { name: 'Classroom Hero', url: '/images/hero-classroom.png' },
+                            { name: 'Story Kit', url: '/images/product-story-kit.png' },
+                          ].map((preset) => (
+                            <button
+                              key={preset.url}
+                              type="button"
+                              onClick={() => setAboutForm({ ...aboutForm, portraitImage: preset.url })}
+                              className="rounded-lg border border-border bg-muted/40 px-2.5 py-1 text-[0.7rem] font-semibold hover:bg-muted"
+                            >
+                              {preset.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -845,7 +1028,7 @@ export default function AdminPage() {
                         </div>
                         <div>
                           <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                            Key Highlights (comma separated)
+                            Highlights (comma separated)
                           </label>
                           <input
                             type="text"
@@ -865,14 +1048,14 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 4. WORK SHOWCASE TAB (CRUD) */}
+            {/* 4. WORK SHOWCASE TAB (CRUD + ACTIVATE/DEACTIVATE) */}
             {activeTab === 'works' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-xl font-bold">Portfolio Work Items ({state.works.length})</h2>
                     <p className="text-xs text-muted-foreground">
-                      Add, update, or remove handcrafted props, printable worksheets, posters, and classroom photos.
+                      Add, update, activate/deactivate, or remove handcrafted props, printable worksheets, and posters.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -896,78 +1079,101 @@ export default function AdminPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {state.works.map((item) => (
-                    <div
-                      key={item.id}
-                      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs transition-all hover:border-primary/50 hover:shadow-md"
-                    >
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                        <Image
-                          src={item.image || '/placeholder.svg'}
-                          alt={item.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 300px"
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <span className="absolute left-3 top-3 rounded-full bg-card/90 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-foreground backdrop-blur-sm">
-                          {item.category}
-                        </span>
-                      </div>
+                  {state.works.map((item) => {
+                    const isItemActive = item.isActive !== false
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          'group relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-card shadow-xs transition-all',
+                          isItemActive ? 'border-border/80 hover:border-primary/50' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
+                        )}
+                      >
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                          <Image
+                            src={item.image || '/placeholder.svg'}
+                            alt={item.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 300px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <span className="absolute left-3 top-3 rounded-full bg-card/90 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-foreground backdrop-blur-sm">
+                            {item.category}
+                          </span>
 
-                      <div className="p-4 flex-1 flex flex-col justify-between">
-                        <div>
-                          <p className="text-xs font-bold text-primary">{item.tag}</p>
-                          <h3 className="font-serif text-base font-semibold leading-tight text-foreground">
-                            {item.title}
-                          </h3>
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                            {item.description}
-                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleWorkActive(item.id)
+                              toast(`"${item.title}" is now ${isItemActive ? 'Deactivated (Hidden)' : 'Active (Live)'}`)
+                            }}
+                            className={cn(
+                              'absolute right-3 top-3 flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.65rem] font-bold shadow-md backdrop-blur-sm transition-all',
+                              isItemActive
+                                ? 'bg-emerald-500 text-white'
+                                : 'bg-muted-foreground/80 text-white',
+                            )}
+                          >
+                            {isItemActive ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                            {isItemActive ? 'Active' : 'Hidden'}
+                          </button>
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-                          <span className="text-[0.7rem] text-muted-foreground">
-                            {item.format || item.year || 'Farah Studio'}
-                          </span>
-                          <div className="flex gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setEditingWork(item)}
-                              className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                              title="Edit item"
-                            >
-                              <Edit3 className="size-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm(`Delete "${item.title}"?`)) {
-                                  deleteWork(item.id)
-                                  toast('Work item deleted.')
-                                }
-                              }}
-                              className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                              title="Delete item"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                          <div>
+                            <p className="text-xs font-bold text-primary">{item.tag}</p>
+                            <h3 className="font-serif text-base font-semibold leading-tight text-foreground">
+                              {item.title}
+                            </h3>
+                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              {item.description}
+                            </p>
+                          </div>
+
+                          <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
+                            <span className="text-[0.7rem] text-muted-foreground">
+                              {item.format || item.year || 'Farah Studio'}
+                            </span>
+                            <div className="flex gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setEditingWork(item)}
+                                className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
+                                title="Edit item"
+                              >
+                                <Edit3 className="size-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Delete "${item.title}"?`)) {
+                                    deleteWork(item.id)
+                                    toast('Work item deleted.')
+                                  }
+                                }}
+                                className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                title="Delete item"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
 
-            {/* 5. VIDEO LESSONS TAB (CRUD) */}
+            {/* 5. VIDEO LESSONS TAB (CRUD + ACTIVATE/DEACTIVATE) */}
             {activeTab === 'videos' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-xl font-bold">Video Lessons &amp; Clips ({state.videos.length})</h2>
                     <p className="text-xs text-muted-foreground">
-                      Manage YouTube and instructional mini-lessons, pronunciation drills, and classroom demonstrations.
+                      Manage, activate/deactivate, or add video mini-lessons and demonstrations.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -991,77 +1197,97 @@ export default function AdminPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {state.videos.map((vid) => (
-                    <div
-                      key={vid.id}
-                      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs"
-                    >
-                      <div className="relative aspect-video w-full overflow-hidden bg-muted">
-                        <Image
-                          src={vid.thumbnail || '/placeholder.svg'}
-                          alt={vid.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 300px"
-                          className="object-cover"
-                        />
-                        <span className="absolute bottom-2 right-2 rounded-md bg-black/80 px-2 py-0.5 text-[0.65rem] font-bold text-white">
-                          {vid.duration}
-                        </span>
-                        <span className="absolute left-2 top-2 rounded-md bg-primary px-2 py-0.5 text-[0.65rem] font-bold text-primary-foreground">
-                          {vid.category}
-                        </span>
-                      </div>
-
-                      <div className="p-4 flex-1 flex flex-col justify-between">
-                        <div>
-                          <p className="text-[0.65rem] font-bold uppercase text-muted-foreground">{vid.level}</p>
-                          <h3 className="font-serif text-sm font-semibold text-foreground">{vid.title}</h3>
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                            {vid.takeaways && vid.takeaways.length > 0 ? vid.takeaways.join(' • ') : 'Educational clip'}
-                          </p>
+                  {state.videos.map((vid) => {
+                    const isVidActive = vid.isActive !== false
+                    return (
+                      <div
+                        key={vid.id}
+                        className={cn(
+                          'group flex flex-col justify-between overflow-hidden rounded-2xl border bg-card shadow-xs',
+                          isVidActive ? 'border-border/80' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
+                        )}
+                      >
+                        <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                          <Image
+                            src={vid.thumbnail || '/placeholder.svg'}
+                            alt={vid.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 300px"
+                            className="object-cover"
+                          />
+                          <span className="absolute bottom-2 right-2 rounded-md bg-black/80 px-2 py-0.5 text-[0.65rem] font-bold text-white">
+                            {vid.duration}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleVideoActive(vid.id)
+                              toast(`"${vid.title}" is now ${isVidActive ? 'Deactivated (Hidden)' : 'Active (Live)'}`)
+                            }}
+                            className={cn(
+                              'absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold shadow-md',
+                              isVidActive ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/80 text-white',
+                            )}
+                          >
+                            {isVidActive ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                            {isVidActive ? 'Active' : 'Hidden'}
+                          </button>
+                          <span className="absolute left-2 top-2 rounded-md bg-primary px-2 py-0.5 text-[0.65rem] font-bold text-primary-foreground">
+                            {vid.category}
+                          </span>
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-                          <span className="text-[0.7rem] text-muted-foreground truncate max-w-[140px]">
-                            {vid.src}
-                          </span>
-                          <div className="flex gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setEditingVideo(vid)}
-                              className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                            >
-                              <Edit3 className="size-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm(`Delete video "${vid.title}"?`)) {
-                                  deleteVideo(vid.id)
-                                  toast('Video clip deleted.')
-                                }
-                              }}
-                              className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                          <div>
+                            <p className="text-[0.65rem] font-bold uppercase text-muted-foreground">{vid.level}</p>
+                            <h3 className="font-serif text-sm font-semibold text-foreground">{vid.title}</h3>
+                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              {vid.takeaways && vid.takeaways.length > 0 ? vid.takeaways.join(' • ') : 'Educational clip'}
+                            </p>
+                          </div>
+
+                          <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
+                            <span className="text-[0.7rem] text-muted-foreground truncate max-w-[140px]">
+                              {vid.src}
+                            </span>
+                            <div className="flex gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setEditingVideo(vid)}
+                                className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
+                              >
+                                <Edit3 className="size-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Delete video "${vid.title}"?`)) {
+                                    deleteVideo(vid.id)
+                                    toast('Video clip deleted.')
+                                  }
+                                }}
+                                className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
 
-            {/* 6. RESOURCE SHOP TAB (CRUD) */}
+            {/* 6. RESOURCE SHOP TAB (CRUD + ACTIVATE/DEACTIVATE) */}
             {activeTab === 'shop' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-xl font-bold">Resource Shop Products ({state.products.length})</h2>
                     <p className="text-xs text-muted-foreground">
-                      Add, price, and manage DIY props, printable sets, and classroom bundles available for buy or rent.
+                      Add, price, activate/deactivate, and manage DIY props and printable sets available for buy or rent.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -1085,69 +1311,90 @@ export default function AdminPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {state.products.map((prod) => (
-                    <div
-                      key={prod.id}
-                      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs"
-                    >
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                        <Image
-                          src={prod.image || '/placeholder.svg'}
-                          alt={prod.name}
-                          fill
-                          sizes="200px"
-                          className="object-cover"
-                        />
-                        <span className="absolute left-2 top-2 rounded-full bg-card/90 px-2 py-0.5 text-[0.65rem] font-bold uppercase text-foreground">
-                          {prod.category}
-                        </span>
-                      </div>
+                  {state.products.map((prod) => {
+                    const isProdActive = prod.isActive !== false
+                    return (
+                      <div
+                        key={prod.id}
+                        className={cn(
+                          'group flex flex-col justify-between overflow-hidden rounded-2xl border bg-card shadow-xs',
+                          isProdActive ? 'border-border/80' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
+                        )}
+                      >
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                          <Image
+                            src={prod.image || '/placeholder.svg'}
+                            alt={prod.name}
+                            fill
+                            sizes="200px"
+                            className="object-cover"
+                          />
+                          <span className="absolute left-2 top-2 rounded-full bg-card/90 px-2 py-0.5 text-[0.65rem] font-bold uppercase text-foreground">
+                            {prod.category}
+                          </span>
 
-                      <div className="p-4 flex-1 flex flex-col justify-between">
-                        <div>
-                          <h3 className="font-serif text-sm font-semibold text-foreground">{prod.name}</h3>
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{prod.description}</p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleProductActive(prod.id)
+                              toast(`"${prod.name}" is now ${isProdActive ? 'Deactivated (Hidden)' : 'Active (Live)'}`)
+                            }}
+                            className={cn(
+                              'absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold shadow-md',
+                              isProdActive ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/80 text-white',
+                            )}
+                          >
+                            {isProdActive ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                            {isProdActive ? 'Active' : 'Hidden'}
+                          </button>
                         </div>
 
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                            {prod.buyPrice != null ? (
-                              <span>Buy: {prod.buyPrice} TND</span>
-                            ) : (
-                              <span className="text-muted-foreground">Buy: N/A</span>
-                            )}
-                            {prod.rentPrice != null ? (
-                              <span className="text-primary">Rent: {prod.rentPrice} TND/day</span>
-                            ) : (
-                              <span className="text-muted-foreground">Rent: N/A</span>
-                            )}
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3 className="font-serif text-sm font-semibold text-foreground">{prod.name}</h3>
+                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{prod.description}</p>
                           </div>
 
-                          <div className="mt-3 flex items-center justify-end gap-1.5 border-t border-border/60 pt-2">
-                            <button
-                              type="button"
-                              onClick={() => setEditingProduct(prod)}
-                              className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                            >
-                              <Edit3 className="size-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm(`Delete product "${prod.name}"?`)) {
-                                  deleteProduct(prod.id)
-                                  toast('Product deleted.')
-                                }
-                              }}
-                              className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
+                          <div className="mt-3">
+                            <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                              {prod.buyPrice != null ? (
+                                <span>Buy: {prod.buyPrice} TND</span>
+                              ) : (
+                                <span className="text-muted-foreground">Buy: N/A</span>
+                              )}
+                              {prod.rentPrice != null ? (
+                                <span className="text-primary">Rent: {prod.rentPrice} TND/day</span>
+                              ) : (
+                                <span className="text-muted-foreground">Rent: N/A</span>
+                              )}
+                            </div>
+
+                            <div className="mt-3 flex items-center justify-end gap-1.5 border-t border-border/60 pt-2">
+                              <button
+                                type="button"
+                                onClick={() => setEditingProduct(prod)}
+                                className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
+                              >
+                                <Edit3 className="size-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Delete product "${prod.name}"?`)) {
+                                    deleteProduct(prod.id)
+                                    toast('Product deleted.')
+                                  }
+                                }}
+                                className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -1159,7 +1406,7 @@ export default function AdminPage() {
                   <div>
                     <h2 className="font-serif text-xl font-bold">Target Audiences ({state.audiences.length})</h2>
                     <p className="text-xs text-muted-foreground">
-                      Edit the tailored messaging for Students, Parents, and Fellow Teachers.
+                      Edit or deactivate tailored messaging for Students, Parents, and Teachers.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -1175,47 +1422,69 @@ export default function AdminPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-3">
-                  {state.audiences.map((aud, i) => (
-                    <div key={aud.id} className="rounded-2xl border border-border bg-card p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="font-serif text-sm font-bold">{aud.title}</span>
-                      </div>
+                  {state.audiences.map((aud) => {
+                    const isAudActive = aud.isActive !== false
+                    return (
+                      <div
+                        key={aud.id}
+                        className={cn(
+                          'rounded-2xl border bg-card p-4 space-y-3',
+                          isAudActive ? 'border-border' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-serif text-sm font-bold">{aud.title}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleAudienceActive(aud.id)
+                              toast(`"${aud.title}" is now ${isAudActive ? 'Deactivated' : 'Active'}`)
+                            }}
+                            className={cn(
+                              'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
+                              isAudActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-muted text-muted-foreground',
+                            )}
+                          >
+                            {isAudActive ? 'Active' : 'Deactivated'}
+                          </button>
+                        </div>
 
-                      <div>
-                        <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                          Headline / Intro
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={aud.intro}
-                          onChange={(e) => {
-                            updateAudience(aud.id, { intro: e.target.value })
-                          }}
-                          className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
+                        <div>
+                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
+                            Headline / Intro
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={aud.intro}
+                            onChange={(e) => {
+                              updateAudience(aud.id, { intro: e.target.value })
+                            }}
+                            className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
+                          />
+                        </div>
 
-                      <div>
-                        <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                          Key Points (comma separated)
-                        </label>
-                        <input
-                          type="text"
-                          value={(aud.points || []).join(', ')}
-                          onChange={(e) => {
-                            const next = e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)
-                            updateAudience(aud.id, { points: next })
-                          }}
-                          className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
-                        />
+                        <div>
+                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
+                            Key Points (comma separated)
+                          </label>
+                          <input
+                            type="text"
+                            value={(aud.points || []).join(', ')}
+                            onChange={(e) => {
+                              const next = e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)
+                              updateAudience(aud.id, { points: next })
+                            }}
+                            className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
 
-            {/* 8. TESTIMONIALS TAB (CRUD) */}
+            {/* 8. TESTIMONIALS TAB (CRUD + ACTIVATE/DEACTIVATE) */}
             {activeTab === 'testimonials' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -1224,7 +1493,7 @@ export default function AdminPage() {
                       Community Testimonials ({state.testimonials.length})
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      Add, update, and manage genuine endorsements from parents, students, and teachers.
+                      Add, update, activate/deactivate, and manage endorsements from parents and teachers.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -1248,64 +1517,85 @@ export default function AdminPage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {state.testimonials.map((test) => (
-                    <div
-                      key={test.id}
-                      className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs"
-                    >
-                      <div>
-                        <div className="flex items-center gap-1 text-primary">
-                          {Array.from({ length: test.rating || 5 }).map((_, i) => (
-                            <Star key={i} className="size-3.5 fill-current" />
-                          ))}
-                        </div>
-                        <blockquote className="mt-2 text-xs italic leading-relaxed text-foreground">
-                          &ldquo;{test.quote}&rdquo;
-                        </blockquote>
-                      </div>
-
-                      <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
+                  {state.testimonials.map((test) => {
+                    const isTestActive = test.isActive !== false
+                    return (
+                      <div
+                        key={test.id}
+                        className={cn(
+                          'flex flex-col justify-between rounded-2xl border bg-card p-5 shadow-xs',
+                          isTestActive ? 'border-border' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
+                        )}
+                      >
                         <div>
-                          <p className="font-serif text-xs font-bold text-foreground">{test.name}</p>
-                          <p className="text-[0.7rem] text-muted-foreground">{test.role}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1 text-primary">
+                              {Array.from({ length: test.rating || 5 }).map((_, i) => (
+                                <Star key={i} className="size-3.5 fill-current" />
+                              ))}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                toggleTestimonialActive(test.id)
+                                toast(`Testimonial from ${test.name} is now ${isTestActive ? 'Hidden' : 'Live'}`)
+                              }}
+                              className={cn(
+                                'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
+                                isTestActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-muted text-muted-foreground',
+                              )}
+                            >
+                              {isTestActive ? 'Active' : 'Hidden'}
+                            </button>
+                          </div>
+                          <blockquote className="mt-2 text-xs italic leading-relaxed text-foreground">
+                            &ldquo;{test.quote}&rdquo;
+                          </blockquote>
                         </div>
 
-                        <div className="flex gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => setEditingTestimonial(test)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                          >
-                            <Edit3 className="size-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm(`Delete testimonial from ${test.name}?`)) {
-                                deleteTestimonial(test.id)
-                                toast('Testimonial deleted.')
-                              }
-                            }}
-                            className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
+                        <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
+                          <div>
+                            <p className="font-serif text-xs font-bold text-foreground">{test.name}</p>
+                            <p className="text-[0.7rem] text-muted-foreground">{test.role}</p>
+                          </div>
+
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setEditingTestimonial(test)}
+                              className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
+                            >
+                              <Edit3 className="size-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Delete testimonial from ${test.name}?`)) {
+                                  deleteTestimonial(test.id)
+                                  toast('Testimonial deleted.')
+                                }
+                              }}
+                              className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
 
-            {/* 9. FAQS TAB (CRUD) */}
+            {/* 9. FAQS TAB (CRUD + ACTIVATE/DEACTIVATE) */}
             {activeTab === 'faqs' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-xl font-bold">Frequently Asked Questions ({state.faqs.length})</h2>
                     <p className="text-xs text-muted-foreground">
-                      Edit or add new questions to provide clarity on rentals, custom worksheets, and teacher workshops.
+                      Edit, activate/deactivate, or add new questions to provide clarity on rentals and workshops.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -1329,39 +1619,60 @@ export default function AdminPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {state.faqs.map((faq) => (
-                    <div
-                      key={faq.id}
-                      className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-xs"
-                    >
-                      <div className="space-y-1">
-                        <h4 className="font-serif text-sm font-semibold text-foreground">{faq.q}</h4>
-                        <p className="text-xs text-muted-foreground">{faq.a}</p>
-                      </div>
+                  {state.faqs.map((faq) => {
+                    const isFaqActive = faq.isActive !== false
+                    return (
+                      <div
+                        key={faq.id}
+                        className={cn(
+                          'flex items-start justify-between gap-4 rounded-2xl border bg-card p-4 shadow-xs',
+                          isFaqActive ? 'border-border' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
+                        )}
+                      >
+                        <div className="space-y-1 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-serif text-sm font-semibold text-foreground">{faq.q}</h4>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                toggleFaqActive(faq.id)
+                                toast(`FAQ is now ${isFaqActive ? 'Hidden' : 'Active'}`)
+                              }}
+                              className={cn(
+                                'rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
+                                isFaqActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-muted text-muted-foreground',
+                              )}
+                            >
+                              {isFaqActive ? 'Active' : 'Hidden'}
+                            </button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{faq.a}</p>
+                        </div>
 
-                      <div className="flex shrink-0 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setEditingFaq(faq)}
-                          className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                        >
-                          <Edit3 className="size-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm('Delete this question?')) {
-                              deleteFaq(faq.id)
-                              toast('FAQ deleted.')
-                            }
-                          }}
-                          className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </button>
+                        <div className="flex shrink-0 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setEditingFaq(faq)}
+                            className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
+                          >
+                            <Edit3 className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm('Delete this question?')) {
+                                deleteFaq(faq.id)
+                                toast('FAQ deleted.')
+                              }
+                            }}
+                            className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -1461,9 +1772,17 @@ export default function AdminPage() {
                   <div>
                     <h2 className="font-serif text-xl font-bold">Contact Messages Inbox ({state.messages.length})</h2>
                     <p className="text-xs text-muted-foreground">
-                      All messages submitted via the website contact form.
+                      Messages sent directly through the portfolio web app (no Outlook or external client required).
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={testNotificationChime}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
+                  >
+                    <Volume2 className="size-3.5 text-primary" />
+                    Test Alert Tone
+                  </button>
                 </div>
 
                 {state.messages.length === 0 ? (
@@ -1471,7 +1790,7 @@ export default function AdminPage() {
                     <Inbox className="size-10 text-muted-foreground" />
                     <p className="mt-2 font-serif text-base font-semibold">No messages yet</p>
                     <p className="text-xs text-muted-foreground">
-                      New messages from students, parents, and teachers will appear here automatically.
+                      When visitors send an inquiry through the contact form, it will pop up here instantly in real-time with an alert chime.
                     </p>
                   </div>
                 ) : (
@@ -1495,6 +1814,11 @@ export default function AdminPage() {
                             <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.65rem] font-bold text-foreground">
                               {msg.topic}
                             </span>
+                            {msg.status === 'unread' && (
+                              <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-amber-600 dark:text-amber-400">
+                                New
+                              </span>
+                            )}
                           </div>
 
                           <div className="flex items-center gap-2">
@@ -1560,6 +1884,14 @@ export default function AdminPage() {
                       Track customer purchase and rental requests. Send direct 1-click WhatsApp confirmations.
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={testNotificationChime}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
+                  >
+                    <Volume2 className="size-3.5 text-primary" />
+                    Test Alert Tone
+                  </button>
                 </div>
 
                 {state.orders.length === 0 ? (
@@ -1725,7 +2057,98 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 13. STUDIO SETTINGS & BACKUP TAB */}
+            {/* 13. SUPABASE DATABASE SCHEMA TAB */}
+            {activeTab === 'database' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="font-serif text-xl font-bold">Supabase PostgreSQL Schema</h2>
+                    <p className="text-xs text-muted-foreground">
+                      Execute this complete SQL script in your Supabase SQL Editor to enable full realtime database sync.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sqlScript = `-- Supabase Schema for Farah Affes Portfolio\nCREATE TABLE IF NOT EXISTS public.contact_messages (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    name TEXT NOT NULL,\n    email TEXT NOT NULL,\n    role TEXT DEFAULT 'Student',\n    topic TEXT DEFAULT 'General question',\n    message TEXT NOT NULL,\n    status TEXT DEFAULT 'unread'\n);\n\nCREATE TABLE IF NOT EXISTS public.orders (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    customer_name TEXT DEFAULT 'Guest',\n    customer_email TEXT DEFAULT 'Not provided',\n    customer_phone TEXT NOT NULL,\n    customer_location TEXT DEFAULT 'Sfax, Tunisia',\n    items JSONB NOT NULL DEFAULT '[]'::jsonb,\n    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,\n    currency TEXT DEFAULT 'TND',\n    status TEXT DEFAULT 'pending',\n    rental_dates TEXT,\n    notes TEXT\n);\n\nCREATE TABLE IF NOT EXISTS public.portfolio_settings (\n    id TEXT PRIMARY KEY DEFAULT 'current_state',\n    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    hero JSONB NOT NULL DEFAULT '{}'::jsonb,\n    about JSONB NOT NULL DEFAULT '{}'::jsonb,\n    stats JSONB NOT NULL DEFAULT '[]'::jsonb,\n    contact JSONB NOT NULL DEFAULT '{}'::jsonb,\n    admin_pin TEXT DEFAULT 'farah2026'\n);\n\nALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY "Allow public inserts on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\nCREATE POLICY "Allow public inserts on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\nCREATE POLICY "Allow public all on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\n\nALTER PUBLICATION supabase_realtime ADD TABLE public.contact_messages;\nALTER PUBLICATION supabase_realtime ADD TABLE public.orders;\nALTER PUBLICATION supabase_realtime ADD TABLE public.portfolio_settings;`
+                      navigator.clipboard.writeText(sqlScript)
+                      toast('Full Supabase SQL copied to clipboard!')
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
+                  >
+                    <Copy className="size-3.5" />
+                    Copy Complete SQL
+                  </button>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center gap-3 rounded-xl bg-primary/10 p-3.5 text-xs text-foreground">
+                    <Sparkles className="size-4 shrink-0 text-primary" />
+                    <p>
+                      <strong>How to install in Supabase:</strong> Open your Supabase project dashboard, click <strong>SQL Editor</strong> on the left sidebar, click <strong>New Query</strong>, paste this code, and click <strong>Run</strong>.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-border bg-muted/40 p-4 font-mono text-xs text-foreground overflow-x-auto">
+                    <pre>{`-- 1. Create table for Contact Messages
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    role TEXT DEFAULT 'Student',
+    topic TEXT DEFAULT 'General question',
+    message TEXT NOT NULL,
+    status TEXT DEFAULT 'unread'
+);
+
+-- 2. Create table for Material & Resource Orders (Buy & Rent)
+CREATE TABLE IF NOT EXISTS public.orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    customer_name TEXT DEFAULT 'Guest',
+    customer_email TEXT DEFAULT 'Not provided',
+    customer_phone TEXT NOT NULL,
+    customer_location TEXT DEFAULT 'Sfax, Tunisia',
+    items JSONB NOT NULL DEFAULT '[]'::jsonb,
+    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    currency TEXT DEFAULT 'TND',
+    status TEXT DEFAULT 'pending',
+    rental_dates TEXT,
+    notes TEXT
+);
+
+-- 3. Create table for Live Dynamic Portfolio Settings
+CREATE TABLE IF NOT EXISTS public.portfolio_settings (
+    id TEXT PRIMARY KEY DEFAULT 'current_state',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    hero JSONB NOT NULL DEFAULT '{}'::jsonb,
+    about JSONB NOT NULL DEFAULT '{}'::jsonb,
+    stats JSONB NOT NULL DEFAULT '[]'::jsonb,
+    contact JSONB NOT NULL DEFAULT '{}'::jsonb,
+    admin_pin TEXT DEFAULT 'farah2026'
+);
+
+-- 4. Enable Row Level Security (RLS) & Policies
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public all on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public all on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public all on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+-- 5. Enable Realtime Publications
+ALTER PUBLICATION supabase_realtime ADD TABLE public.contact_messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.portfolio_settings;`}</pre>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 14. STUDIO SETTINGS & BACKUP TAB */}
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <div>
@@ -1733,6 +2156,51 @@ export default function AdminPage() {
                   <p className="text-xs text-muted-foreground">
                     Update your admin access PIN, export full portfolio backups, or restore previous states.
                   </p>
+                </div>
+
+                {/* Device Notification Settings */}
+                <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-serif text-base font-bold">Device &amp; Mobile Push Alerts</h3>
+                      <p className="text-xs text-muted-foreground">
+                        Receive instant SMS-style sound &amp; push alerts when visitors send inquiries or place orders.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={testNotificationChime}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                    >
+                      <Volume2 className="size-3.5 text-primary" /> Test Tone
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3.5">
+                    <div className="flex items-center gap-3">
+                      <BellRing className="size-4 text-primary" />
+                      <span className="text-xs font-semibold">Browser &amp; OS Push Notifications</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const granted = await requestNotifications()
+                        if (granted) {
+                          toast('Device push alerts enabled!')
+                        } else {
+                          toast('Please allow notification permission in your browser.')
+                        }
+                      }}
+                      className={cn(
+                        'rounded-lg px-3 py-1 text-xs font-semibold transition-all',
+                        hasNotificationPermission
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-primary text-primary-foreground',
+                      )}
+                    >
+                      {hasNotificationPermission ? 'Enabled ✓' : 'Enable Push'}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Change PIN Card */}
@@ -1990,6 +2458,7 @@ function WorkModal({
   const [format, setFormat] = useState(item?.format || 'Physical Prop Kit • Rent / Buy')
   const [year, setYear] = useState(item?.year || '2024')
   const [highlights, setHighlights] = useState((item?.highlights || []).join(', '))
+  const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -2001,6 +2470,7 @@ function WorkModal({
       image,
       format,
       year,
+      isActive,
       highlights: highlights.split(',').map((s: string) => s.trim()).filter(Boolean),
     })
   }
@@ -2116,6 +2586,19 @@ function WorkModal({
             />
           </div>
 
+          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
+            <input
+              type="checkbox"
+              id="workActiveCheckbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="size-4 rounded text-primary focus:ring-primary"
+            />
+            <label htmlFor="workActiveCheckbox" className="text-xs font-semibold cursor-pointer">
+              Active (Visible on public portfolio website)
+            </label>
+          </div>
+
           <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
             <button
               type="button"
@@ -2153,6 +2636,7 @@ function VideoModal({
   const [src, setSrc] = useState(item?.src || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4')
   const [thumbnail, setThumbnail] = useState(item?.thumbnail || '/images/video-lesson.png')
   const [takeaways, setTakeaways] = useState((item?.takeaways || []).join(', '))
+  const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -2163,6 +2647,7 @@ function VideoModal({
       level,
       src,
       thumbnail,
+      isActive,
       takeaways: takeaways.split(',').map((s: string) => s.trim()).filter(Boolean),
     })
   }
@@ -2262,6 +2747,19 @@ function VideoModal({
             />
           </div>
 
+          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
+            <input
+              type="checkbox"
+              id="vidActiveCheckbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="size-4 rounded text-primary focus:ring-primary"
+            />
+            <label htmlFor="vidActiveCheckbox" className="text-xs font-semibold cursor-pointer">
+              Active (Visible on public portfolio website)
+            </label>
+          </div>
+
           <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
             <button
               type="button"
@@ -2299,6 +2797,7 @@ function ProductModal({
   const [buyPrice, setBuyPrice] = useState<string>(item?.buyPrice != null ? String(item.buyPrice) : '45')
   const [rentPrice, setRentPrice] = useState<string>(item?.rentPrice != null ? String(item.rentPrice) : '15')
   const [features, setFeatures] = useState((item?.features || []).join(', '))
+  const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -2312,6 +2811,7 @@ function ProductModal({
       description,
       image,
       options,
+      isActive,
       buyPrice: buyPrice ? Number(buyPrice) : undefined,
       rentPrice: rentPrice ? Number(rentPrice) : undefined,
       features: features.split(',').map((s: string) => s.trim()).filter(Boolean),
@@ -2413,6 +2913,19 @@ function ProductModal({
             />
           </div>
 
+          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
+            <input
+              type="checkbox"
+              id="prodActiveCheckbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="size-4 rounded text-primary focus:ring-primary"
+            />
+            <label htmlFor="prodActiveCheckbox" className="text-xs font-semibold cursor-pointer">
+              Active (Visible in public shop &amp; cart checkout)
+            </label>
+          </div>
+
           <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
             <button
               type="button"
@@ -2447,10 +2960,11 @@ function TestimonialModal({
   const [role, setRole] = useState(item?.role || 'Parent of 4th Grader • Sfax')
   const [quote, setQuote] = useState(item?.quote || '')
   const [rating, setRating] = useState(item?.rating || 5)
+  const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ name, role, quote, rating })
+    onSave({ name, role, quote, rating, isActive })
   }
 
   return (
@@ -2515,6 +3029,19 @@ function TestimonialModal({
             />
           </div>
 
+          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
+            <input
+              type="checkbox"
+              id="testActiveCheckbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="size-4 rounded text-primary focus:ring-primary"
+            />
+            <label htmlFor="testActiveCheckbox" className="text-xs font-semibold cursor-pointer">
+              Active (Visible on public testimonials slider)
+            </label>
+          </div>
+
           <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
             <button
               type="button"
@@ -2547,10 +3074,11 @@ function FaqModal({
 }) {
   const [q, setQ] = useState(item?.q || '')
   const [a, setA] = useState(item?.a || '')
+  const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ q, a })
+    onSave({ q, a, isActive })
   }
 
   return (
@@ -2586,6 +3114,19 @@ function FaqModal({
               placeholder="Yes! Props can be rented daily with pickup or courier delivery..."
               className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
             />
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
+            <input
+              type="checkbox"
+              id="faqActiveCheckbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="size-4 rounded text-primary focus:ring-primary"
+            />
+            <label htmlFor="faqActiveCheckbox" className="text-xs font-semibold cursor-pointer">
+              Active (Visible in public FAQ accordion)
+            </label>
           </div>
 
           <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
@@ -2655,28 +3196,41 @@ function LivePreviewModal({
         <div className="flex-1 overflow-y-auto p-6">
           {section === 'hero' && (
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-foreground">
-                <span className="size-2 rounded-full bg-primary animate-ping" />
-                {heroData.eyebrow}
-              </span>
+              <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-center">
+                <div>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-foreground">
+                    <span className="size-2 rounded-full bg-primary animate-ping" />
+                    {heroData.eyebrow}
+                  </span>
 
-              <h1 className="mt-4 font-serif text-3xl font-bold sm:text-4xl">
-                {heroData.titlePrefix}{' '}
-                <span className="highlight-underline">{heroData.highlightWord}</span>{' '}
-                <span className="text-gradient">{heroData.titleSuffix}</span>
-              </h1>
+                  <h1 className="mt-4 font-serif text-3xl font-bold sm:text-4xl">
+                    {heroData.titlePrefix}{' '}
+                    <span className="highlight-underline">{heroData.highlightWord}</span>{' '}
+                    <span className="text-gradient">{heroData.titleSuffix}</span>
+                  </h1>
 
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                {heroData.bio}
-              </p>
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                    {heroData.bio}
+                  </p>
 
-              <div className="mt-5 flex gap-3">
-                <span className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground shadow-md">
-                  {heroData.ctaWorkText || 'Explore my materials'}
-                </span>
-                <span className="rounded-full border border-border px-5 py-2 text-xs font-semibold text-foreground">
-                  {heroData.ctaContactText || 'Get in touch'}
-                </span>
+                  <div className="mt-5 flex gap-3">
+                    <span className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground shadow-md">
+                      {heroData.ctaWorkText || 'Explore my materials'}
+                    </span>
+                    <span className="rounded-full border border-border px-5 py-2 text-xs font-semibold text-foreground">
+                      {heroData.ctaContactText || 'Get in touch'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="relative aspect-[4/4.4] w-full overflow-hidden rounded-2xl border-2 border-white/80 shadow-xl">
+                  <Image
+                    src={heroData.image || '/images/hero-classroom.png'}
+                    alt="Hero Preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-4">
@@ -2692,21 +3246,32 @@ function LivePreviewModal({
 
           {section === 'about' && (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-border bg-card p-6">
-                <span className="text-xs font-bold uppercase text-primary">{aboutData.eyebrow}</span>
-                <h2 className="mt-1 font-serif text-2xl font-bold">{aboutData.title}</h2>
-                <p className="mt-1 text-xs text-muted-foreground">{aboutData.intro}</p>
-
-                <div className="mt-4 space-y-2 text-xs text-muted-foreground">
-                  <p>{aboutData.bio1}</p>
-                  <p>{aboutData.bio2}</p>
+              <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+                <div className="relative aspect-[4/4.7] w-full overflow-hidden rounded-2xl border-2 border-white/80 shadow-xl">
+                  <Image
+                    src={aboutData.portraitImage || '/images/farah-portrait.png'}
+                    alt="Portrait Preview"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
 
-                <div className="mt-4 rounded-xl border border-primary/20 bg-secondary p-4 text-secondary-foreground">
-                  <p className="font-serif text-sm italic">&ldquo;{aboutData.manifestoQuote}&rdquo;</p>
-                  <p className="mt-2 text-xs font-semibold text-primary">
-                    — {aboutData.manifestoAuthor}, {aboutData.manifestoLocation}
-                  </p>
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <span className="text-xs font-bold uppercase text-primary">{aboutData.eyebrow}</span>
+                  <h2 className="mt-1 font-serif text-2xl font-bold">{aboutData.title}</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">{aboutData.intro}</p>
+
+                  <div className="mt-4 space-y-2 text-xs text-muted-foreground">
+                    <p>{aboutData.bio1}</p>
+                    <p>{aboutData.bio2}</p>
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-primary/20 bg-secondary p-4 text-secondary-foreground">
+                    <p className="font-serif text-sm italic">&ldquo;{aboutData.manifestoQuote}&rdquo;</p>
+                    <p className="mt-2 text-xs font-semibold text-primary">
+                      — {aboutData.manifestoAuthor}, {aboutData.manifestoLocation}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -2735,7 +3300,7 @@ function LivePreviewModal({
 
           {section === 'works' && (
             <div className="grid gap-4 sm:grid-cols-3">
-              {state.works.slice(0, 6).map((w) => (
+              {state.works.filter((w) => w.isActive !== false).slice(0, 6).map((w) => (
                 <div key={w.id} className="rounded-xl border border-border bg-card p-3 shadow-xs">
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
                     <Image src={w.image || '/placeholder.svg'} alt={w.title} fill className="object-cover" />
@@ -2749,7 +3314,7 @@ function LivePreviewModal({
 
           {section === 'videos' && (
             <div className="grid gap-4 sm:grid-cols-3">
-              {state.videos.slice(0, 3).map((v) => (
+              {state.videos.filter((v) => v.isActive !== false).slice(0, 3).map((v) => (
                 <div key={v.id} className="rounded-xl border border-border bg-card p-3">
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
                     <Image src={v.thumbnail || '/placeholder.svg'} alt={v.title} fill className="object-cover" />
@@ -2765,7 +3330,7 @@ function LivePreviewModal({
 
           {section === 'shop' && (
             <div className="grid gap-4 sm:grid-cols-3">
-              {state.products.slice(0, 3).map((p) => (
+              {state.products.filter((p) => p.isActive !== false).slice(0, 3).map((p) => (
                 <div key={p.id} className="rounded-xl border border-border bg-card p-3">
                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted">
                     <Image src={p.image || '/placeholder.svg'} alt={p.name} fill className="object-cover" />
@@ -2779,7 +3344,7 @@ function LivePreviewModal({
 
           {section === 'testimonials' && (
             <div className="grid gap-4 sm:grid-cols-3">
-              {state.testimonials.slice(0, 3).map((t) => (
+              {state.testimonials.filter((t) => t.isActive !== false).slice(0, 3).map((t) => (
                 <div key={t.id} className="rounded-xl border border-border bg-card p-4">
                   <div className="flex text-primary text-xs">★★★★★</div>
                   <p className="mt-2 text-xs italic">&ldquo;{t.quote}&rdquo;</p>
@@ -2792,7 +3357,7 @@ function LivePreviewModal({
 
           {section === 'faqs' && (
             <div className="space-y-3">
-              {state.faqs.slice(0, 4).map((f) => (
+              {state.faqs.filter((f) => f.isActive !== false).slice(0, 4).map((f) => (
                 <div key={f.id} className="rounded-xl border border-border bg-card p-3">
                   <h4 className="font-serif text-xs font-bold">{f.q}</h4>
                   <p className="mt-1 text-xs text-muted-foreground">{f.a}</p>
@@ -2803,7 +3368,7 @@ function LivePreviewModal({
 
           {section === 'audiences' && (
             <div className="grid gap-4 sm:grid-cols-3">
-              {state.audiences.map((a) => (
+              {state.audiences.filter((a) => a.isActive !== false).map((a) => (
                 <div key={a.id} className="rounded-xl border border-border bg-card p-4">
                   <h4 className="font-serif text-sm font-bold">{a.title}</h4>
                   <p className="mt-1 text-xs text-muted-foreground">{a.intro}</p>
