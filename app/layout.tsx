@@ -34,7 +34,6 @@ export const metadata: Metadata = {
       'Interactive English education and creative DIY materials for students, parents, and teachers.',
     type: 'website',
   },
-  generator: 'v0.app',
 }
 
 export const viewport: Viewport = {

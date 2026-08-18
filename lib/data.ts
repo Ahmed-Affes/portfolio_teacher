@@ -3,10 +3,12 @@ export type NavItem = { id: string; label: string }
 export const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'Home' },
   { id: 'about', label: 'About' },
-  { id: 'work', label: 'My Work' },
+  { id: 'work', label: 'Work' },
   { id: 'videos', label: 'Videos' },
   { id: 'shop', label: 'Shop' },
-  { id: 'serve', label: 'Who I Serve' },
+  { id: 'serve', label: 'Services' },
+  { id: 'testimonials', label: 'Reviews' },
+  { id: 'faq', label: 'FAQ' },
   { id: 'contact', label: 'Contact' },
 ]
 

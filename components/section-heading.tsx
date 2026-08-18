@@ -5,13 +5,17 @@ export function SectionHeading({
   title,
   intro,
   align = 'left',
+  number,
   className,
+  dark = false,
 }: {
   eyebrow: string
   title: string
   intro?: string
   align?: 'left' | 'center'
+  number?: string
   className?: string
+  dark?: boolean
 }) {
   return (
     <div
@@ -21,14 +25,48 @@ export function SectionHeading({
         className,
       )}
     >
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/25 px-3 py-0.5 text-[0.75rem] font-semibold uppercase tracking-wider text-foreground shadow-xs">
-        {eyebrow}
-      </span>
-      <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl text-balance">
+      <div
+        className={cn(
+          'flex items-center gap-3',
+          align === 'center' && 'justify-center',
+        )}
+      >
+        {number && (
+          <span
+            className={cn(
+              'font-serif text-4xl font-bold leading-none tracking-tighter opacity-20 sm:text-5xl',
+              dark ? 'text-primary' : 'text-secondary',
+            )}
+          >
+            {number}
+          </span>
+        )}
+        <span
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.12em]',
+            dark
+              ? 'bg-primary/20 text-primary ring-1 ring-primary/30'
+              : 'bg-primary/15 text-foreground ring-1 ring-primary/25',
+          )}
+        >
+          {eyebrow}
+        </span>
+      </div>
+      <h2
+        className={cn(
+          'mt-3 font-serif text-2xl font-semibold leading-[1.15] tracking-tight sm:text-3xl lg:text-4xl text-balance',
+          dark ? 'text-secondary-foreground' : 'text-foreground',
+        )}
+      >
         {title}
       </h2>
       {intro && (
-        <p className="mt-2 text-sm sm:text-base leading-relaxed text-muted-foreground text-pretty">
+        <p
+          className={cn(
+            'mt-3 text-sm leading-relaxed sm:text-base text-pretty',
+            dark ? 'text-secondary-foreground/75' : 'text-muted-foreground',
+          )}
+        >
           {intro}
         </p>
       )}

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { Maximize2, X } from 'lucide-react'
+import { ArrowUpRight, Maximize2, X } from 'lucide-react'
+import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
 import { WORK_ITEMS, type WorkCategory, type WorkItem } from '@/lib/data'
 import { cn } from '@/lib/utils'
@@ -35,110 +36,120 @@ export function WorkShowcase() {
   }, [active])
 
   return (
-    <section id="work" className="scroll-mt-20 py-10 sm:py-14 lg:py-16">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <SectionHeading
-            eyebrow="Portfolio"
-            title="Teaching in action & visual aids"
-            intro="Classroom activities, educational posters, and custom learning tools."
-          />
+    <section id="work" className="relative scroll-mt-20 py-16 sm:py-20 lg:py-24">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 section-glow" />
 
-          {/* Compact Filters */}
-          <div className="flex flex-wrap gap-1.5 self-start sm:self-auto">
-            {FILTERS.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setFilter(f.id)}
-                className={cn(
-                  'rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200',
-                  filter === f.id
-                    ? 'border-transparent bg-secondary text-secondary-foreground shadow-xs'
-                    : 'border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground',
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <Reveal>
+            <SectionHeading
+              number="02"
+              eyebrow="Portfolio"
+              title="Teaching in action & visual aids"
+              intro="Classroom activities, educational posters, and custom learning tools."
+            />
+          </Reveal>
+
+          <Reveal delay={80}>
+            <div className="flex flex-wrap gap-1.5 rounded-full border border-border/60 bg-card/80 p-1.5 shadow-sm backdrop-blur-sm">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setFilter(f.id)}
+                  className={cn(
+                    'rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300',
+                    filter === f.id
+                      ? 'bg-secondary text-secondary-foreground shadow-md'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </Reveal>
         </div>
 
-        {/* Grid */}
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActive(item)}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/10"
-            >
-              <div className="relative aspect-[16/11] w-full overflow-hidden bg-muted">
-                <Image
-                  src={item.image || '/placeholder.svg'}
-                  alt={item.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2.5 py-0.5 text-[0.7rem] font-semibold text-primary-foreground shadow-xs">
-                  {item.tag}
-                </span>
-                <span className="absolute right-2.5 top-2.5 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100 shadow-xs">
-                  <Maximize2 className="size-3.5" />
-                </span>
-              </div>
-              <div className="flex flex-1 flex-col p-4">
-                <h3 className="font-serif text-base font-semibold leading-tight text-foreground">
-                  {item.title}
-                </h3>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                  {item.description}
-                </p>
-              </div>
-            </button>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => (
+            <Reveal key={item.id} delay={i * 50}>
+              <button
+                type="button"
+                onClick={() => setActive(item)}
+                className="card-shine group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/25 hover:shadow-xl hover:shadow-foreground/8"
+              >
+                <div className="relative aspect-[16/11] w-full overflow-hidden bg-muted">
+                  <Image
+                    src={item.image || '/placeholder.svg'}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/70 via-secondary/10 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80" />
+                  <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-primary-foreground shadow-md">
+                    {item.tag}
+                  </span>
+                  <span className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur transition-all duration-300 group-hover:opacity-100">
+                    <Maximize2 className="size-4" />
+                  </span>
+                  <div className="absolute inset-x-0 bottom-0 flex translate-y-2 items-end justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    <span className="text-sm font-semibold text-white">{item.title}</span>
+                    <ArrowUpRight className="size-4 text-primary" />
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <h3 className="font-serif text-lg font-semibold leading-tight text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                    {item.description}
+                  </p>
+                </div>
+              </button>
+            </Reveal>
           ))}
         </div>
       </div>
 
-      {/* Lightbox modal */}
       {active && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label={active.title}
           onClick={() => setActive(null)}
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-200 animate-in fade-in"
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-secondary/90 p-4 backdrop-blur-md duration-300 animate-in fade-in"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-card shadow-2xl duration-200 animate-in zoom-in-95"
+            className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-card shadow-2xl duration-300 animate-in zoom-in-95 slide-in-from-bottom-4"
           >
             <button
               type="button"
               aria-label="Close modal"
               onClick={() => setActive(null)}
-              className="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition-colors hover:bg-black/75"
+              className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-secondary/80 text-white backdrop-blur transition-colors hover:bg-secondary"
             >
-              <X className="size-4.5" />
+              <X className="size-5" />
             </button>
             <div className="relative aspect-[4/3] w-full bg-muted">
               <Image
                 src={active.image || '/placeholder.svg'}
                 alt={active.title}
                 fill
-                sizes="(max-width: 768px) 100vw, 600px"
+                sizes="(max-width: 768px) 100vw, 672px"
                 className="object-cover"
               />
             </div>
-            <div className="p-5">
-              <span className="rounded-full bg-primary/25 px-2.5 py-0.5 text-xs font-semibold text-foreground">
+            <div className="p-6 sm:p-8">
+              <span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground ring-1 ring-primary/30">
                 {active.tag}
               </span>
-              <h3 className="mt-1.5 font-serif text-xl font-semibold text-foreground">
+              <h3 className="mt-3 font-serif text-2xl font-semibold text-foreground">
                 {active.title}
               </h3>
-              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {active.description}
               </p>
             </div>
