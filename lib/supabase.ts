@@ -170,27 +170,36 @@ export async function submitOrderRequest(order: OrderRequest) {
   }
 
   try {
-    const { data, error } = await client
-      .from('orders')
-      .insert([
-        {
-          customer_name: order.customer_name || 'Guest',
-          customer_email: order.customer_email || 'Not provided',
-          customer_phone: order.customer_phone,
-          customer_location: order.customer_location || 'Sfax, Tunisia',
-          items: order.items,
-          subtotal: order.subtotal,
-          currency: order.currency || 'TND',
-          status: 'pending',
-          rental_dates: order.rental_dates || null,
-          notes: order.notes || null,
-        },
-      ])
-      .select()
+    const payload = {
+      customer_name: order.customer_name || 'Guest',
+      customer_email: order.customer_email || 'Not provided',
+      customer_phone: order.customer_phone,
+      customer_location: order.customer_location || 'Sfax, Tunisia',
+      items: order.items,
+      subtotal: order.subtotal,
+      currency: order.currency || 'TND',
+      status: 'pending',
+      rental_dates: order.rental_dates || null,
+      notes: order.notes || null,
+    }
+
+    const { data, error } = await client.from('orders').insert([payload]).select()
 
     if (error) {
-      console.error('Supabase order request error:', error)
-      return { success: false, error: error.message }
+      console.warn('Full order insert error, attempting base order payload:', error.message)
+      const basePayload = {
+        customer_name: order.customer_name || 'Guest',
+        customer_email: order.customer_email || 'Not provided',
+        customer_phone: order.customer_phone,
+        items: order.items,
+        subtotal: order.subtotal,
+        currency: order.currency || 'TND',
+        status: 'pending',
+        notes: `${order.customer_location ? `Location: ${order.customer_location}. ` : ''}${order.rental_dates ? `Rental: ${order.rental_dates}. ` : ''}${order.notes || ''}`,
+      }
+      const { data: baseData, error: baseErr } = await client.from('orders').insert([basePayload]).select()
+      if (baseErr) throw baseErr
+      return { success: true, data: baseData }
     }
 
     return { success: true, data }
@@ -305,23 +314,112 @@ export async function deleteOrderInDb(id: string) {
 }
 
 /**
- * Sync entire portfolio settings to Supabase
+ * Sync entire portfolio settings & individual collections to Supabase
  */
 export async function syncPortfolioSettingsToDb(payload: Record<string, unknown>) {
   const client = getSupabase()
   if (!client) return { success: false, error: 'No database configured' }
+
   try {
-    const { data, error } = await client
+    // 1. Upsert into portfolio_settings (base settings + extra columns if supported)
+    const { error: fullErr } = await client
       .from('portfolio_settings')
       .upsert({
         id: 'current_state',
         updated_at: new Date().toISOString(),
         ...payload,
       })
-      .select()
 
-    if (error) throw error
-    return { success: true, data }
+    if (fullErr) {
+      // Fallback with standard base columns
+      const basePayload: Record<string, unknown> = {
+        id: 'current_state',
+        updated_at: new Date().toISOString(),
+        hero: payload.hero,
+        about: payload.about,
+        stats: payload.stats,
+        contact: payload.contact,
+        admin_pin: payload.admin_pin,
+      }
+      await client.from('portfolio_settings').upsert(basePayload)
+    }
+
+    // 2. Also populate dedicated Supabase tables: works, videos, products, testimonials, faqs
+    if (Array.isArray(payload.works) && payload.works.length > 0) {
+      const worksRows = (payload.works as any[]).map((w, idx) => ({
+        id: w.id || `work_${idx}`,
+        title: w.title,
+        category: w.category,
+        tag: w.tag,
+        image: w.image,
+        description: w.description,
+        format: w.format || null,
+        year: w.year || null,
+        highlights: w.highlights || [],
+        is_active: w.isActive !== false,
+        sort_order: idx,
+      }))
+      await client.from('works').upsert(worksRows, { onConflict: 'id' })
+    }
+
+    if (Array.isArray(payload.videos) && payload.videos.length > 0) {
+      const videoRows = (payload.videos as any[]).map((v, idx) => ({
+        id: v.id || `vid_${idx}`,
+        title: v.title,
+        duration: v.duration,
+        level: v.level,
+        category: v.category,
+        thumbnail: v.thumbnail,
+        src: v.src,
+        takeaways: v.takeaways || [],
+        is_active: v.isActive !== false,
+        sort_order: idx,
+      }))
+      await client.from('videos').upsert(videoRows, { onConflict: 'id' })
+    }
+
+    if (Array.isArray(payload.products) && payload.products.length > 0) {
+      const productRows = (payload.products as any[]).map((p, idx) => ({
+        id: p.id || `prod_${idx}`,
+        name: p.name,
+        category: p.category,
+        image: p.image,
+        description: p.description,
+        buy_price: p.buyPrice ?? null,
+        rent_price: p.rentPrice ?? null,
+        options: p.options || ['buy'],
+        features: p.features || [],
+        is_active: p.isActive !== false,
+        sort_order: idx,
+      }))
+      await client.from('products').upsert(productRows, { onConflict: 'id' })
+    }
+
+    if (Array.isArray(payload.testimonials) && payload.testimonials.length > 0) {
+      const testimonialRows = (payload.testimonials as any[]).map((t, idx) => ({
+        id: t.id || `test_${idx}`,
+        name: t.name,
+        role: t.role,
+        quote: t.quote,
+        rating: t.rating ?? 5,
+        is_active: t.isActive !== false,
+        sort_order: idx,
+      }))
+      await client.from('testimonials').upsert(testimonialRows, { onConflict: 'id' })
+    }
+
+    if (Array.isArray(payload.faqs) && payload.faqs.length > 0) {
+      const faqRows = (payload.faqs as any[]).map((f, idx) => ({
+        id: f.id || `faq_${idx}`,
+        q: f.q,
+        a: f.a,
+        is_active: f.isActive !== false,
+        sort_order: idx,
+      }))
+      await client.from('faqs').upsert(faqRows, { onConflict: 'id' })
+    }
+
+    return { success: true }
   } catch (err) {
     console.warn('Failed to sync portfolio settings to Supabase:', err)
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
@@ -335,17 +433,120 @@ export async function fetchPortfolioSettingsFromDb() {
   const client = getSupabase()
   if (!client) return null
   try {
-    const { data, error } = await client
-      .from('portfolio_settings')
-      .select('*')
-      .eq('id', 'current_state')
-      .maybeSingle()
+    const [settingsRes, worksRes, videosRes, productsRes, testimonialsRes, faqsRes] =
+      await Promise.all([
+        client.from('portfolio_settings').select('*').eq('id', 'current_state').maybeSingle(),
+        client.from('works').select('*').order('sort_order', { ascending: true }),
+        client.from('videos').select('*').order('sort_order', { ascending: true }),
+        client.from('products').select('*').order('sort_order', { ascending: true }),
+        client.from('testimonials').select('*').order('sort_order', { ascending: true }),
+        client.from('faqs').select('*').order('sort_order', { ascending: true }),
+      ])
 
-    if (error) throw error
-    return data
+    const settings = settingsRes.data || {}
+
+    // Map works
+    const works =
+      worksRes.data && worksRes.data.length > 0
+        ? worksRes.data.map((w: any) => ({
+            id: w.id,
+            title: w.title,
+            category: w.category,
+            tag: w.tag,
+            image: w.image,
+            description: w.description,
+            format: w.format || '',
+            year: w.year || '',
+            highlights: w.highlights || [],
+            isActive: w.is_active !== false,
+          }))
+        : settings.works || null
+
+    // Map videos
+    const videos =
+      videosRes.data && videosRes.data.length > 0
+        ? videosRes.data.map((v: any) => ({
+            id: v.id,
+            title: v.title,
+            duration: v.duration,
+            level: v.level,
+            category: v.category,
+            thumbnail: v.thumbnail,
+            src: v.src,
+            takeaways: v.takeaways || [],
+            isActive: v.is_active !== false,
+          }))
+        : settings.videos || null
+
+    // Map products
+    const products =
+      productsRes.data && productsRes.data.length > 0
+        ? productsRes.data.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category,
+            image: p.image,
+            description: p.description,
+            buyPrice: p.buy_price != null ? Number(p.buy_price) : undefined,
+            rentPrice: p.rent_price != null ? Number(p.rent_price) : undefined,
+            options: p.options || ['buy'],
+            features: p.features || [],
+            isActive: p.is_active !== false,
+          }))
+        : settings.products || null
+
+    // Map testimonials
+    const testimonials =
+      testimonialsRes.data && testimonialsRes.data.length > 0
+        ? testimonialsRes.data.map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            role: t.role,
+            quote: t.quote,
+            rating: t.rating != null ? Number(t.rating) : 5,
+            showRating: (t.rating ?? 0) > 0,
+            isActive: t.is_active !== false,
+          }))
+        : settings.testimonials || null
+
+    // Map faqs
+    const faqs =
+      faqsRes.data && faqsRes.data.length > 0
+        ? faqsRes.data.map((f: any) => ({
+            id: f.id,
+            q: f.q,
+            a: f.a,
+            isActive: f.is_active !== false,
+          }))
+        : settings.faqs || null
+
+    return {
+      ...settings,
+      works,
+      videos,
+      products,
+      testimonials,
+      faqs,
+    }
   } catch (err) {
     console.warn('Failed to fetch portfolio settings from Supabase:', err)
     return null
+  }
+}
+
+/**
+ * Delete item from specific table in Supabase
+ */
+export async function deleteTableItemInDb(table: 'works' | 'videos' | 'products' | 'testimonials' | 'faqs', id: string) {
+  const client = getSupabase()
+  if (!client) return { success: false }
+  try {
+    const { error } = await client.from(table).delete().eq('id', id)
+    if (error) throw error
+    return { success: true }
+  } catch (err) {
+    console.warn(`Failed to delete item from ${table} in Supabase:`, err)
+    return { success: false }
   }
 }
 

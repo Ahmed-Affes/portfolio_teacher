@@ -35,6 +35,7 @@ import {
   submitOrderRequest,
   updateOrderInDb,
   deleteOrderInDb,
+  deleteTableItemInDb,
   isNotificationsMuted as getStoredNotificationsMuted,
   setNotificationsMuted as setStoredNotificationsMuted,
 } from '@/lib/supabase'
@@ -435,6 +436,28 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           fetchOrders(),
         ])
 
+        // If cloud database has no data yet (0 rows), seed with baseline defaults
+        if (
+          !cloudSettings ||
+          !cloudSettings.hero ||
+          !Array.isArray(cloudSettings.works) ||
+          cloudSettings.works.length === 0
+        ) {
+          syncPortfolioSettingsToDb({
+            hero: INITIAL_STATE.hero,
+            about: INITIAL_STATE.about,
+            stats: INITIAL_STATE.stats,
+            contact: INITIAL_STATE.contact,
+            works: INITIAL_STATE.works,
+            videos: INITIAL_STATE.videos,
+            products: INITIAL_STATE.products,
+            audiences: INITIAL_STATE.audiences,
+            testimonials: INITIAL_STATE.testimonials,
+            faqs: INITIAL_STATE.faqs,
+            admin_pin: INITIAL_STATE.adminPin,
+          })
+        }
+
         setState((prev) => {
           const merged: PortfolioState = {
             ...prev,
@@ -493,7 +516,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // 3. Supabase Realtime Subscription Integration
+  // 3. Supabase Realtime Subscription Integration across all tables
   useEffect(() => {
     const client = getSupabase()
     if (!client) {
@@ -502,7 +525,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
 
     const channel = client
-      .channel('public_realtime_portfolio_v3')
+      .channel('public_realtime_portfolio_v4')
       // Listen to new contact messages
       .on(
         'postgres_changes' as any,
@@ -511,7 +534,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           if (payload.eventType === 'INSERT') {
             const newRow = payload.new as StoredMessage
             setState((prev) => {
-              // Deduplicate if already present by ID or identical content
               const exists = prev.messages.some(
                 (m) =>
                   m.id === newRow.id ||
@@ -539,7 +561,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
               return { ...prev, messages: updated }
             })
 
-            // Trigger notification
             sendDeviceNotification(`📬 New Message: ${newRow.name}`, {
               body: `${newRow.topic || 'Inquiry'}: "${newRow.message.slice(0, 80)}..."`,
               icon: '/images/farah-portrait.png',
@@ -621,7 +642,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           })
         }
       })
-      // Listen to portfolio settings / content changes across devices
+      // Listen to portfolio settings (hero, about, contact, stats)
       .on(
         'postgres_changes' as any,
         { event: '*', schema: 'public', table: 'portfolio_settings' },
@@ -651,6 +672,171 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           }
         },
       )
+      // Listen to works table
+      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'works' }, (payload: any) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const row = payload.new as any
+          const item: WorkItem = {
+            id: row.id,
+            title: row.title,
+            category: row.category,
+            tag: row.tag,
+            image: row.image,
+            description: row.description,
+            format: row.format || '',
+            year: row.year || '',
+            highlights: row.highlights || [],
+            isActive: row.is_active !== false,
+          }
+          setState((prev) => {
+            const exists = prev.works.some((w) => w.id === item.id)
+            const updated = exists ? prev.works.map((w) => (w.id === item.id ? item : w)) : [item, ...prev.works]
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, works: updated }))
+            } catch {}
+            return { ...prev, works: updated }
+          })
+        } else if (payload.eventType === 'DELETE') {
+          const oldRow = payload.old as { id: string }
+          setState((prev) => {
+            const updated = prev.works.filter((w) => w.id !== oldRow.id)
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, works: updated }))
+            } catch {}
+            return { ...prev, works: updated }
+          })
+        }
+      })
+      // Listen to videos table
+      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'videos' }, (payload: any) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const row = payload.new as any
+          const item: Video = {
+            id: row.id,
+            title: row.title,
+            duration: row.duration,
+            level: row.level,
+            category: row.category,
+            thumbnail: row.thumbnail,
+            src: row.src,
+            takeaways: row.takeaways || [],
+            isActive: row.is_active !== false,
+          }
+          setState((prev) => {
+            const exists = prev.videos.some((v) => v.id === item.id)
+            const updated = exists ? prev.videos.map((v) => (v.id === item.id ? item : v)) : [item, ...prev.videos]
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, videos: updated }))
+            } catch {}
+            return { ...prev, videos: updated }
+          })
+        } else if (payload.eventType === 'DELETE') {
+          const oldRow = payload.old as { id: string }
+          setState((prev) => {
+            const updated = prev.videos.filter((v) => v.id !== oldRow.id)
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, videos: updated }))
+            } catch {}
+            return { ...prev, videos: updated }
+          })
+        }
+      })
+      // Listen to products table
+      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'products' }, (payload: any) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const row = payload.new as any
+          const item: Product = {
+            id: row.id,
+            name: row.name,
+            category: row.category,
+            image: row.image,
+            description: row.description,
+            buyPrice: row.buy_price != null ? Number(row.buy_price) : undefined,
+            rentPrice: row.rent_price != null ? Number(row.rent_price) : undefined,
+            options: row.options || ['buy'],
+            features: row.features || [],
+            isActive: row.is_active !== false,
+          }
+          setState((prev) => {
+            const exists = prev.products.some((p) => p.id === item.id)
+            const updated = exists ? prev.products.map((p) => (p.id === item.id ? item : p)) : [item, ...prev.products]
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, products: updated }))
+            } catch {}
+            return { ...prev, products: updated }
+          })
+        } else if (payload.eventType === 'DELETE') {
+          const oldRow = payload.old as { id: string }
+          setState((prev) => {
+            const updated = prev.products.filter((p) => p.id !== oldRow.id)
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, products: updated }))
+            } catch {}
+            return { ...prev, products: updated }
+          })
+        }
+      })
+      // Listen to testimonials table
+      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'testimonials' }, (payload: any) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const row = payload.new as any
+          const item: TestimonialItem = {
+            id: row.id,
+            name: row.name,
+            role: row.role,
+            quote: row.quote,
+            rating: row.rating != null ? Number(row.rating) : 5,
+            showRating: (row.rating ?? 0) > 0,
+            isActive: row.is_active !== false,
+          }
+          setState((prev) => {
+            const exists = prev.testimonials.some((t) => t.id === item.id)
+            const updated = exists ? prev.testimonials.map((t) => (t.id === item.id ? item : t)) : [item, ...prev.testimonials]
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, testimonials: updated }))
+            } catch {}
+            return { ...prev, testimonials: updated }
+          })
+        } else if (payload.eventType === 'DELETE') {
+          const oldRow = payload.old as { id: string }
+          setState((prev) => {
+            const updated = prev.testimonials.filter((t) => t.id !== oldRow.id)
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, testimonials: updated }))
+            } catch {}
+            return { ...prev, testimonials: updated }
+          })
+        }
+      })
+      // Listen to faqs table
+      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'faqs' }, (payload: any) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const row = payload.new as any
+          const item: FaqItem = {
+            id: row.id,
+            q: row.q,
+            a: row.a,
+            isActive: row.is_active !== false,
+          }
+          setState((prev) => {
+            const exists = prev.faqs.some((f) => f.id === item.id)
+            const updated = exists ? prev.faqs.map((f) => (f.id === item.id ? item : f)) : [item, ...prev.faqs]
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, faqs: updated }))
+            } catch {}
+            return { ...prev, faqs: updated }
+          })
+        } else if (payload.eventType === 'DELETE') {
+          const oldRow = payload.old as { id: string }
+          setState((prev) => {
+            const updated = prev.faqs.filter((f) => f.id !== oldRow.id)
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, faqs: updated }))
+            } catch {}
+            return { ...prev, faqs: updated }
+          })
+        }
+      })
       .subscribe((status: string) => {
         if (status === 'SUBSCRIBED') {
           setIsRealtimeConnected(true)
@@ -788,6 +974,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const deleteWork = useCallback(
     (id: string) => {
+      deleteTableItemInDb('works', id)
       setState((prev) => {
         const updatedWorks = prev.works.filter((w) => w.id !== id)
         const newState = { ...prev, works: updatedWorks }
@@ -843,6 +1030,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const deleteVideo = useCallback(
     (id: string) => {
+      deleteTableItemInDb('videos', id)
       setState((prev) => {
         const updatedVideos = prev.videos.filter((v) => v.id !== id)
         const newState = { ...prev, videos: updatedVideos }
@@ -898,6 +1086,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const deleteProduct = useCallback(
     (id: string) => {
+      deleteTableItemInDb('products', id)
       setState((prev) => {
         const updatedProducts = prev.products.filter((p) => p.id !== id)
         const newState = { ...prev, products: updatedProducts }
@@ -1041,6 +1230,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const deleteTestimonial = useCallback(
     (id: string) => {
+      deleteTableItemInDb('testimonials', id)
       setState((prev) => {
         const updated = prev.testimonials.filter((t) => t.id !== id)
         const newState = { ...prev, testimonials: updated }
@@ -1096,6 +1286,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const deleteFaq = useCallback(
     (id: string) => {
+      deleteTableItemInDb('faqs', id)
       setState((prev) => {
         const updated = prev.faqs.filter((f) => f.id !== id)
         const newState = { ...prev, faqs: updated }
