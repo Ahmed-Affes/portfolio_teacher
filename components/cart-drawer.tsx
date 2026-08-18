@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react'
 import { useCart } from '@/components/cart-provider'
 import { useToast } from '@/components/toast-provider'
+import { submitOrderRequest } from '@/lib/supabase'
 import { CONTACT } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
@@ -25,8 +26,23 @@ export function CartDrawer() {
     }
   }, [isOpen, closeCart])
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setCheckingOut(true)
+
+    // Save order record to Supabase database
+    await submitOrderRequest({
+      items: lines.map((l) => ({
+        id: l.productId,
+        name: l.name,
+        price: l.price,
+        qty: l.qty,
+        mode: l.mode,
+      })),
+      subtotal,
+      currency: 'TND',
+      status: 'pending',
+    })
+
     const itemsList = lines
       .map(
         (l) =>
@@ -42,7 +58,7 @@ export function CartDrawer() {
       setCheckingOut(false)
       clear()
       closeCart()
-      toast('Order request draft opened! Farah will confirm details.')
+      toast('Order request saved! Email draft opened.')
     }, 1000)
   }
 

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { CheckCircle2, Mail, MapPin, MessageCircle, Send } from 'lucide-react'
 import { CONTACT } from '@/lib/data'
 import { useToast } from '@/components/toast-provider'
+import { submitContactMessage } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
 type Errors = Partial<Record<'name' | 'email' | 'message', string>>
@@ -17,6 +18,7 @@ export function Contact() {
   const [topic, setTopic] = useState(TOPICS[0])
   const [errors, setErrors] = useState<Errors>({})
   const [sent, setSent] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validate = (form: HTMLFormElement): Errors => {
     const data = new FormData(form)
@@ -30,19 +32,29 @@ export function Contact() {
     return next
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = e.currentTarget
     const next = validate(form)
     setErrors(next)
     if (Object.keys(next).length > 0) return
 
+    setIsSubmitting(true)
     const data = new FormData(form)
     const name = String(data.get('name'))
     const email = String(data.get('email'))
     const message = String(data.get('message'))
 
-    // Build a mailto fallback so the message can actually be delivered.
+    // Save message to Supabase database
+    await submitContactMessage({
+      name,
+      email,
+      role,
+      topic,
+      message,
+    })
+
+    // Open mailto fallback so user can also send email directly if desired
     const subject = encodeURIComponent(`[${topic}] Portfolio enquiry from ${name}`)
     const body = encodeURIComponent(
       `Name: ${name}\nEmail: ${email}\nI am: ${role}\nTopic: ${topic}\n\n${message}`,
@@ -50,7 +62,8 @@ export function Contact() {
     window.open(`mailto:${CONTACT.email}?subject=${subject}&body=${body}`, '_blank')
 
     setSent(true)
-    toast('Thanks! Your message is ready to send.')
+    setIsSubmitting(false)
+    toast('Thanks! Your message has been received.')
     form.reset()
     setRole(ROLES[0])
     setTopic(TOPICS[0])
