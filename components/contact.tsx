@@ -64,11 +64,8 @@ export function Contact() {
     const email = String(data.get('email'))
     const message = String(data.get('message'))
 
-    // Save to local portfolio context inbox for instant admin view & realtime sync
+    // Save to portfolio context & dispatch to Supabase backend
     addMessage({ name, email, role, topic, message })
-
-    // Also dispatch to Supabase backend if configured
-    await submitContactMessage({ name, email, role, topic, message })
 
     setSent(true)
     setIsSubmitting(false)

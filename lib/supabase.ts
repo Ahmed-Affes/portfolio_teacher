@@ -4,15 +4,18 @@ let cachedClient: SupabaseClient | null = null
 let cachedUrl = ''
 let cachedKey = ''
 
+export const DEFAULT_SUPABASE_URL = 'https://ljhfczykqylwokizacxw.supabase.co'
+export const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_n4SNlVZX6AutOjRN2qBQnA_5c7Smk87'
+
 /**
- * Get active Supabase configuration (from env variables or local storage)
+ * Get active Supabase configuration (from env variables, local storage, or project defaults)
  */
 export function getSupabaseConfig(): { url: string; anonKey: string } {
-  let url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  let url = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL
   let anonKey =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    ''
+    DEFAULT_SUPABASE_ANON_KEY
 
   if (typeof window !== 'undefined') {
     const customUrl = localStorage.getItem('farah_supabase_url')

@@ -440,14 +440,14 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             ...prev,
             hero: cloudSettings?.hero ? { ...prev.hero, ...(cloudSettings.hero || {}) } : prev.hero,
             about: cloudSettings?.about ? { ...prev.about, ...(cloudSettings.about || {}) } : prev.about,
-            stats: (cloudSettings?.stats as StatItem[]) || prev.stats,
+            stats: Array.isArray(cloudSettings?.stats) && cloudSettings.stats.length > 0 ? (cloudSettings.stats as StatItem[]) : prev.stats,
             contact: cloudSettings?.contact ? { ...prev.contact, ...(cloudSettings.contact || {}) } : prev.contact,
-            works: (cloudSettings?.works as WorkItem[]) || prev.works,
-            videos: (cloudSettings?.videos as Video[]) || prev.videos,
-            products: (cloudSettings?.products as Product[]) || prev.products,
-            audiences: (cloudSettings?.audiences as Audience[]) || prev.audiences,
-            testimonials: (cloudSettings?.testimonials as TestimonialItem[]) || prev.testimonials,
-            faqs: (cloudSettings?.faqs as FaqItem[]) || prev.faqs,
+            works: Array.isArray(cloudSettings?.works) && cloudSettings.works.length > 0 ? (cloudSettings.works as WorkItem[]) : prev.works,
+            videos: Array.isArray(cloudSettings?.videos) && cloudSettings.videos.length > 0 ? (cloudSettings.videos as Video[]) : prev.videos,
+            products: Array.isArray(cloudSettings?.products) && cloudSettings.products.length > 0 ? (cloudSettings.products as Product[]) : prev.products,
+            audiences: Array.isArray(cloudSettings?.audiences) && cloudSettings.audiences.length > 0 ? (cloudSettings.audiences as Audience[]) : prev.audiences,
+            testimonials: Array.isArray(cloudSettings?.testimonials) && cloudSettings.testimonials.length > 0 ? (cloudSettings.testimonials as TestimonialItem[]) : prev.testimonials,
+            faqs: Array.isArray(cloudSettings?.faqs) && cloudSettings.faqs.length > 0 ? (cloudSettings.faqs as FaqItem[]) : prev.faqs,
             adminPin: (cloudSettings?.admin_pin as string) || prev.adminPin,
             messages: cloudMessages && cloudMessages.length > 0 ? (cloudMessages as StoredMessage[]) : prev.messages,
             orders: cloudOrders && cloudOrders.length > 0 ? (cloudOrders as StoredOrder[]) : prev.orders,
@@ -511,8 +511,28 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           if (payload.eventType === 'INSERT') {
             const newRow = payload.new as StoredMessage
             setState((prev) => {
-              if (prev.messages.some((m) => m.id === newRow.id)) return prev
-              const updated = [newRow, ...prev.messages]
+              // Deduplicate if already present by ID or identical content
+              const exists = prev.messages.some(
+                (m) =>
+                  m.id === newRow.id ||
+                  (m.name === newRow.name &&
+                    m.email === newRow.email &&
+                    m.message === newRow.message),
+              )
+
+              let updated: StoredMessage[]
+              if (exists) {
+                updated = prev.messages.map((m) =>
+                  m.name === newRow.name &&
+                  m.email === newRow.email &&
+                  m.message === newRow.message
+                    ? newRow
+                    : m,
+                )
+              } else {
+                updated = [newRow, ...prev.messages]
+              }
+
               try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, messages: updated }))
               } catch {}
@@ -550,8 +570,27 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         if (payload.eventType === 'INSERT') {
           const newOrder = payload.new as StoredOrder
           setState((prev) => {
-            if (prev.orders.some((o) => o.id === newOrder.id)) return prev
-            const updated = [newOrder, ...prev.orders]
+            const exists = prev.orders.some(
+              (o) =>
+                o.id === newOrder.id ||
+                (o.customer_phone === newOrder.customer_phone &&
+                  o.subtotal === newOrder.subtotal &&
+                  o.customer_name === newOrder.customer_name),
+            )
+
+            let updated: StoredOrder[]
+            if (exists) {
+              updated = prev.orders.map((o) =>
+                o.customer_phone === newOrder.customer_phone &&
+                o.subtotal === newOrder.subtotal &&
+                o.customer_name === newOrder.customer_name
+                  ? newOrder
+                  : o,
+              )
+            } else {
+              updated = [newOrder, ...prev.orders]
+            }
+
             try {
               localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, orders: updated }))
             } catch {}
@@ -594,14 +633,14 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
                 ...prev,
                 hero: newSettings.hero ? { ...prev.hero, ...(newSettings.hero as Partial<HeroData>) } : prev.hero,
                 about: newSettings.about ? { ...prev.about, ...(newSettings.about as Partial<AboutData>) } : prev.about,
-                stats: (newSettings.stats as StatItem[]) || prev.stats,
+                stats: Array.isArray(newSettings.stats) ? (newSettings.stats as StatItem[]) : prev.stats,
                 contact: newSettings.contact ? { ...prev.contact, ...(newSettings.contact as Partial<ContactData>) } : prev.contact,
-                works: (newSettings.works as WorkItem[]) || prev.works,
-                videos: (newSettings.videos as Video[]) || prev.videos,
-                products: (newSettings.products as Product[]) || prev.products,
-                audiences: (newSettings.audiences as Audience[]) || prev.audiences,
-                testimonials: (newSettings.testimonials as TestimonialItem[]) || prev.testimonials,
-                faqs: (newSettings.faqs as FaqItem[]) || prev.faqs,
+                works: Array.isArray(newSettings.works) ? (newSettings.works as WorkItem[]) : prev.works,
+                videos: Array.isArray(newSettings.videos) ? (newSettings.videos as Video[]) : prev.videos,
+                products: Array.isArray(newSettings.products) ? (newSettings.products as Product[]) : prev.products,
+                audiences: Array.isArray(newSettings.audiences) ? (newSettings.audiences as Audience[]) : prev.audiences,
+                testimonials: Array.isArray(newSettings.testimonials) ? (newSettings.testimonials as TestimonialItem[]) : prev.testimonials,
+                faqs: Array.isArray(newSettings.faqs) ? (newSettings.faqs as FaqItem[]) : prev.faqs,
                 adminPin: (newSettings.admin_pin as string) || prev.adminPin,
               }
               try {

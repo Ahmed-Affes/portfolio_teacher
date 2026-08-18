@@ -39,22 +39,13 @@ export function Testimonials() {
       isActive: true,
     })
 
-    // 2. Also record in messages inbox for Farah
+    // 2. Also record in messages inbox for Farah (dispatches to Supabase automatically)
     addMessage({
       name: authorName.trim(),
       email: 'Feedback Form (In-App)',
       role: authorRole.trim(),
       topic: 'New Testimonial Review',
       message: `"${reviewQuote.trim()}" (Rating: ${includeRating ? `${reviewRating} / 5 Stars` : 'Quote only'})`,
-      status: 'unread',
-    })
-
-    await submitContactMessage({
-      name: authorName.trim(),
-      email: 'Feedback Form',
-      role: authorRole.trim(),
-      topic: 'Community Testimonial',
-      message: reviewQuote.trim(),
       status: 'unread',
     })
 

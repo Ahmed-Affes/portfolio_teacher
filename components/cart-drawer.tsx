@@ -69,7 +69,7 @@ export function CartDrawer() {
       mode: l.mode,
     }))
 
-    // 1. Save to portfolio context state (Local Storage & Admin Portal)
+    // 1. Save to portfolio context & dispatch to Supabase
     addOrder({
       customer_name: customerName.trim(),
       customer_phone: customerPhone.trim(),
@@ -81,18 +81,6 @@ export function CartDrawer() {
       subtotal,
       currency: 'TND',
       status: 'pending',
-    })
-
-    // 2. Also dispatch to Supabase database
-    await submitOrderRequest({
-      customer_name: customerName,
-      customer_phone: customerPhone,
-      customer_email: customerEmail,
-      items: orderItems,
-      subtotal,
-      currency: 'TND',
-      status: 'pending',
-      notes: `${customerLocation ? `Location: ${customerLocation}. ` : ''}${rentalDates ? `Rental Dates: ${rentalDates}. ` : ''}${notes || ''}`,
     })
 
     const itemsText = lines
