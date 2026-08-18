@@ -1,14 +1,88 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+let cachedClient: SupabaseClient | null = null
+let cachedUrl = ''
+let cachedKey = ''
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
+/**
+ * Get active Supabase configuration (from env variables or local storage)
+ */
+export function getSupabaseConfig(): { url: string; anonKey: string } {
+  let url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  let anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-// Client-side Supabase instance
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null
+  if (typeof window !== 'undefined') {
+    const customUrl = localStorage.getItem('farah_supabase_url')
+    const customKey = localStorage.getItem('farah_supabase_anon_key')
+    if (customUrl && customKey) {
+      url = customUrl.trim()
+      anonKey = customKey.trim()
+    }
+  }
+
+  return { url, anonKey }
+}
+
+/**
+ * Save custom Supabase credentials directly from Admin Settings
+ */
+export function saveSupabaseConfig(url: string, anonKey: string) {
+  if (typeof window !== 'undefined') {
+    if (url.trim() && anonKey.trim()) {
+      localStorage.setItem('farah_supabase_url', url.trim())
+      localStorage.setItem('farah_supabase_anon_key', anonKey.trim())
+    } else {
+      localStorage.removeItem('farah_supabase_url')
+      localStorage.removeItem('farah_supabase_anon_key')
+    }
+  }
+  cachedClient = null
+  cachedUrl = ''
+  cachedKey = ''
+}
+
+/**
+ * Check if Supabase credentials are validly configured
+ */
+export function checkIsSupabaseConfigured(): boolean {
+  const { url, anonKey } = getSupabaseConfig()
+  return Boolean(url && anonKey && url.startsWith('http'))
+}
+
+export const isSupabaseConfigured = checkIsSupabaseConfigured()
+
+/**
+ * Get or create dynamic Supabase client
+ */
+export function getSupabase(): SupabaseClient | null {
+  const { url, anonKey } = getSupabaseConfig()
+  if (!url || !anonKey || !url.startsWith('http')) {
+    return null
+  }
+
+  if (cachedClient && cachedUrl === url && cachedKey === anonKey) {
+    return cachedClient
+  }
+
+  try {
+    cachedUrl = url
+    cachedKey = anonKey
+    cachedClient = createClient(url, anonKey, {
+      auth: { persistSession: false },
+      realtime: {
+        params: {
+          eventsPerSecond: 10,
+        },
+      },
+    })
+    return cachedClient
+  } catch (err) {
+    console.warn('Failed to initialize Supabase client:', err)
+    return null
+  }
+}
+
+export const supabase = getSupabase()
 
 export interface ContactMessage {
   id?: string
@@ -48,12 +122,13 @@ export interface OrderRequest {
  * Helper to submit a contact message to Supabase
  */
 export async function submitContactMessage(message: ContactMessage) {
-  if (!supabase) {
+  const client = getSupabase()
+  if (!client) {
     return { success: false, fallback: true, error: 'Supabase credentials not configured' }
   }
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('contact_messages')
       .insert([
         {
@@ -83,12 +158,13 @@ export async function submitContactMessage(message: ContactMessage) {
  * Helper to submit an order request to Supabase
  */
 export async function submitOrderRequest(order: OrderRequest) {
-  if (!supabase) {
+  const client = getSupabase()
+  if (!client) {
     return { success: false, fallback: true, error: 'Supabase credentials not configured' }
   }
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('orders')
       .insert([
         {
@@ -122,9 +198,10 @@ export async function submitOrderRequest(order: OrderRequest) {
  * Helper to fetch latest contact messages from Supabase
  */
 export async function fetchContactMessages(): Promise<ContactMessage[]> {
-  if (!supabase) return []
+  const client = getSupabase()
+  if (!client) return []
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('contact_messages')
       .select('*')
       .order('created_at', { ascending: false })
@@ -141,9 +218,10 @@ export async function fetchContactMessages(): Promise<ContactMessage[]> {
  * Helper to fetch latest orders from Supabase
  */
 export async function fetchOrders(): Promise<OrderRequest[]> {
-  if (!supabase) return []
+  const client = getSupabase()
+  if (!client) return []
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false })
@@ -160,9 +238,10 @@ export async function fetchOrders(): Promise<OrderRequest[]> {
  * Sync entire portfolio settings to Supabase
  */
 export async function syncPortfolioSettingsToDb(payload: Record<string, unknown>) {
-  if (!supabase) return { success: false, error: 'No database configured' }
+  const client = getSupabase()
+  if (!client) return { success: false, error: 'No database configured' }
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('portfolio_settings')
       .upsert({
         id: 'current_state',
@@ -183,9 +262,10 @@ export async function syncPortfolioSettingsToDb(payload: Record<string, unknown>
  * Fetch entire portfolio settings & collections snapshot from Supabase
  */
 export async function fetchPortfolioSettingsFromDb() {
-  if (!supabase) return null
+  const client = getSupabase()
+  if (!client) return null
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('portfolio_settings')
       .select('*')
       .eq('id', 'current_state')

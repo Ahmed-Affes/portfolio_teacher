@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -9,8 +9,10 @@ import {
   BellOff,
   BellRing,
   BookOpen,
+  Check,
   CheckCircle2,
   Copy,
+  Database,
   Download,
   Edit3,
   ExternalLink,
@@ -29,6 +31,7 @@ import {
   Palette,
   Phone,
   Plus,
+  RefreshCw,
   RotateCcw,
   Save,
   Send,
@@ -57,6 +60,13 @@ import {
 } from '@/lib/portfolio-context'
 import { useToast } from '@/components/toast-provider'
 import { cn } from '@/lib/utils'
+import {
+  getSupabaseConfig,
+  saveSupabaseConfig,
+  checkIsSupabaseConfigured,
+  getSupabase,
+  syncPortfolioSettingsToDb,
+} from '@/lib/supabase'
 
 // Public Components for 100% High-Fidelity Live Preview
 import { Hero } from '@/components/hero'
@@ -171,8 +181,19 @@ export default function AdminPage() {
   const [editingFaq, setEditingFaq] = useState<FaqItem | null>(null)
   const [isAddingFaq, setIsAddingFaq] = useState(false)
 
-  // Settings: New PIN
+  // Settings: New PIN & Supabase Database Configuration
   const [newPin, setNewPin] = useState('')
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState('')
+  const [supabaseKeyInput, setSupabaseKeyInput] = useState('')
+  const [isSupabaseLive, setIsSupabaseLive] = useState(false)
+  const [isSyncingDb, setIsSyncingDb] = useState(false)
+
+  useEffect(() => {
+    const config = getSupabaseConfig()
+    setSupabaseUrlInput(config.url)
+    setSupabaseKeyInput(config.anonKey)
+    setIsSupabaseLive(checkIsSupabaseConfigured())
+  }, [])
 
   // Handle PIN Login
   const handleLogin = (e: React.FormEvent) => {
@@ -193,6 +214,40 @@ export default function AdminPage() {
     setAboutForm(state.about)
     setContactForm(state.contact)
     setStatsForm(state.stats)
+  }
+
+  // Handle Supabase Database Configuration Save & Cloud Push
+  const handleSaveDatabaseConfig = async () => {
+    setIsSyncingDb(true)
+    saveSupabaseConfig(supabaseUrlInput.trim(), supabaseKeyInput.trim())
+    const isConfigured = checkIsSupabaseConfigured()
+    setIsSupabaseLive(isConfigured)
+
+    if (isConfigured) {
+      const client = getSupabase()
+      if (client) {
+        // Push full current local snapshot to Supabase
+        await syncPortfolioSettingsToDb({
+          hero: state.hero,
+          about: state.about,
+          stats: state.stats,
+          contact: state.contact,
+          works: state.works,
+          videos: state.videos,
+          products: state.products,
+          audiences: state.audiences,
+          testimonials: state.testimonials,
+          faqs: state.faqs,
+          admin_pin: state.adminPin,
+        })
+        toast('Connected to Supabase! All portfolio data synchronized to cloud database.')
+      } else {
+        toast('Invalid Supabase credentials. Please verify your Project URL and Anon Key.')
+      }
+    } else {
+      toast('Supabase credentials cleared. Using local storage.')
+    }
+    setIsSyncingDb(false)
   }
 
   // If not authenticated, render Clean Minimal PIN Unlock Gate
@@ -295,13 +350,18 @@ export default function AdminPage() {
               <span
                 className={cn(
                   'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
-                  isRealtimeConnected
+                  isRealtimeConnected || isSupabaseLive
                     ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-primary/20 text-foreground',
+                    : 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
                 )}
               >
-                <span className={cn('size-1.5 rounded-full', isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-primary')} />
-                {isRealtimeConnected ? 'Realtime Connected' : 'Studio Active'}
+                <span
+                  className={cn(
+                    'size-1.5 rounded-full',
+                    isRealtimeConnected || isSupabaseLive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500',
+                  )}
+                />
+                {isRealtimeConnected || isSupabaseLive ? 'Cloud Realtime Active' : 'Local Storage Mode'}
               </span>
             </div>
           </div>
@@ -2055,14 +2115,105 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 13. STUDIO SETTINGS & BACKUP TAB */}
+            {/* 13. STUDIO SETTINGS & DATABASE SYNC TAB */}
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <div>
                   <h2 className="font-serif text-xl font-bold">Studio Settings &amp; Data Management</h2>
                   <p className="text-xs text-muted-foreground">
-                    Control notification preferences, update your PIN, or export full backups.
+                    Configure cloud database connection, notification preferences, PIN security, or export backups.
                   </p>
+                </div>
+
+                {/* Cloud Database Connection Card (Cross-Device Realtime Sync) */}
+                <div className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex size-9 items-center justify-center rounded-xl bg-primary/20 text-foreground">
+                        <Database className="size-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-base font-bold">Supabase Cloud Database Connection</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Connect your Supabase project to sync all messages, orders, and edits across PC and mobile phones.
+                        </p>
+                      </div>
+                    </div>
+
+                    <span
+                      className={cn(
+                        'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
+                        isSupabaseLive
+                          ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                          : 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+                      )}
+                    >
+                      <span className={cn('size-2 rounded-full', isSupabaseLive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500')} />
+                      {isSupabaseLive ? 'Connected & Synced' : 'Offline / Local Only'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold">Supabase Project URL</label>
+                      <input
+                        type="text"
+                        value={supabaseUrlInput}
+                        onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                        placeholder="https://your-project-id.supabase.co"
+                        className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold">Supabase Anon Public Key (eyJhbGciOi...)</label>
+                      <input
+                        type="password"
+                        value={supabaseKeyInput}
+                        onChange={(e) => setSupabaseKeyInput(e.target.value)}
+                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap gap-2.5 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleSaveDatabaseConfig}
+                        disabled={isSyncingDb}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md disabled:opacity-60"
+                      >
+                        <RefreshCw className={cn('size-3.5', isSyncingDb && 'animate-spin')} />
+                        {isSyncingDb ? 'Syncing...' : 'Save & Sync Cloud Database'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setIsSyncingDb(true)
+                          await syncPortfolioSettingsToDb({
+                            hero: state.hero,
+                            about: state.about,
+                            stats: state.stats,
+                            contact: state.contact,
+                            works: state.works,
+                            videos: state.videos,
+                            products: state.products,
+                            audiences: state.audiences,
+                            testimonials: state.testimonials,
+                            faqs: state.faqs,
+                            admin_pin: state.adminPin,
+                          })
+                          setIsSyncingDb(false)
+                          toast('Pushed current portfolio state to Supabase!')
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-xs font-semibold hover:bg-muted"
+                      >
+                        <Upload className="size-3.5 text-primary" />
+                        Push Current Snapshot to Cloud
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Device Notification Settings */}

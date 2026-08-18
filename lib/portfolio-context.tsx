@@ -20,6 +20,7 @@ import {
 } from '@/lib/data'
 import {
   supabase,
+  getSupabase,
   isSupabaseConfigured,
   requestNotificationPermission,
   playNotificationSound,
@@ -490,15 +491,19 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   // 3. Supabase Realtime Subscription Integration
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return
+    const client = getSupabase()
+    if (!client) {
+      setIsRealtimeConnected(false)
+      return
+    }
 
-    const channel = supabase
+    const channel = client
       .channel('public_realtime_portfolio_v3')
       // Listen to new contact messages
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         { event: '*', schema: 'public', table: 'contact_messages' },
-        (payload) => {
+        (payload: any) => {
           if (payload.eventType === 'INSERT') {
             const newRow = payload.new as StoredMessage
             setState((prev) => {
@@ -537,7 +542,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         },
       )
       // Listen to new shop orders
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'orders' }, (payload: any) => {
         if (payload.eventType === 'INSERT') {
           const newOrder = payload.new as StoredOrder
           setState((prev) => {
@@ -575,9 +580,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       })
       // Listen to portfolio settings / content changes across devices
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         { event: '*', schema: 'public', table: 'portfolio_settings' },
-        (payload) => {
+        (payload: any) => {
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
             const newSettings = payload.new as Record<string, unknown>
             setState((prev) => {
@@ -603,7 +608,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           }
         },
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         if (status === 'SUBSCRIBED') {
           setIsRealtimeConnected(true)
         } else {
@@ -612,8 +617,8 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       })
 
     return () => {
-      if (supabase) {
-        supabase.removeChannel(channel)
+      if (client) {
+        client.removeChannel(channel)
       }
     }
   }, [])
