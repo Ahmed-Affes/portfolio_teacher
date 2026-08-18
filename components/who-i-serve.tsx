@@ -33,7 +33,7 @@ export function WhoIServe() {
 
         {/* Tab Buttons */}
         <Reveal delay={60}>
-          <div className="mx-auto flex max-w-md gap-1.5 rounded-full border border-border/80 bg-card p-1.5 shadow-sm">
+          <div className="mx-auto flex w-full max-w-xl flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-card p-1.5 shadow-sm sm:flex-nowrap sm:rounded-full">
             {AUDIENCES.map((a) => {
               const TabIcon = ICONS[a.id as keyof typeof ICONS]
               const isSelected = active === a.id
@@ -43,13 +43,13 @@ export function WhoIServe() {
                   type="button"
                   onClick={() => setActive(a.id)}
                   className={cn(
-                    'flex flex-1 items-center justify-center gap-2 rounded-full py-2 text-xs font-semibold transition-all duration-300',
+                    'flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold whitespace-nowrap transition-all duration-300 sm:px-5 sm:py-2.5',
                     isSelected
                       ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'text-muted-foreground hover:text-foreground',
+                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
                   )}
                 >
-                  <TabIcon className="size-4" />
+                  <TabIcon className="size-4 shrink-0" />
                   <span>{a.title.replace('For ', '')}</span>
                 </button>
               )

@@ -8,9 +8,12 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Columns3,
   Grid,
+  Info,
   LayoutGrid,
   Maximize2,
+  MessageSquare,
   Search,
   SlidersHorizontal,
   Sparkles,
@@ -109,7 +112,7 @@ export function WorkShowcase() {
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 section-glow" />
 
       <div className="section-inner section-stack">
-        {/* Section Heading & Category Filters */}
+        {/* Section Heading & Controls */}
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <Reveal>
             <SectionHeading
@@ -120,7 +123,7 @@ export function WorkShowcase() {
             />
           </Reveal>
 
-          {/* Search & View Mode Controls */}
+          {/* Search & Layout Switcher Controls */}
           <Reveal delay={60}>
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Instant Search Bar */}
@@ -130,7 +133,7 @@ export function WorkShowcase() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search works or props..."
+                  placeholder="Search works, phonics, verbs..."
                   className="w-full rounded-full border border-border/80 bg-card py-2 pl-9 pr-8 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 {searchQuery && (
@@ -145,29 +148,37 @@ export function WorkShowcase() {
                 )}
               </div>
 
-              {/* View mode toggle */}
-              <div className="hidden items-center rounded-full border border-border/70 bg-card p-1 sm:flex">
+              {/* Layout Switcher Toggle */}
+              <div className="flex items-center rounded-full border border-border/80 bg-card p-1 shadow-xs">
                 <button
                   type="button"
                   onClick={() => setViewMode('grid')}
+                  title="Grid View (Balanced Cards)"
                   aria-label="Grid View"
                   className={cn(
-                    'flex size-7 items-center justify-center rounded-full transition-colors',
-                    viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+                    'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300',
+                    viewMode === 'grid'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
                   <Grid className="size-3.5" />
+                  <span className="hidden sm:inline">Grid</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('bento')}
+                  title="Bento View (Editorial Magazine)"
                   aria-label="Bento View"
                   className={cn(
-                    'flex size-7 items-center justify-center rounded-full transition-colors',
-                    viewMode === 'bento' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+                    'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300',
+                    viewMode === 'bento'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
                   <LayoutGrid className="size-3.5" />
+                  <span className="hidden sm:inline">Bento</span>
                 </button>
               </div>
             </div>
@@ -207,7 +218,7 @@ export function WorkShowcase() {
           </div>
         </Reveal>
 
-        {/* Works Gallery Grid */}
+        {/* Works Gallery Grid / Bento */}
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 bg-card/50 p-12 text-center">
             <SlidersHorizontal className="size-10 text-muted-foreground/50" />
@@ -226,19 +237,13 @@ export function WorkShowcase() {
               Reset filters
             </button>
           </div>
-        ) : (
-          <div
-            className={cn(
-              'grid gap-4 sm:gap-5',
-              viewMode === 'grid'
-                ? 'sm:grid-cols-2 lg:grid-cols-3'
-                : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3',
-            )}
-          >
+        ) : viewMode === 'grid' ? (
+          /* Standard 3-Column / 2-Column Grid */
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
               return (
-                <Reveal key={item.id} delay={(i % 6) * 50}>
+                <Reveal key={item.id} delay={(i % 6) * 40}>
                   <button
                     type="button"
                     onClick={() => setActiveItemIndex(actualIndex)}
@@ -265,9 +270,9 @@ export function WorkShowcase() {
                         <Maximize2 className="size-3.5" />
                       </span>
 
-                      {/* Year & Format pill */}
+                      {/* Format pill */}
                       {item.format && (
-                        <span className="absolute bottom-3 left-3 rounded-md bg-secondary/80 px-2 py-0.5 text-[0.65rem] font-medium text-white backdrop-blur-xs">
+                        <span className="absolute bottom-3 left-3 rounded-md bg-secondary/85 px-2 py-0.5 text-[0.65rem] font-medium text-white backdrop-blur-xs">
                           {item.format}
                         </span>
                       )}
@@ -310,6 +315,93 @@ export function WorkShowcase() {
               )
             })}
           </div>
+        ) : (
+          /* Editorial Bento Layout */
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
+            {displayedItems.map((item, i) => {
+              const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
+              const isFeature = i % 4 === 0 || i % 4 === 3
+
+              return (
+                <Reveal
+                  key={item.id}
+                  delay={(i % 6) * 40}
+                  className={cn(isFeature && 'sm:col-span-2 lg:col-span-2')}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveItemIndex(actualIndex)}
+                    className={cn(
+                      'card-shine group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card text-left shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl hover:shadow-foreground/5',
+                      isFeature ? 'md:grid md:grid-cols-[1.1fr_0.9fr]' : 'flex flex-col',
+                    )}
+                  >
+                    {/* Media Image */}
+                    <div
+                      className={cn(
+                        'relative w-full overflow-hidden bg-muted',
+                        isFeature ? 'aspect-[16/10] md:h-full md:aspect-auto' : 'aspect-[16/10.5]',
+                      )}
+                    >
+                      <Image
+                        src={item.image || '/placeholder.svg'}
+                        alt={item.title}
+                        fill
+                        sizes={isFeature ? '(max-width: 1024px) 100vw, 66vw' : '(max-width: 1024px) 50vw, 33vw'}
+                        className="object-cover transition-transform duration-700 group-hover:scale-108"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/15 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-85" />
+
+                      <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-primary-foreground shadow-md">
+                        {item.tag}
+                      </span>
+
+                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur-sm transition-all duration-300 group-hover:opacity-100 group-hover:scale-105">
+                        <Maximize2 className="size-3.5" />
+                      </span>
+
+                      {item.year && (
+                        <span className="absolute bottom-3 left-3 rounded-md bg-secondary/85 px-2 py-0.5 text-[0.65rem] font-medium text-white backdrop-blur-xs">
+                          {item.year}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Details Panel */}
+                    <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
+                      <div>
+                        {item.format && (
+                          <span className="text-[0.65rem] font-bold uppercase tracking-wider text-primary">
+                            {item.format}
+                          </span>
+                        )}
+                        <h3 className="mt-1 font-serif text-lg font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-xl">
+                          {item.title}
+                        </h3>
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      {item.highlights && item.highlights.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-1.5 border-t border-border/50 pt-3">
+                          {item.highlights.map((h) => (
+                            <span
+                              key={h}
+                              className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[0.65rem] font-medium text-foreground"
+                            >
+                              <CheckCircle2 className="size-2.5 text-primary" />
+                              {h}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </Reveal>
+              )
+            })}
+          </div>
         )}
 
         {/* Smart Progressive "Load More" */}
@@ -332,47 +424,54 @@ export function WorkShowcase() {
         )}
       </div>
 
-      {/* Pro Lightbox with Keyboard Arrow Navigation */}
+      {/* World-Class Pro Lightbox Detail Modal */}
       {activeItem && activeItemIndex !== null && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label={activeItem.title}
           onClick={() => setActiveItemIndex(null)}
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-secondary/90 p-3 backdrop-blur-md duration-300 animate-in fade-in sm:p-5"
+          className="fixed inset-0 z-[95] flex items-center justify-center bg-black/85 p-3 backdrop-blur-md duration-300 animate-in fade-in sm:p-5 lg:p-8"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-white/15 bg-card shadow-2xl duration-300 animate-in zoom-in-95"
+            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-white/20 bg-card shadow-2xl duration-300 animate-in zoom-in-95 lg:grid lg:grid-cols-[1.15fr_0.85fr]"
           >
-            {/* Header controls */}
-            <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
-              <span className="rounded-full bg-secondary/80 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">
-                {activeItemIndex + 1} / {filteredItems.length}
-              </span>
-              <button
-                type="button"
-                aria-label="Close modal"
-                onClick={() => setActiveItemIndex(null)}
-                className="flex size-9 items-center justify-center rounded-full bg-secondary/80 text-white backdrop-blur transition-colors hover:bg-secondary"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
+            {/* Close button */}
+            <button
+              type="button"
+              aria-label="Close modal"
+              onClick={() => setActiveItemIndex(null)}
+              className="absolute right-4 top-4 z-30 flex size-9 items-center justify-center rounded-full bg-black/70 text-white shadow-lg backdrop-blur-md transition-transform hover:scale-110 hover:bg-black"
+            >
+              <X className="size-4.5" />
+            </button>
 
-            {/* Media Canvas with Next/Prev arrows */}
-            <div className="relative aspect-[16/10] w-full bg-muted sm:aspect-[16/9.5]">
+            {/* Left Column: Media Presentation Stage */}
+            <div className="relative flex aspect-[16/11] w-full flex-col justify-between overflow-hidden bg-muted lg:aspect-auto lg:h-full">
               <Image
                 src={activeItem.image || '/placeholder.svg'}
                 alt={activeItem.title}
                 fill
-                sizes="(max-width: 1024px) 100vw, 768px"
+                priority
+                sizes="(max-width: 1024px) 100vw, 600px"
                 className="object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
-              {/* Prev / Next buttons */}
+              {/* Top info badge */}
+              <div className="relative z-10 flex items-center justify-between p-4 sm:p-5">
+                <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow-md">
+                  {activeItem.tag}
+                </span>
+                <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                  {activeItemIndex + 1} of {filteredItems.length}
+                </span>
+              </div>
+
+              {/* Left / Right Arrow Navigation buttons */}
               {filteredItems.length > 1 && (
-                <>
+                <div className="absolute inset-x-3 top-1/2 z-20 flex -translate-y-1/2 items-center justify-between pointer-events-none">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -380,9 +479,9 @@ export function WorkShowcase() {
                       handlePrev()
                     }}
                     aria-label="Previous item"
-                    className="absolute left-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-secondary/80 text-white backdrop-blur-sm transition-all hover:bg-secondary hover:scale-110"
+                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transition-all hover:scale-115 hover:bg-black"
                   >
-                    <ChevronLeft className="size-5" />
+                    <ChevronLeft className="size-6" />
                   </button>
                   <button
                     type="button"
@@ -391,70 +490,87 @@ export function WorkShowcase() {
                       handleNext()
                     }}
                     aria-label="Next item"
-                    className="absolute right-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-secondary/80 text-white backdrop-blur-sm transition-all hover:bg-secondary hover:scale-110"
+                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transition-all hover:scale-115 hover:bg-black"
                   >
-                    <ChevronRight className="size-5" />
+                    <ChevronRight className="size-6" />
                   </button>
-                </>
-              )}
-            </div>
-
-            {/* Detailed metadata panel */}
-            <div className="overflow-y-auto p-5 sm:p-7">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground ring-1 ring-primary/30">
-                  {activeItem.tag}
-                </span>
-                {activeItem.format && (
-                  <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                    {activeItem.format}
-                  </span>
-                )}
-                {activeItem.year && (
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    · {activeItem.year}
-                  </span>
-                )}
-              </div>
-
-              <h3 className="mt-3 font-serif text-xl font-semibold text-foreground sm:text-2xl">
-                {activeItem.title}
-              </h3>
-
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm text-pretty">
-                {activeItem.description}
-              </p>
-
-              {/* Key pedagogical highlights */}
-              {activeItem.highlights && activeItem.highlights.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-[0.65rem] font-bold uppercase tracking-wider text-foreground">
-                    Pedagogical Highlights
-                  </p>
-                  <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-                    {activeItem.highlights.map((h) => (
-                      <div key={h} className="flex items-center gap-2 text-xs text-foreground">
-                        <CheckCircle2 className="size-3.5 shrink-0 text-primary" />
-                        <span>{h}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
 
-              {/* Inquire CTA */}
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4">
-                <p className="text-xs text-muted-foreground">
-                  Interested in custom posters, rentals, or workshop kits?
+              {/* Bottom interactive navigation dot bar */}
+              <div className="relative z-10 flex items-center justify-between p-4 text-xs text-white/80">
+                <span className="text-[0.7rem] font-medium">Use ← / → keys to browse</span>
+                <div className="flex gap-1">
+                  {filteredItems.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveItemIndex(idx)}
+                      className={cn(
+                        'h-1.5 rounded-full transition-all',
+                        activeItemIndex === idx ? 'w-5 bg-primary' : 'w-1.5 bg-white/40 hover:bg-white',
+                      )}
+                      aria-label={`Jump to item ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Editorial Detail Drawer */}
+            <div className="flex flex-1 flex-col justify-between overflow-y-auto p-6 sm:p-8">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
+                  {activeItem.format && (
+                    <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-foreground font-bold">
+                      {activeItem.format}
+                    </span>
+                  )}
+                  {activeItem.year && <span>· Released {activeItem.year}</span>}
+                </div>
+
+                <h3 className="mt-3 font-serif text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+                  {activeItem.title}
+                </h3>
+
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground sm:text-sm text-pretty">
+                  {activeItem.description}
                 </p>
-                <a
-                  href="#contact"
-                  onClick={() => setActiveItemIndex(null)}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                  Inquire about this material
-                  <ArrowRight className="size-3.5" />
-                </a>
+
+                {/* Pedagogical Highlights Breakdown */}
+                {activeItem.highlights && activeItem.highlights.length > 0 && (
+                  <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
+                    <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground">
+                      <Sparkles className="size-3.5 text-primary" />
+                      Pedagogical Highlights
+                    </h4>
+                    <ul className="mt-2.5 space-y-2">
+                      {activeItem.highlights.map((h) => (
+                        <li key={h} className="flex items-start gap-2.5 text-xs text-foreground sm:text-sm">
+                          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
+                          <span>{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Inquire & Order Action Footer */}
+              <div className="mt-6 border-t border-border/60 pt-4">
+                <div className="flex flex-col gap-2.5">
+                  <a
+                    href="#contact"
+                    onClick={() => setActiveItemIndex(null)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-xl sm:text-sm"
+                  >
+                    <MessageSquare className="size-4" />
+                    Inquire or request this material
+                  </a>
+                  <p className="text-center text-[0.65rem] text-muted-foreground">
+                    Available for workshop demonstration, custom sizing, or localized rental in Tunis.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

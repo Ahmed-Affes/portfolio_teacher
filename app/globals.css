@@ -159,10 +159,15 @@
   }
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: 'ss01', 'cv01';
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
   }
   ::selection {
     background: oklch(0.80 0.17 86);
