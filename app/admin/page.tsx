@@ -4,12 +4,9 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  AlertCircle,
   ArrowLeft,
-  Bell,
   BellRing,
   BookOpen,
-  Check,
   CheckCircle2,
   Copy,
   Database,
@@ -18,9 +15,7 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
-  FileText,
   GraduationCap,
-  Heart,
   HelpCircle,
   Image as ImageIcon,
   Inbox,
@@ -28,14 +23,11 @@ import {
   LayoutDashboard,
   Lock,
   LogOut,
-  Mail,
-  MapPin,
   MessageCircle,
   Package,
   Palette,
   Phone,
   Plus,
-  Radio,
   RotateCcw,
   Save,
   Send,
@@ -43,11 +35,8 @@ import {
   ShoppingBag,
   Sparkles,
   Star,
-  ToggleLeft,
-  ToggleRight,
   Trash2,
   Upload,
-  User,
   Video,
   Volume2,
   X,
@@ -2064,21 +2053,21 @@ export default function AdminPage() {
                   <div>
                     <h2 className="font-serif text-xl font-bold">Supabase PostgreSQL Schema</h2>
                     <p className="text-xs text-muted-foreground">
-                      Execute this complete SQL script in your Supabase SQL Editor to enable full realtime database sync.
+                      Run this clean deadlock-free script in your Supabase SQL Editor.
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => {
-                      const sqlScript = `-- Supabase Schema for Farah Affes Portfolio\nCREATE TABLE IF NOT EXISTS public.contact_messages (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    name TEXT NOT NULL,\n    email TEXT NOT NULL,\n    role TEXT DEFAULT 'Student',\n    topic TEXT DEFAULT 'General question',\n    message TEXT NOT NULL,\n    status TEXT DEFAULT 'unread'\n);\n\nCREATE TABLE IF NOT EXISTS public.orders (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    customer_name TEXT DEFAULT 'Guest',\n    customer_email TEXT DEFAULT 'Not provided',\n    customer_phone TEXT NOT NULL,\n    customer_location TEXT DEFAULT 'Sfax, Tunisia',\n    items JSONB NOT NULL DEFAULT '[]'::jsonb,\n    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,\n    currency TEXT DEFAULT 'TND',\n    status TEXT DEFAULT 'pending',\n    rental_dates TEXT,\n    notes TEXT\n);\n\nCREATE TABLE IF NOT EXISTS public.portfolio_settings (\n    id TEXT PRIMARY KEY DEFAULT 'current_state',\n    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    hero JSONB NOT NULL DEFAULT '{}'::jsonb,\n    about JSONB NOT NULL DEFAULT '{}'::jsonb,\n    stats JSONB NOT NULL DEFAULT '[]'::jsonb,\n    contact JSONB NOT NULL DEFAULT '{}'::jsonb,\n    admin_pin TEXT DEFAULT 'farah2026'\n);\n\nALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY "Allow public inserts on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\nCREATE POLICY "Allow public inserts on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\nCREATE POLICY "Allow public all on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\n\nALTER PUBLICATION supabase_realtime ADD TABLE public.contact_messages;\nALTER PUBLICATION supabase_realtime ADD TABLE public.orders;\nALTER PUBLICATION supabase_realtime ADD TABLE public.portfolio_settings;`
+                      const sqlScript = `-- 100% Deadlock-Free Supabase Schema for Farah Affes Portfolio\nCREATE EXTENSION IF NOT EXISTS "uuid-ossp";\n\nCREATE TABLE IF NOT EXISTS public.contact_messages (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    name TEXT NOT NULL,\n    email TEXT NOT NULL,\n    role TEXT DEFAULT 'Student',\n    topic TEXT DEFAULT 'General question',\n    message TEXT NOT NULL,\n    status TEXT DEFAULT 'unread'\n);\n\nCREATE TABLE IF NOT EXISTS public.orders (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    customer_name TEXT DEFAULT 'Guest',\n    customer_email TEXT DEFAULT 'Not provided',\n    customer_phone TEXT NOT NULL,\n    customer_location TEXT DEFAULT 'Sfax, Tunisia',\n    items JSONB NOT NULL DEFAULT '[]'::jsonb,\n    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,\n    currency TEXT DEFAULT 'TND',\n    status TEXT DEFAULT 'pending',\n    rental_dates TEXT,\n    notes TEXT\n);\n\nCREATE TABLE IF NOT EXISTS public.portfolio_settings (\n    id TEXT PRIMARY KEY DEFAULT 'current_state',\n    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,\n    hero JSONB NOT NULL DEFAULT '{}'::jsonb,\n    about JSONB NOT NULL DEFAULT '{}'::jsonb,\n    stats JSONB NOT NULL DEFAULT '[]'::jsonb,\n    contact JSONB NOT NULL DEFAULT '{}'::jsonb,\n    admin_pin TEXT DEFAULT 'farah2026'\n);\n\nALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;\nALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;\n\nDO $$\nBEGIN\n    DROP POLICY IF EXISTS "Public access on contact_messages" ON public.contact_messages;\n    CREATE POLICY "Public access on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\n\n    DROP POLICY IF EXISTS "Public access on orders" ON public.orders;\n    CREATE POLICY "Public access on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\n\n    DROP POLICY IF EXISTS "Public access on portfolio_settings" ON public.portfolio_settings;\n    CREATE POLICY "Public access on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);\nEND $$;\n\nDO $$\nDECLARE\n    tbl text;\n    tables_to_add text[] := ARRAY['contact_messages', 'orders', 'portfolio_settings'];\nBEGIN\n    FOREACH tbl IN ARRAY tables_to_add\n    LOOP\n        IF NOT EXISTS (\n            SELECT 1 FROM pg_publication_tables \n            WHERE pubname = 'supabase_realtime' \n              AND schemaname = 'public' \n              AND tablename = tbl\n        ) THEN\n            EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', tbl);\n        END IF;\n    END LOOP;\nEND $$;`
                       navigator.clipboard.writeText(sqlScript)
                       toast('Full Supabase SQL copied to clipboard!')
                     }}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
                   >
                     <Copy className="size-3.5" />
-                    Copy Complete SQL
+                    Copy Clean SQL
                   </button>
                 </div>
 
@@ -2130,19 +2119,41 @@ CREATE TABLE IF NOT EXISTS public.portfolio_settings (
     admin_pin TEXT DEFAULT 'farah2026'
 );
 
--- 4. Enable Row Level Security (RLS) & Policies
+-- 4. Enable Row Level Security (RLS) & Clean Policies
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow public all on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public all on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public all on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+    DROP POLICY IF EXISTS "Public access on contact_messages" ON public.contact_messages;
+    CREATE POLICY "Public access on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
--- 5. Enable Realtime Publications
-ALTER PUBLICATION supabase_realtime ADD TABLE public.contact_messages;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.portfolio_settings;`}</pre>
+    DROP POLICY IF EXISTS "Public access on orders" ON public.orders;
+    CREATE POLICY "Public access on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "Public access on portfolio_settings" ON public.portfolio_settings;
+    CREATE POLICY "Public access on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+END $$;
+
+-- 5. Safe & Idempotent Realtime Publication Setup
+DO $$
+DECLARE
+    tbl text;
+    tables_to_add text[] := ARRAY['contact_messages', 'orders', 'portfolio_settings'];
+BEGIN
+    FOREACH tbl IN ARRAY tables_to_add
+    LOOP
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_publication_tables 
+            WHERE pubname = 'supabase_realtime' 
+              AND schemaname = 'public' 
+              AND tablename = tbl
+        ) THEN
+            EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', tbl);
+        END IF;
+    END LOOP;
+END $$;`}</pre>
                   </div>
                 </div>
               </div>
