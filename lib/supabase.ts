@@ -626,17 +626,31 @@ export function playNotificationSound() {
   }
 }
 
+export type PushNotificationData = {
+  title: string
+  body?: string
+  icon?: string
+  tag?: string
+  href?: string
+  timestamp?: number
+}
+
+export const PUSH_EVENT_KEY = 'farah_device_push_notification'
+
 /**
  * Send an SMS-style high priority browser / OS / mobile notification
  */
-export function sendDeviceNotification(title: string, options?: { body?: string; icon?: string; tag?: string }) {
-  if (typeof window === 'undefined' || !('Notification' in window)) return
+export function sendDeviceNotification(
+  title: string,
+  options?: { body?: string; icon?: string; tag?: string; href?: string },
+) {
+  if (typeof window === 'undefined') return
   if (isNotificationsMuted()) return
 
-  // Play audio chime immediately
+  // 1. Play audio chime immediately
   playNotificationSound()
 
-  // Vibrate mobile device (if supported) - SMS pattern: buzz, pause, buzz
+  // 2. Vibrate mobile device (if supported) - SMS pattern: buzz, pause, buzz
   if ('navigator' in window && 'vibrate' in navigator) {
     try {
       navigator.vibrate([200, 100, 200, 100, 300])
@@ -645,17 +659,57 @@ export function sendDeviceNotification(title: string, options?: { body?: string;
     }
   }
 
-  if (Notification.permission === 'granted') {
-    try {
-      new Notification(title, {
-        body: options?.body || 'New update in Farah Affes Studio',
+  // 3. Dispatch In-App Visual Push Popup Banner (always visible on screen on phone & PC)
+  try {
+    const event = new CustomEvent<PushNotificationData>(PUSH_EVENT_KEY, {
+      detail: {
+        title,
+        body: options?.body,
         icon: options?.icon || '/images/farah-portrait.png',
-        badge: '/favicon.ico',
-        tag: options?.tag || 'farah-portfolio-alert',
-        silent: false,
-      })
-    } catch (err) {
-      console.warn('Browser notification error:', err)
+        tag: options?.tag,
+        href: options?.href || '/admin',
+        timestamp: Date.now(),
+      },
+    })
+    window.dispatchEvent(event)
+  } catch (err) {
+    console.warn('In-app push event dispatch error:', err)
+  }
+
+  // 4. Trigger OS / Mobile System Push Notification (if permission granted)
+  if (typeof Notification !== 'undefined') {
+    if (Notification.permission === 'granted') {
+      try {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.ready
+            .then((registration) => {
+              registration.showNotification(title, {
+                body: options?.body || 'New update in Farah Affes Studio',
+                icon: options?.icon || '/images/farah-portrait.png',
+                badge: '/favicon.ico',
+                tag: options?.tag || 'farah-portfolio-alert',
+                data: { url: options?.href || '/admin' },
+              })
+            })
+            .catch(() => {
+              new Notification(title, {
+                body: options?.body || 'New update in Farah Affes Studio',
+                icon: options?.icon || '/images/farah-portrait.png',
+                badge: '/favicon.ico',
+                tag: options?.tag || 'farah-portfolio-alert',
+              })
+            })
+        } else {
+          new Notification(title, {
+            body: options?.body || 'New update in Farah Affes Studio',
+            icon: options?.icon || '/images/farah-portrait.png',
+            badge: '/favicon.ico',
+            tag: options?.tag || 'farah-portfolio-alert',
+          })
+        }
+      } catch (err) {
+        console.warn('Browser notification error:', err)
+      }
     }
   }
 }
