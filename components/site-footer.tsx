@@ -1,7 +1,16 @@
-import { Globe, Mail, MapPin, MessageCircle, Send, Sparkles } from 'lucide-react'
-import { CONTACT, NAV_ITEMS } from '@/lib/data'
+'use client'
+
+import Link from 'next/link'
+import { Globe, Lock, Mail, MapPin, MessageCircle, Send, Sparkles } from 'lucide-react'
+import { NAV_ITEMS } from '@/lib/data'
+import { usePortfolio } from '@/lib/portfolio-context'
 
 export function SiteFooter() {
+  const { state } = usePortfolio()
+  const { contact } = state
+
+  const whatsappRaw = contact.whatsappRaw || contact.whatsapp.replace(/[^0-9]/g, '')
+
   return (
     <footer className="relative overflow-hidden bg-secondary text-secondary-foreground">
       <div className="pointer-events-none absolute inset-0">
@@ -19,25 +28,25 @@ export function SiteFooter() {
               <div>
                 <span className="font-serif text-xl font-semibold">Farah Affes</span>
                 <p className="text-[0.65rem] font-medium uppercase tracking-widest text-secondary-foreground/50">
-                  English Educator
+                  English Educator &amp; Studio
                 </p>
               </div>
             </a>
             <p className="mt-5 max-w-sm leading-relaxed text-secondary-foreground/70 text-pretty">
               English educator and DIY material designer helping learners grow through
-              interactive, hands-on English education.
+              interactive, hands-on English education in {contact.location}.
             </p>
             <div className="mt-6 flex gap-2.5">
               {[
-                { icon: Mail, href: `mailto:${CONTACT.email}`, label: 'Email' },
+                { icon: Mail, href: `mailto:${contact.email}`, label: 'Email' },
                 {
                   icon: MessageCircle,
-                  href: `https://wa.me/${CONTACT.whatsapp.replace(/[^0-9]/g, '')}`,
+                  href: `https://wa.me/${whatsappRaw}`,
                   label: 'WhatsApp',
                 },
                 {
                   icon: Send,
-                  href: `https://t.me/${CONTACT.email.split('@')[0]}`,
+                  href: `https://t.me/${contact.email.split('@')[0]}`,
                   label: 'Telegram',
                 },
                 { icon: Globe, href: '#home', label: 'Website' },
@@ -79,24 +88,41 @@ export function SiteFooter() {
             <ul className="mt-5 flex flex-col gap-3.5 text-sm text-secondary-foreground/75">
               <li className="flex items-center gap-3">
                 <Mail className="size-4 shrink-0 text-primary" />
-                <a href={`mailto:${CONTACT.email}`} className="transition-colors hover:text-primary">
-                  {CONTACT.email}
+                <a href={`mailto:${contact.email}`} className="transition-colors hover:text-primary">
+                  {contact.email}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <MessageCircle className="size-4 shrink-0 text-primary" />
-                {CONTACT.whatsapp}
+                <a
+                  href={`https://wa.me/${whatsappRaw}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-primary"
+                >
+                  {contact.whatsapp}
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <MapPin className="size-4 shrink-0 text-primary" />
-                {CONTACT.location}
+                {contact.location}
               </li>
             </ul>
           </div>
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-secondary-foreground/50 sm:flex-row">
-          <p>© {new Date().getFullYear()} Farah Affes. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p>© {new Date().getFullYear()} Farah Affes. All rights reserved.</p>
+            <span className="hidden text-white/20 sm:inline">•</span>
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-secondary-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/20 hover:text-primary"
+            >
+              <Lock className="size-3" />
+              Teacher Admin Studio
+            </Link>
+          </div>
           <p className="text-center italic sm:text-right">
             Empowering learners, one hands-on lesson at a time.
           </p>

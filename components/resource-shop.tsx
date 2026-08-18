@@ -4,10 +4,13 @@ import Image from 'next/image'
 import { Check, Download, Info, Repeat, ShoppingBag, Sparkles } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
-import { PRODUCTS, type Product } from '@/lib/data'
+import { type Product } from '@/lib/data'
 import { useCart } from '@/components/cart-provider'
+import { usePortfolio } from '@/lib/portfolio-context'
 
 export function ResourceShop() {
+  const { state } = usePortfolio()
+  const { products } = state
   const { addItem } = useCart()
 
   const handleAdd = (product: Product, mode: 'buy' | 'rent') => {
@@ -24,13 +27,13 @@ export function ResourceShop() {
             number="04"
             eyebrow="Resource Hub"
             title="Educational materials & rental shop"
-            intro="Handcrafted props, printable worksheet packs, and physical classroom kits to buy or rent."
+            intro="Handcrafted props, printable worksheet packs, and physical classroom kits to buy or rent in Sfax and across Tunisia."
             align="center"
           />
         </Reveal>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
-          {PRODUCTS.map((product, i) => (
+          {products.map((product, i) => (
             <Reveal key={product.id} delay={i * 50}>
               <div className="card-shine group flex h-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 will-change-transform">
                 {/* Product Image */}

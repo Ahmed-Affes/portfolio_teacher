@@ -1,4 +1,3 @@
-import { Providers } from '@/components/providers'
 import { SiteHeader } from '@/components/site-header'
 import { Hero } from '@/components/hero'
 import { About } from '@/components/about'
@@ -15,24 +14,22 @@ import { BackToTop } from '@/components/back-to-top'
 
 export default function Page() {
   return (
-    <Providers>
-      <div className="min-h-screen bg-background">
-        <SiteHeader />
-        <main>
-          <Hero />
-          <About />
-          <WorkShowcase />
-          <Videos />
-          <ResourceShop />
-          <WhoIServe />
-          <Testimonials />
-          <Faq />
-          <Contact />
-        </main>
-        <SiteFooter />
-        <CartDrawer />
-        <BackToTop />
-      </div>
-    </Providers>
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main>
+        <Hero />
+        <About />
+        <WorkShowcase />
+        <Videos />
+        <ResourceShop />
+        <WhoIServe />
+        <Testimonials />
+        <Faq />
+        <Contact />
+      </main>
+      <SiteFooter />
+      <CartDrawer />
+      <BackToTop />
+    </div>
   )
 }

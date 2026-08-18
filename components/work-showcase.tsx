@@ -21,7 +21,8 @@ import {
 } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
-import { WORK_ITEMS, type WorkCategory, type WorkItem } from '@/lib/data'
+import { type WorkCategory, type WorkItem } from '@/lib/data'
+import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
 
 const FILTERS: { id: WorkCategory; label: string }[] = [
@@ -37,6 +38,8 @@ const INITIAL_VISIBLE_COUNT = 6
 const LOAD_MORE_STEP = 6
 
 export function WorkShowcase() {
+  const { state } = usePortfolio()
+  const { works } = state
   const [filter, setFilter] = useState<WorkCategory>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null)
@@ -45,18 +48,18 @@ export function WorkShowcase() {
 
   // Calculate item counts for each category
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: WORK_ITEMS.length }
+    const counts: Record<string, number> = { all: works.length }
     FILTERS.forEach((f) => {
       if (f.id !== 'all') {
-        counts[f.id] = WORK_ITEMS.filter((item) => item.category === f.id).length
+        counts[f.id] = works.filter((item) => item.category === f.id).length
       }
     })
     return counts
-  }, [])
+  }, [works])
 
   // Filter & Search logic
   const filteredItems = useMemo(() => {
-    return WORK_ITEMS.filter((item) => {
+    return works.filter((item) => {
       const matchesCategory = filter === 'all' || item.category === filter
       const matchesSearch =
         searchQuery === '' ||
@@ -66,7 +69,7 @@ export function WorkShowcase() {
         (item.highlights && item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())))
       return matchesCategory && matchesSearch
     })
-  }, [filter, searchQuery])
+  }, [works, filter, searchQuery])
 
   // Reset pagination when filter or search changes
   useEffect(() => {

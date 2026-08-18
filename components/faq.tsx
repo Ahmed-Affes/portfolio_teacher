@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { ArrowRight, HelpCircle, Plus } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
-import { FAQS } from '@/lib/data'
+import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
 
 export function Faq() {
+  const { state } = usePortfolio()
+  const { faqs } = state
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
@@ -47,10 +49,10 @@ export function Faq() {
 
           {/* Right Column: Accordion */}
           <ul className="space-y-3">
-            {FAQS.map((faq, i) => {
+            {faqs.map((faq, i) => {
               const isOpen = openIndex === i
               return (
-                <Reveal key={faq.q} delay={i * 40}>
+                <Reveal key={faq.id || faq.q || i} delay={i * 40}>
                   <li
                     className={cn(
                       'overflow-hidden rounded-2xl border bg-card transition-all duration-300 shadow-2xs',

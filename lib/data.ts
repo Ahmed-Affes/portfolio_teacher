@@ -463,6 +463,7 @@ export const FAQS = [
 
 export const CONTACT = {
   email: 'affesfarah6@gmail.com',
-  whatsapp: '+216 00 000 000',
-  location: 'Tunis, Tunisia',
+  whatsapp: '+216 52 095 014',
+  whatsappRaw: '21652095014',
+  location: 'Sfax, Tunisia',
 }

@@ -1,18 +1,24 @@
+'use client'
+
 import Image from 'next/image'
 import { ArrowRight, FileText, GraduationCap, Sparkles, Star } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
-import { STATS } from '@/lib/data'
-
-const MARQUEE_ITEMS = [
-  'Phonics & Literacy Mastery',
-  'Handmade Classroom Props',
-  'Printable PDF Worksheets',
-  'Teacher Training Workshops',
-  'ESL Curriculum Design',
-  'Interactive Storytelling Kits',
-]
+import { usePortfolio } from '@/lib/portfolio-context'
 
 export function Hero() {
+  const { state } = usePortfolio()
+  const { hero, stats, works } = state
+
+  const propsCount = works.filter((w) => w.category === 'props').length
+  const marqueeList = hero.marqueeItems && hero.marqueeItems.length > 0 ? hero.marqueeItems : [
+    'Phonics & Literacy Mastery',
+    'Handmade Classroom Props',
+    'Printable PDF Worksheets',
+    'Teacher Training Workshops',
+    'ESL Curriculum Design',
+    'Interactive Storytelling Kits',
+  ]
+
   return (
     <section
       id="home"
@@ -44,21 +50,21 @@ export function Hero() {
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex size-2 rounded-full bg-primary" />
                 </span>
-                English Educator &amp; DIY Learning Material Designer
+                {hero.eyebrow}
               </span>
             </Reveal>
 
             <Reveal delay={80}>
               <h1 className="mt-4 font-serif text-[2.15rem] font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem] text-balance">
-                Empowering learners through{' '}
-                <span className="highlight-underline whitespace-nowrap">interactive</span>{' '}
-                <span className="text-gradient">English education</span>
+                {hero.titlePrefix}{' '}
+                <span className="highlight-underline whitespace-nowrap">{hero.highlightWord}</span>{' '}
+                <span className="text-gradient">{hero.titleSuffix}</span>
               </h1>
             </Reveal>
 
             <Reveal delay={140}>
               <p className="mt-3.5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base lg:text-lg text-pretty">
-                Aslema! I&apos;m Farah — transforming language acquisition into an engaging, tactile, and joyful experience for students, parents, and fellow teachers.
+                {hero.bio}
               </p>
             </Reveal>
 
@@ -69,14 +75,14 @@ export function Hero() {
                   className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-primary px-7 py-3 text-xs font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/35 sm:text-sm"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  Explore my materials
+                  {hero.ctaWorkText || 'Explore my materials'}
                   <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>
                 <a
                   href="#contact"
                   className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-6 py-3 text-xs font-semibold text-foreground shadow-xs backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 hover:shadow-md sm:text-sm"
                 >
-                  Get in touch
+                  {hero.ctaContactText || 'Get in touch'}
                 </a>
               </div>
             </Reveal>
@@ -84,8 +90,8 @@ export function Hero() {
             {/* Above-the-fold Quick Stats */}
             <Reveal delay={260}>
               <dl className="mt-6 grid w-full max-w-xl grid-cols-2 gap-x-6 gap-y-4 border-t border-border/60 pt-5 sm:grid-cols-4 sm:pt-6">
-                {STATS.map((s) => (
-                  <div key={s.label} className="group flex flex-col">
+                {stats.map((s) => (
+                  <div key={s.id || s.label} className="group flex flex-col">
                     <dt className="font-serif text-2xl font-bold tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-3xl">
                       {s.value}
                     </dt>
@@ -108,7 +114,7 @@ export function Hero() {
               <div className="relative aspect-[4/4.4] w-full overflow-hidden isolate rounded-[2rem] border-2 border-white/80 bg-card shadow-2xl shadow-foreground/15 ring-1 ring-border/50">
                 <Image
                   src="/images/hero-classroom.png"
-                  alt="Farah teaching in a bright, engaging English classroom"
+                  alt="Farah teaching in a bright, engaging English classroom in Sfax"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 480px"
@@ -151,11 +157,11 @@ export function Hero() {
                 </p>
               </div>
 
-              {/* Side Floating Badge: 120+ props */}
+              {/* Side Floating Badge: Handcrafted Props */}
               <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 rounded-2xl border border-primary/30 bg-primary/15 px-3.5 py-2 shadow-lg backdrop-blur-md lg:block">
                 <div className="flex items-center gap-2">
                   <Sparkles className="size-4 text-primary" />
-                  <span className="text-xs font-bold text-foreground">120+ Handcrafted Props</span>
+                  <span className="text-xs font-bold text-foreground">{propsCount > 0 ? `${propsCount}+ Handcrafted Props` : '120+ Handcrafted Props'}</span>
                 </div>
               </div>
             </div>
@@ -168,7 +174,7 @@ export function Hero() {
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent sm:w-28" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent sm:w-28" />
         <div className="flex animate-marquee whitespace-nowrap transform-gpu will-change-transform">
-          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+          {[...marqueeList, ...marqueeList].map((item, i) => (
             <span
               key={`${item}-${i}`}
               className="mx-5 inline-flex items-center gap-2.5 text-xs font-semibold text-muted-foreground sm:mx-7 sm:text-sm"

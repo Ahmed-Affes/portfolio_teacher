@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { ArrowRight, CheckCircle2, GraduationCap, Heart, Sparkles, Users } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
-import { AUDIENCES } from '@/lib/data'
+import { type Audience } from '@/lib/data'
+import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
 
 const ICONS = {
@@ -14,9 +15,19 @@ const ICONS = {
 } as const
 
 export function WhoIServe() {
-  const [active, setActive] = useState(AUDIENCES[0].id)
-  const current = AUDIENCES.find((a) => a.id === active) ?? AUDIENCES[0]
-  const Icon = ICONS[current.id as keyof typeof ICONS]
+  const { state } = usePortfolio()
+  const { audiences } = state
+  const [active, setActive] = useState(audiences[0]?.id || 'students')
+  const current = audiences.find((a) => a.id === active) ?? audiences[0] ?? {
+    id: 'students',
+    title: 'For Students',
+    subtitle: 'Playful mastery of phonics, grammar, and speaking fluency.',
+    bullets: ['Sensory phonics kits', 'Gamified vocabulary cards'],
+    badge: 'K-12 & Young Learners',
+    ctaText: 'Explore student activities',
+    ctaHref: '#work',
+  }
+  const Icon = ICONS[current.id as keyof typeof ICONS] || GraduationCap
 
   return (
     <section id="serve" className="section-shell relative overflow-hidden">
@@ -26,7 +37,7 @@ export function WhoIServe() {
             number="05"
             eyebrow="Target Audiences"
             title="Tailored support for every learning stage"
-            intro="Specialized resources and collaborative services designed for students, parents, and fellow teachers."
+            intro="Specialized resources and collaborative services designed for students, parents, and fellow teachers in Sfax and beyond."
             align="center"
           />
         </Reveal>
@@ -34,8 +45,8 @@ export function WhoIServe() {
         {/* Tab Buttons */}
         <Reveal delay={60}>
           <div className="mx-auto flex w-full max-w-xl flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-card p-1.5 shadow-sm sm:flex-nowrap sm:rounded-full">
-            {AUDIENCES.map((a) => {
-              const TabIcon = ICONS[a.id as keyof typeof ICONS]
+            {audiences.map((a) => {
+              const TabIcon = ICONS[a.id as keyof typeof ICONS] || GraduationCap
               const isSelected = active === a.id
               return (
                 <button

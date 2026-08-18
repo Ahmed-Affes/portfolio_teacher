@@ -13,7 +13,8 @@ import {
 } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
-import { VIDEOS, type Video, type VideoCategory } from '@/lib/data'
+import { type Video, type VideoCategory } from '@/lib/data'
+import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
 
 const VIDEO_FILTERS: { id: VideoCategory; label: string }[] = [
@@ -25,13 +26,15 @@ const VIDEO_FILTERS: { id: VideoCategory; label: string }[] = [
 ]
 
 export function Videos() {
+  const { state } = usePortfolio()
+  const { videos } = state
   const [activeCategory, setActiveCategory] = useState<VideoCategory>('all')
   const [activeVideo, setActiveVideo] = useState<Video | null>(null)
 
   const filteredVideos = useMemo(() => {
-    if (activeCategory === 'all') return VIDEOS
-    return VIDEOS.filter((v) => v.category === activeCategory)
-  }, [activeCategory])
+    if (activeCategory === 'all') return videos
+    return videos.filter((v) => v.category === activeCategory)
+  }, [videos, activeCategory])
 
   useEffect(() => {
     if (!activeVideo) return
@@ -73,7 +76,7 @@ export function Videos() {
           <Reveal delay={60}>
             <div className="flex shrink-0 items-center gap-2 text-xs text-secondary-foreground/70">
               <span className="flex size-2 rounded-full bg-primary animate-pulse" />
-              <span>{VIDEOS.length} Educational Clips Available</span>
+              <span>{videos.length} Educational Clips Available</span>
             </div>
           </Reveal>
         </div>
@@ -85,8 +88,8 @@ export function Videos() {
               const isSelected = activeCategory === f.id
               const count =
                 f.id === 'all'
-                  ? VIDEOS.length
-                  : VIDEOS.filter((v) => v.category === f.id).length
+                  ? videos.length
+                  : videos.filter((v) => v.category === f.id).length
               return (
                 <button
                   key={f.id}

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
-import { CONTACT } from '@/lib/data'
+import { usePortfolio } from '@/lib/portfolio-context'
 import { useToast } from '@/components/toast-provider'
 import { submitContactMessage } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -30,6 +30,8 @@ const TRUST_STATS = [
 ]
 
 export function Contact() {
+  const { state, addMessage } = usePortfolio()
+  const { contact } = state
   const { toast } = useToast()
   const [role, setRole] = useState(ROLES[0])
   const [topic, setTopic] = useState(TOPICS[0])
@@ -62,17 +64,21 @@ export function Contact() {
     const email = String(data.get('email'))
     const message = String(data.get('message'))
 
+    // Save to local portfolio context inbox for instant admin view
+    addMessage({ name, email, role, topic, message })
+
+    // Also dispatch to Supabase backend if configured
     await submitContactMessage({ name, email, role, topic, message })
 
     const subject = encodeURIComponent(`[${topic}] Portfolio enquiry from ${name}`)
     const body = encodeURIComponent(
       `Name: ${name}\nEmail: ${email}\nI am: ${role}\nTopic: ${topic}\n\n${message}`,
     )
-    window.open(`mailto:${CONTACT.email}?subject=${subject}&body=${body}`, '_blank')
+    window.open(`mailto:${contact.email}?subject=${subject}&body=${body}`, '_blank')
 
     setSent(true)
     setIsSubmitting(false)
-    toast('Thanks! Your message has been received.')
+    toast('Thanks! Your message has been received and saved.')
     form.reset()
     setRole(ROLES[0])
     setTopic(TOPICS[0])
@@ -94,7 +100,7 @@ export function Contact() {
             number="08"
             eyebrow="Contact"
             title="Start a conversation"
-            intro="Questions about materials, rentals, or a custom project — reach out and Farah will respond within one business day."
+            intro={`Questions about materials, rentals, or a custom project — reach out and Farah will respond promptly from ${contact.location}.`}
             align="center"
           />
         </Reveal>
@@ -103,7 +109,7 @@ export function Contact() {
         <Reveal delay={40}>
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             <a
-              href={`mailto:${CONTACT.email}`}
+              href={`mailto:${contact.email}`}
               className="group flex items-center justify-between rounded-xl border border-border/70 bg-card px-4 py-3 shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
             >
               <div className="flex items-center gap-3">
@@ -112,13 +118,13 @@ export function Contact() {
                 </span>
                 <div>
                   <p className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">Email</p>
-                  <p className="text-xs font-semibold text-foreground sm:text-sm">{CONTACT.email}</p>
+                  <p className="text-xs font-semibold text-foreground sm:text-sm">{contact.email}</p>
                 </div>
               </div>
               <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
             </a>
             <a
-              href={`https://wa.me/${CONTACT.whatsapp.replace(/[^0-9]/g, '')}`}
+              href={`https://wa.me/${contact.whatsappRaw || contact.whatsapp.replace(/[^0-9]/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center justify-between rounded-xl border border-border/70 bg-card px-4 py-3 shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
@@ -129,7 +135,7 @@ export function Contact() {
                 </span>
                 <div>
                   <p className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">WhatsApp</p>
-                  <p className="text-xs font-semibold text-foreground sm:text-sm">{CONTACT.whatsapp}</p>
+                  <p className="text-xs font-semibold text-foreground sm:text-sm">{contact.whatsapp}</p>
                 </div>
               </div>
               <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
@@ -140,7 +146,7 @@ export function Contact() {
               </span>
               <div>
                 <p className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">Location</p>
-                <p className="text-xs font-semibold text-foreground sm:text-sm">{CONTACT.location}</p>
+                <p className="text-xs font-semibold text-foreground sm:text-sm">{contact.location}</p>
               </div>
             </div>
           </div>
