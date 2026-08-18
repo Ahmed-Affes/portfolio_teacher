@@ -34,6 +34,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const showPushBanner = useCallback((banner: PushNotificationData) => {
+    // Only display in-app push popup banners when the user is inside the Admin Studio
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/admin')) {
+      return
+    }
+
     const id = counter.current++
     const newBanner: PushBanner = { ...banner, id }
     setPushBanners((prev) => [newBanner, ...prev.slice(0, 2)]) // keep max 3 on screen

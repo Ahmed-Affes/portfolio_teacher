@@ -645,19 +645,37 @@ export type PushNotificationData = {
 export const PUSH_EVENT_KEY = 'farah_device_push_notification'
 
 /**
+ * Check if the current device/browser is authorized as an Admin Studio device
+ * (Prevents public visitors and students from hearing chimes or receiving admin push popups)
+ */
+export function checkIsAdminDevice(): boolean {
+  if (typeof window === 'undefined') return false
+  if (window.location.pathname.startsWith('/admin')) return true
+  try {
+    if (localStorage.getItem('farah_admin_authenticated') === 'true') return true
+  } catch {}
+  return false
+}
+
+/**
  * Send an SMS-style high priority browser / OS / mobile notification (Outside & Inside App)
+ * ONLY targeted to Farah's authorized Admin devices
  */
 export function sendDeviceNotification(
   title: string,
   options?: { body?: string; icon?: string; tag?: string; href?: string },
 ) {
   if (typeof window === 'undefined') return
+
+  // 1. Strict security check: only the admin device receives admin notifications!
+  if (!checkIsAdminDevice()) return
+
   if (isNotificationsMuted()) return
 
-  // 1. Play audio chime immediately
+  // 2. Play audio chime immediately
   playNotificationSound()
 
-  // 2. Vibrate mobile device (if supported) - SMS pattern: buzz, pause, buzz
+  // 3. Vibrate mobile device (if supported) - SMS pattern: buzz, pause, buzz
   if ('navigator' in window && 'vibrate' in navigator) {
     try {
       navigator.vibrate([300, 100, 300, 100, 400])
@@ -666,7 +684,7 @@ export function sendDeviceNotification(
     }
   }
 
-  // 3. Dispatch In-App Visual Push Popup Banner
+  // 4. Dispatch In-App Visual Push Popup Banner (Only inside Admin)
   try {
     const event = new CustomEvent<PushNotificationData>(PUSH_EVENT_KEY, {
       detail: {
@@ -683,52 +701,41 @@ export function sendDeviceNotification(
     console.warn('In-app push event dispatch error:', err)
   }
 
-  // 4. Trigger Native OS / Mobile Lock-Screen & System Tray Notification via Service Worker
-  if (typeof window !== 'undefined') {
-    // A) Post to active Service Worker Controller
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      try {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'SHOW_OS_NOTIFICATION',
-          title,
-          options,
-        })
-      } catch {}
-    }
+  // 5. Trigger exactly ONE Native OS / Mobile Lock-Screen & System Tray Notification
+  const alertTag = options?.tag || `farah-alert-${Date.now()}`
 
-    // B) Use navigator.serviceWorker.ready
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready
-        .then((registration) => {
-          registration.showNotification(title, {
-            body: options?.body || 'New update in Farah Affes Studio',
-            icon: options?.icon || '/images/farah-portrait.png',
-            badge: '/favicon.ico',
-            vibrate: [300, 100, 300, 100, 400],
-            tag: options?.tag || 'farah-alert-' + Date.now(),
-            requireInteraction: true,
-            data: { url: options?.href || '/admin' },
-          } as any)
-        })
-        .catch(() => {
-          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-            new Notification(title, {
-              body: options?.body || 'New update in Farah Affes Studio',
-              icon: options?.icon || '/images/farah-portrait.png',
-              badge: '/favicon.ico',
-              tag: options?.tag || 'farah-alert-' + Date.now(),
-            })
-          }
-        })
-    } else if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      try {
-        new Notification(title, {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.ready
+      .then((registration) => {
+        registration.showNotification(title, {
           body: options?.body || 'New update in Farah Affes Studio',
           icon: options?.icon || '/images/farah-portrait.png',
           badge: '/favicon.ico',
-          tag: options?.tag || 'farah-alert-' + Date.now(),
-        })
-      } catch {}
-    }
+          vibrate: [300, 100, 300, 100, 400],
+          tag: alertTag,
+          renotify: true,
+          requireInteraction: true,
+          data: { url: options?.href || '/admin' },
+        } as any)
+      })
+      .catch(() => {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          new Notification(title, {
+            body: options?.body || 'New update in Farah Affes Studio',
+            icon: options?.icon || '/images/farah-portrait.png',
+            badge: '/favicon.ico',
+            tag: alertTag,
+          })
+        }
+      })
+  } else if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try {
+      new Notification(title, {
+        body: options?.body || 'New update in Farah Affes Studio',
+        icon: options?.icon || '/images/farah-portrait.png',
+        badge: '/favicon.ico',
+        tag: alertTag,
+      })
+    } catch {}
   }
 }

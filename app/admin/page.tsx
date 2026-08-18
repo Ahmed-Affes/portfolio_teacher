@@ -190,6 +190,9 @@ export default function AdminPage() {
     if (enteredPin === state.adminPin || enteredPin === 'farah2026') {
       setIsAuthenticated(true)
       setPinError(false)
+      try {
+        localStorage.setItem('farah_admin_authenticated', 'true')
+      } catch {}
       toast('Welcome back, Farah! Admin Studio is unlocked.')
     } else {
       setPinError(true)

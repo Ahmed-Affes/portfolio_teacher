@@ -8,29 +8,7 @@ self.addEventListener('activate', function (event) {
   event.waitUntil(self.clients.claim())
 })
 
-// Listen to message triggers from the application (Realtime listeners)
-self.addEventListener('message', function (event) {
-  if (event.data && event.data.type === 'SHOW_OS_NOTIFICATION') {
-    const { title, options } = event.data
-    self.registration.showNotification(title, {
-      body: options?.body || 'New message or order in Farah Affes Studio',
-      icon: options?.icon || '/images/farah-portrait.png',
-      badge: '/favicon.ico',
-      vibrate: [300, 100, 300, 100, 400],
-      tag: options?.tag || 'farah-alert-' + Date.now(),
-      requireInteraction: true,
-      data: {
-        url: options?.href || '/admin',
-      },
-      actions: [
-        { action: 'open_admin', title: 'Open Studio' },
-        { action: 'dismiss', title: 'Dismiss' },
-      ],
-    })
-  }
-})
-
-// Handle incoming Web Push protocol events
+// Handle Web Push protocol events (e.g. background cloud triggers)
 self.addEventListener('push', function (event) {
   let data = { title: '📬 New Alert — Farah Affes Studio', body: 'New inquiry or order received!' }
   if (event.data) {
