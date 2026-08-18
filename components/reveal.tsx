@@ -37,7 +37,7 @@ export function Reveal({
           observer.disconnect()
         }
       },
-      { threshold: 0.08, rootMargin: '0px 0px -24px 0px' },
+      { threshold: 0.1, rootMargin: '0px 0px -32px 0px' },
     )
     observer.observe(el)
     return () => observer.disconnect()
@@ -48,7 +48,7 @@ export function Reveal({
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
       className={cn(
-        'overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+        'transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
         visible ? 'translate-x-0 translate-y-0 opacity-100' : cn('opacity-0', directionClasses[direction]),
         className,
       )}

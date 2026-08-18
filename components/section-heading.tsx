@@ -54,7 +54,7 @@ export function SectionHeading({
       </div>
       <h2
         className={cn(
-          'mt-2 font-serif text-xl font-semibold leading-[1.15] tracking-tight sm:text-2xl lg:text-3xl text-balance',
+          'mt-2.5 font-serif text-2xl font-semibold leading-[1.15] tracking-tight sm:text-3xl lg:text-[2.15rem] text-balance',
           dark ? 'text-secondary-foreground' : 'text-foreground',
         )}
       >
@@ -63,8 +63,8 @@ export function SectionHeading({
       {intro && (
         <p
           className={cn(
-            'mt-1.5 text-xs leading-relaxed sm:text-sm text-pretty',
-            dark ? 'text-secondary-foreground/70' : 'text-muted-foreground',
+            'mt-2 text-xs leading-relaxed sm:text-sm lg:text-[0.9375rem] text-pretty',
+            dark ? 'text-secondary-foreground/75' : 'text-muted-foreground',
           )}
         >
           {intro}

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Download, Info, Repeat, ShoppingBag } from 'lucide-react'
+import { Check, Download, Info, Repeat, ShoppingBag, Sparkles } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
 import { PRODUCTS, type Product } from '@/lib/data'
@@ -17,72 +17,117 @@ export function ResourceShop() {
   }
 
   return (
-    <section id="shop" className="section-shell relative bg-muted/20">
+    <section id="shop" className="section-shell relative bg-muted/30">
       <div className="section-inner section-stack">
         <Reveal>
           <SectionHeading
             number="04"
-            eyebrow="Resource hub"
+            eyebrow="Resource Hub"
             title="Educational materials & rental shop"
-            intro="DIY props, printable games, and classroom sets to buy or rent."
+            intro="Handcrafted props, printable worksheet packs, and physical classroom kits to buy or rent."
             align="center"
           />
         </Reveal>
 
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4 lg:gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
           {PRODUCTS.map((product, i) => (
-            <Reveal key={product.id} delay={i * 30}>
-              <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm sm:rounded-2xl">
-                <div className="relative aspect-[4/3] bg-muted">
+            <Reveal key={product.id} delay={i * 50}>
+              <div className="card-shine group flex h-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5">
+                {/* Product Image */}
+                <div className="relative aspect-[4/3.2] w-full overflow-hidden bg-muted">
                   <Image
                     src={product.image || '/placeholder.svg'}
                     alt={product.name}
                     fill
-                    sizes="(max-width: 640px) 50vw, 25vw"
-                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-108"
                   />
-                  <span className="absolute left-1.5 top-1.5 rounded-full bg-card/95 px-1.5 py-0.5 text-[0.55rem] font-bold uppercase text-foreground sm:left-2 sm:top-2 sm:px-2 sm:text-[0.6rem]">
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <span className="absolute left-3 top-3 rounded-full bg-card/95 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-foreground shadow-md backdrop-blur-sm">
                     {product.category}
                   </span>
                 </div>
-                <div className="flex flex-1 flex-col p-2.5 sm:p-3">
-                  <h3 className="font-serif text-xs font-semibold leading-snug text-foreground line-clamp-2 sm:text-sm">
+
+                {/* Product Info */}
+                <div className="flex flex-1 flex-col p-4 sm:p-5">
+                  <h3 className="font-serif text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
                     {product.name}
                   </h3>
-                  <div className="mt-auto pt-2">
-                    <div className="flex items-baseline gap-2 text-foreground">
-                      {product.buyPrice != null && (
-                        <span className="font-serif text-sm font-bold sm:text-base">
-                          {product.buyPrice} <span className="text-[0.6rem] font-normal text-muted-foreground">TND</span>
-                        </span>
-                      )}
-                      {product.rentPrice != null && (
-                        <span className="text-[0.6rem] text-muted-foreground sm:text-xs">
-                          / {product.rentPrice} rent
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-2 flex gap-1">
-                      {product.options.includes('buy') && (
-                        <button
-                          type="button"
-                          onClick={() => handleAdd(product, 'buy')}
-                          className="inline-flex flex-1 items-center justify-center gap-1 rounded-full bg-primary py-1.5 text-[0.6rem] font-semibold text-primary-foreground sm:py-2 sm:text-[0.65rem]"
+
+                  <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                    {product.description}
+                  </p>
+
+                  {/* Feature badges */}
+                  {product.features && (
+                    <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/50 pt-2.5">
+                      {product.features.slice(0, 2).map((feat) => (
+                        <span
+                          key={feat}
+                          className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[0.65rem] font-medium text-muted-foreground"
                         >
-                          {product.category === 'Digital Download' ? <Download className="size-3" /> : <ShoppingBag className="size-3" />}
+                          <Check className="size-2.5 text-primary" />
+                          {feat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Pricing Bar */}
+                  <div className="mt-4 flex items-end justify-between border-t border-border/60 pt-3.5">
+                    {product.buyPrice != null && (
+                      <div>
+                        <span className="block text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
                           Buy
-                        </button>
-                      )}
-                      {product.options.includes('rent') && (
-                        <button
-                          type="button"
-                          onClick={() => handleAdd(product, 'rent')}
-                          className="inline-flex flex-1 items-center justify-center gap-1 rounded-full border border-border py-1.5 text-[0.6rem] font-semibold sm:py-2 sm:text-[0.65rem]"
-                        >
-                          <Repeat className="size-3" /> Rent
-                        </button>
-                      )}
-                    </div>
+                        </span>
+                        <span className="font-serif text-lg font-bold text-foreground sm:text-xl">
+                          {product.buyPrice}{' '}
+                          <span className="text-xs font-sans font-normal text-muted-foreground">
+                            TND
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                    {product.rentPrice != null && (
+                      <div className="text-right">
+                        <span className="block text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
+                          Rent / day
+                        </span>
+                        <span className="font-serif text-lg font-bold text-foreground sm:text-xl">
+                          {product.rentPrice}{' '}
+                          <span className="text-xs font-sans font-normal text-muted-foreground">
+                            TND
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Buy / Rent Buttons */}
+                  <div className="mt-4 flex gap-2">
+                    {product.options.includes('buy') && (
+                      <button
+                        type="button"
+                        onClick={() => handleAdd(product, 'buy')}
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
+                      >
+                        {product.category === 'Digital Download' ? (
+                          <Download className="size-3.5" />
+                        ) : (
+                          <ShoppingBag className="size-3.5" />
+                        )}
+                        {product.category === 'Digital Download' ? 'Download' : 'Buy'}
+                      </button>
+                    )}
+                    {product.options.includes('rent') && (
+                      <button
+                        type="button"
+                        onClick={() => handleAdd(product, 'rent')}
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-2.5 text-xs font-semibold text-foreground transition-all duration-300 hover:border-secondary hover:bg-secondary hover:text-secondary-foreground"
+                      >
+                        <Repeat className="size-3.5" /> Rent
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -90,10 +135,17 @@ export function ResourceShop() {
           ))}
         </div>
 
-        <p className="flex items-start justify-center gap-2 text-center text-[0.65rem] text-muted-foreground sm:text-xs">
-          <Info className="mt-0.5 size-3.5 shrink-0" />
-          Rentals available locally in Tunis — add to cart for availability confirmation.
-        </p>
+        {/* Informational note */}
+        <Reveal delay={120}>
+          <div className="mx-auto flex max-w-lg items-start gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm backdrop-blur-sm sm:text-left">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-foreground">
+              <Info className="size-4" />
+            </span>
+            <p className="text-xs leading-relaxed text-muted-foreground text-pretty sm:text-sm">
+              Prop rentals are available locally across the greater Tunis area. Add items to your cart and Farah will coordinate sanitation, pickup, or delivery dates.
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   )
