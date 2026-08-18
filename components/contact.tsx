@@ -54,7 +54,7 @@ export function Contact() {
       message,
     })
 
-    // Open mailto fallback so user can also send email directly if desired
+    // Open mailto fallback so user can also send email directly
     const subject = encodeURIComponent(`[${topic}] Portfolio enquiry from ${name}`)
     const body = encodeURIComponent(
       `Name: ${name}\nEmail: ${email}\nI am: ${role}\nTopic: ${topic}\n\n${message}`,
@@ -70,15 +70,15 @@ export function Contact() {
   }
 
   const inputClass =
-    'w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/40'
+    'w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/40 text-base'
 
   return (
     <section id="contact" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-xl shadow-foreground/5">
+        <div className="overflow-hidden rounded-[2.5rem] border border-border bg-card shadow-xl shadow-foreground/5">
           <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
             {/* Info panel */}
-            <div className="relative flex flex-col justify-between gap-8 bg-secondary p-8 text-secondary-foreground sm:p-10">
+            <div className="relative flex flex-col justify-between gap-8 bg-secondary p-8 text-secondary-foreground sm:p-10 lg:p-12">
               <div>
                 <span className="inline-flex items-center gap-2 rounded-full bg-primary/25 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
                   Contact
@@ -86,7 +86,7 @@ export function Contact() {
                 <h2 className="mt-4 font-serif text-3xl font-semibold leading-tight text-balance sm:text-4xl">
                   Let&apos;s connect!
                 </h2>
-                <p className="mt-4 leading-relaxed text-secondary-foreground/75 text-pretty">
+                <p className="mt-4 text-base leading-relaxed text-secondary-foreground/80 text-pretty">
                   Have a question, want to rent or buy learning materials, or request a
                   custom DIY project? Send a message and I&apos;ll get back to you.
                 </p>
@@ -96,176 +96,179 @@ export function Contact() {
                 <li>
                   <a
                     href={`mailto:${CONTACT.email}`}
-                    className="group flex items-center gap-3 text-secondary-foreground/90 transition-colors hover:text-primary"
+                    className="group flex items-center gap-3.5 text-secondary-foreground/90 transition-colors hover:text-primary"
                   >
-                    <span className="flex size-11 items-center justify-center rounded-xl bg-white/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <span className="flex size-12 items-center justify-center rounded-2xl bg-white/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                       <Mail className="size-5" />
                     </span>
-                    <span>
+                    <div>
                       <span className="block text-xs text-secondary-foreground/60">
                         Email
                       </span>
                       <span className="font-medium">{CONTACT.email}</span>
-                    </span>
+                    </div>
                   </a>
                 </li>
                 <li>
                   <a
                     href={`https://wa.me/${CONTACT.whatsapp.replace(/[^0-9]/g, '')}`}
                     target="_blank"
-                    rel="noreferrer"
-                    className="group flex items-center gap-3 text-secondary-foreground/90 transition-colors hover:text-primary"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-3.5 text-secondary-foreground/90 transition-colors hover:text-primary"
                   >
-                    <span className="flex size-11 items-center justify-center rounded-xl bg-white/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <span className="flex size-12 items-center justify-center rounded-2xl bg-white/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                       <MessageCircle className="size-5" />
                     </span>
-                    <span>
+                    <div>
                       <span className="block text-xs text-secondary-foreground/60">
                         WhatsApp
                       </span>
                       <span className="font-medium">{CONTACT.whatsapp}</span>
-                    </span>
+                    </div>
                   </a>
                 </li>
-                <li className="flex items-center gap-3 text-secondary-foreground/90">
-                  <span className="flex size-11 items-center justify-center rounded-xl bg-white/10 text-primary">
+                <li className="flex items-center gap-3.5 text-secondary-foreground/90">
+                  <span className="flex size-12 items-center justify-center rounded-2xl bg-white/10 text-primary">
                     <MapPin className="size-5" />
                   </span>
-                  <span>
+                  <div>
                     <span className="block text-xs text-secondary-foreground/60">
-                      Based in
+                      Location
                     </span>
                     <span className="font-medium">{CONTACT.location}</span>
-                  </span>
+                  </div>
                 </li>
               </ul>
+
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4.5 text-sm text-secondary-foreground/75">
+                ⚡ Typical response time: within 24 hours on weekdays.
+              </div>
             </div>
 
             {/* Form */}
-            <div className="p-8 sm:p-10">
-              {sent ? (
-                <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                  <span className="flex size-16 items-center justify-center rounded-full bg-primary/20 text-foreground">
-                    <CheckCircle2 className="size-8" />
-                  </span>
-                  <h3 className="font-serif text-2xl font-semibold">Message ready!</h3>
-                  <p className="max-w-sm leading-relaxed text-muted-foreground text-pretty">
-                    Your email draft just opened. If it didn&apos;t, reach me directly at{' '}
-                    <a
-                      href={`mailto:${CONTACT.email}`}
-                      className="font-medium text-foreground underline underline-offset-4"
-                    >
-                      {CONTACT.email}
-                    </a>
-                    .
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setSent(false)}
-                    className="mt-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground transition-transform hover:-translate-y-0.5"
-                  >
-                    Send another message
-                  </button>
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6 p-8 sm:p-10 lg:p-12">
+              {sent && (
+                <div className="flex items-start gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-foreground">
+                  <CheckCircle2 className="mt-0.5 size-5 text-primary" />
+                  <div className="text-sm">
+                    <p className="font-semibold">Message sent successfully!</p>
+                    <p className="text-muted-foreground">
+                      Your inquiry has been stored in Farah&apos;s database and an email draft opened.
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-                  <div>
-                    <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                      Name
-                    </label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="Your full name"
-                      aria-invalid={Boolean(errors.name)}
-                      onChange={() => setErrors((prev) => ({ ...prev, name: undefined }))}
-                      className={cn(inputClass, errors.name && 'border-destructive')}
-                    />
-                    {errors.name && (
-                      <p className="mt-1 text-xs text-destructive">{errors.name}</p>
-                    )}
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="role" className="mb-1.5 block text-sm font-medium">
-                        I am
-                      </label>
-                      <select
-                        id="role"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        className={inputClass}
-                      >
-                        {ROLES.map((r) => (
-                          <option key={r}>{r}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="topic" className="mb-1.5 block text-sm font-medium">
-                        I want to
-                      </label>
-                      <select
-                        id="topic"
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        className={inputClass}
-                      >
-                        {TOPICS.map((t) => (
-                          <option key={t}>{t}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-                      Email address
-                    </label>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      aria-invalid={Boolean(errors.email)}
-                      onChange={() => setErrors((prev) => ({ ...prev, email: undefined }))}
-                      className={cn(inputClass, errors.email && 'border-destructive')}
-                    />
-                    {errors.email && (
-                      <p className="mt-1 text-xs text-destructive">{errors.email}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="mb-1.5 block text-sm font-medium">
-                      Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={4}
-                      placeholder="Tell me what you're looking for…"
-                      aria-invalid={Boolean(errors.message)}
-                      onChange={() => setErrors((prev) => ({ ...prev, message: undefined }))}
-                      className={cn(inputClass, 'resize-none', errors.message && 'border-destructive')}
-                    />
-                    {errors.message && (
-                      <p className="mt-1 text-xs text-destructive">{errors.message}</p>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:-translate-y-0.5"
-                  >
-                    <Send className="size-4" />
-                    Send message
-                  </button>
-                </form>
               )}
-            </div>
+
+              {/* Role selector */}
+              <div>
+                <label className="block text-sm font-semibold text-foreground">
+                  I am a...
+                </label>
+                <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {ROLES.map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setRole(r)}
+                      className={cn(
+                        'rounded-xl border px-3 py-2.5 text-xs sm:text-sm font-medium transition-all duration-200',
+                        role === r
+                          ? 'border-primary bg-primary/20 font-semibold text-foreground shadow-sm'
+                          : 'border-border bg-card text-muted-foreground hover:bg-muted',
+                      )}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Topic selector */}
+              <div>
+                <label className="block text-sm font-semibold text-foreground">
+                  Topic of interest
+                </label>
+                <div className="mt-2.5 grid grid-cols-2 gap-2">
+                  {TOPICS.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTopic(t)}
+                      className={cn(
+                        'rounded-xl border px-3.5 py-2.5 text-xs sm:text-sm font-medium transition-all duration-200',
+                        topic === t
+                          ? 'border-secondary bg-secondary text-secondary-foreground font-semibold shadow-sm'
+                          : 'border-border bg-card text-muted-foreground hover:bg-muted',
+                      )}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-semibold text-foreground">
+                    Your name *
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    placeholder="e.g. Mariam Ben Ali"
+                    className={cn('mt-1.5', inputClass, errors.name && 'border-destructive')}
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-xs text-destructive">{errors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold text-foreground">
+                    Email address *
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="e.g. mariam@example.com"
+                    className={cn('mt-1.5', inputClass, errors.email && 'border-destructive')}
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-semibold text-foreground">
+                  Your message *
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={4}
+                  required
+                  placeholder="Tell me about your students, workshop date, or material request..."
+                  className={cn('mt-1.5 resize-none', inputClass, errors.message && 'border-destructive')}
+                />
+                {errors.message && (
+                  <p className="mt-1 text-xs text-destructive">{errors.message}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 disabled:opacity-50"
+              >
+                <Send className="size-4" />
+                {isSubmitting ? 'Sending...' : 'Send message'}
+              </button>
+            </form>
           </div>
         </div>
       </div>
