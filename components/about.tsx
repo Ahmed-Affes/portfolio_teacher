@@ -57,7 +57,7 @@ export function About() {
   const currentTab = PILLAR_TABS[safeIndex] || PILLAR_TABS[0]
 
   return (
-    <section id="about" className="section-shell relative overflow-hidden bg-white py-10 sm:py-14 lg:py-16">
+    <section id="about" className="section-shell relative overflow-hidden bg-transparent py-10 sm:py-14 lg:py-16">
       <SectionScene theme="about" pattern="dots" />
 
       <div className="section-inner section-stack">

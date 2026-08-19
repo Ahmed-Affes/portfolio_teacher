@@ -37,7 +37,7 @@ export function WhoIServe() {
   const theme = AUDIENCE_COLORS[current.id] || AUDIENCE_COLORS.students
 
   return (
-    <section id="serve" className="section-shell relative overflow-hidden bg-[#FAF5EC] py-10 sm:py-14 lg:py-16">
+    <section id="serve" className="section-shell relative overflow-hidden bg-transparent py-10 sm:py-14 lg:py-16">
       <SectionScene theme="serve" pattern="grid" />
 
       <div className="section-inner section-stack">

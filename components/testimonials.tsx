@@ -73,7 +73,7 @@ export function Testimonials() {
   }
 
   return (
-    <section id="testimonials" className="section-shell relative overflow-hidden bg-[#FFFDF9] py-10 sm:py-14 lg:py-16">
+    <section id="testimonials" className="section-shell relative overflow-hidden bg-transparent py-10 sm:py-14 lg:py-16">
       <SectionScene theme="testimonials" pattern="dots" />
 
       <div className="section-inner section-stack">

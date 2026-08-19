@@ -44,7 +44,7 @@ export function ResourceShop() {
   const totalCartCount = count ?? 0
 
   return (
-    <section id="shop" className="section-shell relative bg-[#FFFDF9] py-10 sm:py-14 lg:py-16 overflow-hidden">
+    <section id="shop" className="section-shell relative bg-transparent py-10 sm:py-14 lg:py-16 overflow-hidden">
       <SectionScene theme="shop" pattern="dots" />
 
       <div className="section-inner section-stack">

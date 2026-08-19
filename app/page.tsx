@@ -14,7 +14,7 @@ import { BackToTop } from '@/components/back-to-top'
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-transparent">
       <SiteHeader />
       <main>
         <Hero />

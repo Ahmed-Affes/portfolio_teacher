@@ -43,7 +43,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="section-shell relative flex min-h-[min(100svh,56rem)] flex-col justify-between overflow-hidden bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC] to-[#FFF9E6] pt-[calc(var(--header-h)+2rem)] lg:pt-[calc(var(--header-h)+3rem)]"
+      className="section-shell relative flex min-h-[min(100svh,56rem)] flex-col justify-between overflow-hidden bg-transparent pt-[calc(var(--header-h)+2rem)] lg:pt-[calc(var(--header-h)+3rem)]"
     >
       {/* Floating Animated Background Decorations */}
       <ParallaxFloat speed={0.2} className="absolute right-4 top-20 sm:right-12 sm:top-24">

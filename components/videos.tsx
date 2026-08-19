@@ -66,7 +66,7 @@ export function Videos() {
   return (
     <section
       id="videos"
-      className="section-shell relative overflow-hidden bg-gradient-to-b from-[#FFFDF9] to-[#FAF5EC] py-10 sm:py-14 lg:py-16"
+      className="section-shell relative overflow-hidden bg-transparent py-10 sm:py-14 lg:py-16"
     >
       <SectionScene theme="videos" pattern="dots" />
 
