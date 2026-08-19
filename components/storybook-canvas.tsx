@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
-// Farah's curated storybook palette
+// Curated storybook color palette matching Farah's atelier
 const C = {
   yellow: '#FFC837',
   yellowLight: '#FFE082',
-  yellowBg: '#FFF9E6',
+  yellowBg: '#FFF8E1',
   pink: '#F9A8C9',
   pinkDark: '#F48FB1',
   pinkBg: '#FCE4EC',
@@ -25,25 +25,24 @@ const C = {
 export function StorybookCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const animFrameRef = useRef<number | null>(null)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
     const canvas = canvasRef.current
     if (!canvas) return
 
     let width = window.innerWidth
     let height = window.innerHeight
+    let dpr = Math.min(2, window.devicePixelRatio || 1)
 
     const resize = () => {
       if (!canvas) return
       width = window.innerWidth
       height = window.innerHeight
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      dpr = Math.min(2, window.devicePixelRatio || 1)
       canvas.width = width * dpr
       canvas.height = height * dpr
-      const ctx = canvas.getContext('2d')
-      if (ctx) ctx.scale(dpr, dpr)
+      canvas.style.width = width + 'px'
+      canvas.style.height = height + 'px'
     }
 
     resize()
@@ -62,18 +61,18 @@ export function StorybookCanvas() {
     window.addEventListener('scroll', updateScroll, { passive: true })
     updateScroll()
 
-    // Floating story particles (letters, stars, confetti, notes)
+    // Floating upward particles in the side margins
     const symbols = ['A', 'B', 'C', 'D', 'E', '★', '♥', '1', '2', '3', '✦', '✿', '♪', '✂']
     const particles = Array.from({ length: 48 }).map((_, i) => ({
       id: i,
       xRel: Math.random(),
       y: Math.random() * height,
-      speed: 0.4 + Math.random() * 0.8,
-      size: 9 + Math.random() * 14,
+      speed: 0.45 + Math.random() * 0.75,
+      size: 12 + Math.random() * 14,
       char: symbols[i % symbols.length],
       color: [C.pink, C.yellow, C.green, C.purple, C.pinkDark, '#FF8A65'][i % 6],
       rot: Math.random() * Math.PI * 2,
-      rotSpeed: (Math.random() - 0.5) * 0.03,
+      rotSpeed: (Math.random() - 0.5) * 0.035,
       side: i % 2 === 0 ? 'left' : 'right',
     }))
 
@@ -82,7 +81,7 @@ export function StorybookCanvas() {
       ctx: CanvasRenderingContext2D,
       x: number,
       y: number,
-      scale = 1,
+      scale = 1.4,
       withBook = false,
       withHeart = false,
       waving = false,
@@ -91,82 +90,93 @@ export function StorybookCanvas() {
       ctx.translate(x, y)
       ctx.scale(scale, scale)
 
+      // Drop shadow
+      ctx.fillStyle = 'rgba(45, 31, 29, 0.15)'
+      ctx.beginPath()
+      ctx.ellipse(0, 24, 18, 7, 0, 0, Math.PI * 2)
+      ctx.fill()
+
       // Ears
       ctx.fillStyle = C.white
       ctx.strokeStyle = C.dark
-      ctx.lineWidth = 2
+      ctx.lineWidth = 2.4
+      // Left ear
       ctx.beginPath()
-      ctx.ellipse(-7, -24, 4.5, 12, -0.15, 0, Math.PI * 2)
+      ctx.ellipse(-8, -26, 5, 14, -0.15, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
       ctx.fillStyle = C.pink
       ctx.beginPath()
-      ctx.ellipse(-7, -24, 2.2, 8, -0.15, 0, Math.PI * 2)
+      ctx.ellipse(-8, -26, 2.5, 9, -0.15, 0, Math.PI * 2)
       ctx.fill()
 
+      // Right ear
       ctx.fillStyle = C.white
       ctx.beginPath()
-      ctx.ellipse(7, -24, 4.5, 12, 0.15, 0, Math.PI * 2)
+      ctx.ellipse(8, -26, 5, 14, 0.15, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
       ctx.fillStyle = C.pink
       ctx.beginPath()
-      ctx.ellipse(7, -24, 2.2, 8, 0.15, 0, Math.PI * 2)
+      ctx.ellipse(8, -26, 2.5, 9, 0.15, 0, Math.PI * 2)
       ctx.fill()
 
       // Head
       ctx.fillStyle = C.white
       ctx.beginPath()
-      ctx.ellipse(0, -10, 14, 12, 0, 0, Math.PI * 2)
+      ctx.ellipse(0, -10, 16, 14, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
       // Cheeks & Eyes
       ctx.fillStyle = C.pink
       ctx.beginPath()
-      ctx.arc(-8, -8, 3, 0, Math.PI * 2)
-      ctx.arc(8, -8, 3, 0, Math.PI * 2)
+      ctx.arc(-9, -8, 3.5, 0, Math.PI * 2)
+      ctx.arc(9, -8, 3.5, 0, Math.PI * 2)
       ctx.fill()
 
       ctx.fillStyle = C.dark
       ctx.beginPath()
-      ctx.arc(-5, -12, 2, 0, Math.PI * 2)
-      ctx.arc(5, -12, 2, 0, Math.PI * 2)
+      ctx.arc(-6, -12, 2.2, 0, Math.PI * 2)
+      ctx.arc(6, -12, 2.2, 0, Math.PI * 2)
       ctx.fill()
 
       // Nose
       ctx.fillStyle = C.pinkDark
       ctx.beginPath()
-      ctx.arc(0, -9, 1.5, 0, Math.PI * 2)
+      ctx.arc(0, -9, 1.8, 0, Math.PI * 2)
       ctx.fill()
 
       // Body
       ctx.fillStyle = C.white
       ctx.beginPath()
-      ctx.ellipse(0, 10, 12, 14, 0, 0, Math.PI * 2)
+      ctx.ellipse(0, 10, 14, 16, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
       if (withBook) {
         ctx.fillStyle = C.yellow
         ctx.strokeStyle = C.dark
-        ctx.lineWidth = 1.5
-        ctx.fillRect(-9, 3, 18, 12)
-        ctx.strokeRect(-9, 3, 18, 12)
+        ctx.lineWidth = 1.8
+        ctx.fillRect(-10, 3, 20, 13)
+        ctx.strokeRect(-10, 3, 20, 13)
         ctx.fillStyle = C.white
-        ctx.fillRect(-7, 5, 14, 8)
+        ctx.fillRect(-8, 5, 16, 9)
+        ctx.fillStyle = C.dark
+        ctx.font = 'bold 7px sans-serif'
+        ctx.fillText('ABC', -7, 12)
       } else if (withHeart) {
         ctx.fillStyle = C.pinkDark
         ctx.beginPath()
-        ctx.arc(-3, 6, 3.5, 0, Math.PI, true)
-        ctx.arc(3, 6, 3.5, 0, Math.PI, true)
-        ctx.lineTo(0, 14)
+        ctx.arc(-4, 6, 4.5, 0, Math.PI, true)
+        ctx.arc(4, 6, 4.5, 0, Math.PI, true)
+        ctx.lineTo(0, 16)
         ctx.closePath()
         ctx.fill()
       } else if (waving) {
         ctx.fillStyle = C.white
         ctx.beginPath()
-        ctx.arc(13, -2 + Math.sin(frameCount * 0.12) * 4, 3.5, 0, Math.PI * 2)
+        ctx.arc(14, -2 + Math.sin(frameCount * 0.14) * 5, 4, 0, Math.PI * 2)
         ctx.fill()
         ctx.stroke()
       }
@@ -174,133 +184,147 @@ export function StorybookCanvas() {
       ctx.restore()
     }
 
-    const drawBear = (ctx: CanvasRenderingContext2D, x: number, y: number, scale = 1, waving = false) => {
+    const drawBear = (ctx: CanvasRenderingContext2D, x: number, y: number, scale = 1.4, waving = false) => {
       ctx.save()
       ctx.translate(x, y)
       ctx.scale(scale, scale)
+
+      // Drop shadow
+      ctx.fillStyle = 'rgba(45, 31, 29, 0.15)'
+      ctx.beginPath()
+      ctx.ellipse(0, 24, 18, 7, 0, 0, Math.PI * 2)
+      ctx.fill()
+
       ctx.fillStyle = '#C89666'
       ctx.strokeStyle = C.dark
-      ctx.lineWidth = 2
+      ctx.lineWidth = 2.4
 
       // Ears
       ctx.beginPath()
-      ctx.arc(-11, -20, 5, 0, Math.PI * 2)
-      ctx.arc(11, -20, 5, 0, Math.PI * 2)
+      ctx.arc(-12, -22, 6, 0, Math.PI * 2)
+      ctx.arc(12, -22, 6, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
       // Head
       ctx.beginPath()
-      ctx.arc(0, -10, 14, 0, Math.PI * 2)
+      ctx.arc(0, -10, 16, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
       // Muzzle
       ctx.fillStyle = '#E8C5A5'
       ctx.beginPath()
-      ctx.ellipse(0, -6, 6, 5, 0, 0, Math.PI * 2)
+      ctx.ellipse(0, -6, 7, 6, 0, 0, Math.PI * 2)
       ctx.fill()
 
       // Eyes & Nose
       ctx.fillStyle = C.dark
       ctx.beginPath()
-      ctx.arc(-5, -12, 1.8, 0, Math.PI * 2)
-      ctx.arc(5, -12, 1.8, 0, Math.PI * 2)
-      ctx.arc(0, -8, 2.2, 0, Math.PI * 2)
+      ctx.arc(-6, -12, 2, 0, Math.PI * 2)
+      ctx.arc(6, -12, 2, 0, Math.PI * 2)
+      ctx.arc(0, -8, 2.5, 0, Math.PI * 2)
       ctx.fill()
 
       // Body
       ctx.fillStyle = '#C89666'
       ctx.beginPath()
-      ctx.ellipse(0, 10, 14, 15, 0, 0, Math.PI * 2)
+      ctx.ellipse(0, 10, 16, 17, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
-      // Paintbrush or wave
       if (waving) {
         ctx.fillStyle = '#C89666'
         ctx.beginPath()
-        ctx.arc(14, -2 + Math.sin(frameCount * 0.12) * 4, 4, 0, Math.PI * 2)
+        ctx.arc(15, -2 + Math.sin(frameCount * 0.14) * 5, 4.5, 0, Math.PI * 2)
         ctx.fill()
         ctx.stroke()
       } else {
+        // Paintbrush
         ctx.fillStyle = '#FFE082'
-        ctx.fillRect(8, -6, 3, 16)
+        ctx.fillRect(9, -6, 3.5, 18)
         ctx.fillStyle = C.pink
         ctx.beginPath()
-        ctx.arc(9.5, -9, 3, 0, Math.PI * 2)
+        ctx.arc(10.5, -9, 3.5, 0, Math.PI * 2)
         ctx.fill()
       }
 
       ctx.restore()
     }
 
-    const drawFox = (ctx: CanvasRenderingContext2D, x: number, y: number, scale = 1, waving = false) => {
+    const drawFox = (ctx: CanvasRenderingContext2D, x: number, y: number, scale = 1.4, waving = false) => {
       ctx.save()
       ctx.translate(x, y)
       ctx.scale(scale, scale)
+
+      // Drop shadow
+      ctx.fillStyle = 'rgba(45, 31, 29, 0.15)'
+      ctx.beginPath()
+      ctx.ellipse(0, 24, 18, 7, 0, 0, Math.PI * 2)
+      ctx.fill()
+
       ctx.fillStyle = '#FF8A65'
       ctx.strokeStyle = C.dark
-      ctx.lineWidth = 2
+      ctx.lineWidth = 2.4
 
-      // Ears
+      // Pointy Ears
       ctx.beginPath()
-      ctx.moveTo(-12, -14)
-      ctx.lineTo(-14, -28)
-      ctx.lineTo(-4, -18)
+      ctx.moveTo(-13, -14)
+      ctx.lineTo(-16, -30)
+      ctx.lineTo(-4, -19)
       ctx.closePath()
       ctx.fill()
       ctx.stroke()
 
       ctx.beginPath()
-      ctx.moveTo(12, -14)
-      ctx.lineTo(14, -28)
-      ctx.lineTo(4, -18)
+      ctx.moveTo(13, -14)
+      ctx.lineTo(16, -30)
+      ctx.lineTo(4, -19)
       ctx.closePath()
       ctx.fill()
       ctx.stroke()
 
       // Head
       ctx.beginPath()
-      ctx.ellipse(0, -9, 14, 12, 0, 0, Math.PI * 2)
+      ctx.ellipse(0, -9, 16, 13, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
-      // Cheeks
+      // White Cheeks
       ctx.fillStyle = C.white
       ctx.beginPath()
-      ctx.ellipse(-7, -5, 6, 5, 0.3, 0, Math.PI * 2)
-      ctx.ellipse(7, -5, 6, 5, -0.3, 0, Math.PI * 2)
+      ctx.ellipse(-8, -5, 7, 6, 0.3, 0, Math.PI * 2)
+      ctx.ellipse(8, -5, 7, 6, -0.3, 0, Math.PI * 2)
       ctx.fill()
 
       // Eyes & Nose
       ctx.fillStyle = C.dark
       ctx.beginPath()
-      ctx.arc(-5, -10, 1.8, 0, Math.PI * 2)
-      ctx.arc(5, -10, 1.8, 0, Math.PI * 2)
-      ctx.arc(0, -5, 2, 0, Math.PI * 2)
+      ctx.arc(-6, -11, 2, 0, Math.PI * 2)
+      ctx.arc(6, -11, 2, 0, Math.PI * 2)
+      ctx.arc(0, -5, 2.2, 0, Math.PI * 2)
       ctx.fill()
 
       // Body
       ctx.fillStyle = '#FF8A65'
       ctx.beginPath()
-      ctx.ellipse(0, 10, 12, 14, 0, 0, Math.PI * 2)
+      ctx.ellipse(0, 10, 13, 15, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
       if (waving) {
         ctx.fillStyle = '#FF8A65'
         ctx.beginPath()
-        ctx.arc(13, -2 + Math.sin(frameCount * 0.12) * 4, 3.5, 0, Math.PI * 2)
+        ctx.arc(14, -2 + Math.sin(frameCount * 0.14) * 5, 4, 0, Math.PI * 2)
         ctx.fill()
         ctx.stroke()
       } else {
         // Megaphone
         ctx.fillStyle = C.yellow
         ctx.beginPath()
-        ctx.moveTo(6, 4)
-        ctx.lineTo(18, 0)
-        ctx.lineTo(18, 12)
+        ctx.moveTo(7, 4)
+        ctx.lineTo(20, -1)
+        ctx.lineTo(20, 13)
         ctx.closePath()
         ctx.fill()
         ctx.stroke()
@@ -309,79 +333,86 @@ export function StorybookCanvas() {
       ctx.restore()
     }
 
-    const drawCat = (ctx: CanvasRenderingContext2D, x: number, y: number, scale = 1, waving = false) => {
+    const drawCat = (ctx: CanvasRenderingContext2D, x: number, y: number, scale = 1.4, waving = false) => {
       ctx.save()
       ctx.translate(x, y)
       ctx.scale(scale, scale)
+
+      // Drop shadow
+      ctx.fillStyle = 'rgba(45, 31, 29, 0.15)'
+      ctx.beginPath()
+      ctx.ellipse(0, 24, 18, 7, 0, 0, Math.PI * 2)
+      ctx.fill()
+
       ctx.fillStyle = '#FFE082'
       ctx.strokeStyle = C.dark
-      ctx.lineWidth = 2
+      ctx.lineWidth = 2.2
 
-      // Ears
+      // Triangle Ears
       ctx.beginPath()
-      ctx.moveTo(-11, -14)
-      ctx.lineTo(-12, -25)
-      ctx.lineTo(-3, -16)
+      ctx.moveTo(-12, -14)
+      ctx.lineTo(-14, -27)
+      ctx.lineTo(-3, -17)
       ctx.closePath()
       ctx.fill()
       ctx.stroke()
 
       ctx.beginPath()
-      ctx.moveTo(11, -14)
-      ctx.lineTo(12, -25)
-      ctx.lineTo(3, -16)
+      ctx.moveTo(12, -14)
+      ctx.lineTo(14, -27)
+      ctx.lineTo(3, -17)
       ctx.closePath()
       ctx.fill()
       ctx.stroke()
 
       // Head
       ctx.beginPath()
-      ctx.arc(0, -9, 13, 0, Math.PI * 2)
+      ctx.arc(0, -9, 15, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
       // Cheeks & Eyes
       ctx.fillStyle = C.pink
       ctx.beginPath()
-      ctx.arc(-7, -6, 2.5, 0, Math.PI * 2)
-      ctx.arc(7, -6, 2.5, 0, Math.PI * 2)
+      ctx.arc(-8, -6, 3, 0, Math.PI * 2)
+      ctx.arc(8, -6, 3, 0, Math.PI * 2)
       ctx.fill()
 
       ctx.fillStyle = C.dark
       ctx.beginPath()
-      ctx.arc(-5, -10, 1.8, 0, Math.PI * 2)
-      ctx.arc(5, -10, 1.8, 0, Math.PI * 2)
-      ctx.arc(0, -7, 1.5, 0, Math.PI * 2)
+      ctx.arc(-6, -11, 2, 0, Math.PI * 2)
+      ctx.arc(6, -11, 2, 0, Math.PI * 2)
+      ctx.arc(0, -7, 1.8, 0, Math.PI * 2)
       ctx.fill()
 
       // Body
       ctx.fillStyle = '#FFE082'
       ctx.beginPath()
-      ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI * 2)
+      ctx.ellipse(0, 10, 13, 15, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
 
       if (waving) {
         ctx.fillStyle = '#FFE082'
         ctx.beginPath()
-        ctx.arc(12, -2 + Math.sin(frameCount * 0.12) * 4, 3.5, 0, Math.PI * 2)
+        ctx.arc(13, -2 + Math.sin(frameCount * 0.14) * 5, 4, 0, Math.PI * 2)
         ctx.fill()
         ctx.stroke()
       } else {
         // Shopping bag
         ctx.fillStyle = C.pinkDark
-        ctx.fillRect(7, 3, 10, 12)
-        ctx.strokeRect(7, 3, 10, 12)
+        ctx.fillRect(8, 2, 11, 14)
+        ctx.strokeRect(8, 2, 11, 14)
       }
 
       ctx.restore()
     }
 
-    const drawCloud = (ctx: CanvasRenderingContext2D, x: number, y: number, size = 30) => {
+    const drawCloud = (ctx: CanvasRenderingContext2D, x: number, y: number, size = 36) => {
       ctx.save()
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.94)'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
       ctx.strokeStyle = C.dark
-      ctx.lineWidth = 1.6
+      ctx.lineWidth = 2
       ctx.beginPath()
       ctx.arc(x, y, size * 0.45, 0, Math.PI * 2)
       ctx.arc(x + size * 0.4, y - size * 0.15, size * 0.35, 0, Math.PI * 2)
@@ -395,7 +426,7 @@ export function StorybookCanvas() {
       ctx.save()
       ctx.fillStyle = color
       ctx.strokeStyle = C.dark
-      ctx.lineWidth = 1.2
+      ctx.lineWidth = 1.4
       ctx.beginPath()
       for (let i = 0; i < 5; i++) {
         ctx.lineTo(Math.cos(((18 + i * 72) * Math.PI) / 180) * r + cx, -Math.sin(((18 + i * 72) * Math.PI) / 180) * r + cy)
@@ -411,19 +442,19 @@ export function StorybookCanvas() {
       ctx.save()
       ctx.fillStyle = color
       ctx.strokeStyle = C.dark
-      ctx.lineWidth = 1.6
+      ctx.lineWidth = 2
       ctx.beginPath()
-      ctx.ellipse(x, y, 10, 13, 0, 0, Math.PI * 2)
+      ctx.ellipse(x, y, 12, 16, 0, 0, Math.PI * 2)
       ctx.fill()
       ctx.stroke()
       ctx.beginPath()
-      ctx.moveTo(x, y + 13)
-      ctx.lineTo(x - 2, y + 28 + Math.sin(frameCount * 0.05) * 3)
+      ctx.moveTo(x, y + 16)
+      ctx.lineTo(x - 2, y + 32 + Math.sin(frameCount * 0.06) * 4)
       ctx.stroke()
       ctx.restore()
     }
 
-    // --- MAIN RENDER LOOP (60 FPS) ---
+    // --- MAIN RENDER LOOP ---
     const render = () => {
       frameCount++
       smoothProgress += (scrollProgress - smoothProgress) * 0.075
@@ -434,13 +465,14 @@ export function StorybookCanvas() {
         return
       }
 
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, width, height)
 
       const p = smoothProgress
       const sceneIndex = Math.min(7, Math.floor(p / 0.125))
       const sceneProgress = (p % 0.125) / 0.125
 
-      // 8 Scene Background Colors (Full screen story canvas)
+      // 8 Storybook Scene Background Colors
       const sceneBgs = [
         C.yellowBg,    // 1. Hero (Morning Yellow)
         C.creamBg,     // 2. About (Classroom Cream)
@@ -449,19 +481,19 @@ export function StorybookCanvas() {
         C.peachBg,     // 5. Shop (Market Peach)
         C.greenBg,     // 6. Who I Serve (Meadow Green)
         C.pinkBg,      // 7. Testimonials/FAQ (Kind Words Rose)
-        C.yellowBg,    // 8. Contact/Footer (Festive Celebration)
+        C.yellowBg,    // 8. Contact/Footer (Celebration Yellow)
       ]
 
       const currentBg = sceneBgs[sceneIndex]
       const nextBg = sceneBgs[Math.min(7, sceneIndex + 1)]
 
-      // Paint base background color across the entire viewport
+      // 1. Fill base full-screen canvas background
       ctx.fillStyle = currentBg
       ctx.fillRect(0, 0, width, height)
 
-      // Smooth crossfade transition between scenes (0.02 progress units)
-      if (sceneProgress > 0.84) {
-        const crossAlpha = (sceneProgress - 0.84) / 0.16
+      // 2. Smooth crossfade transition between scenes
+      if (sceneProgress > 0.82) {
+        const crossAlpha = (sceneProgress - 0.82) / 0.18
         ctx.save()
         ctx.globalAlpha = crossAlpha
         ctx.fillStyle = nextBg
@@ -469,192 +501,192 @@ export function StorybookCanvas() {
         ctx.restore()
       }
 
-      // If screen is wider than 800px, render the rich storybook characters & scene props
-      if (width >= 800) {
-        // Calculate side strip width (matching content layout gutters)
-        const stripWidth = Math.max(90, Math.min(160, (width - 1100) / 2 + 65))
+      // 3. Side Gutters
+      const leftX = Math.max(42, Math.min(95, width * 0.055))
+      const rightX = width - Math.max(42, Math.min(95, width * 0.055))
 
-        // --- SCENE 1: Good Morning ☀️ ---
-        if (sceneIndex === 0 || (sceneIndex === 1 && sceneProgress < 0.2)) {
-          const sunY = height * 0.7 - sceneProgress * (height * 0.48)
-          // Glowing Morning Sun
-          ctx.save()
-          ctx.fillStyle = C.yellow
-          ctx.strokeStyle = C.dark
-          ctx.lineWidth = 2.5
-          ctx.beginPath()
-          ctx.arc(stripWidth * 0.52, sunY, 34, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.stroke()
-          // Sun Face
-          ctx.fillStyle = C.dark
-          ctx.beginPath()
-          ctx.arc(stripWidth * 0.52 - 8, sunY - 4, 2.5, 0, Math.PI * 2)
-          ctx.arc(stripWidth * 0.52 + 8, sunY - 4, 2.5, 0, Math.PI * 2)
-          ctx.arc(stripWidth * 0.52, sunY + 6, 2, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.restore()
+      // --- SCENE 1: Good Morning ☀️ ---
+      if (sceneIndex === 0 || (sceneIndex === 1 && sceneProgress < 0.2)) {
+        const sunY = height * 0.45 - sceneProgress * (height * 0.25)
+        // Big Glowing Morning Sun
+        ctx.save()
+        ctx.fillStyle = C.yellow
+        ctx.strokeStyle = C.dark
+        ctx.lineWidth = 2.6
+        ctx.beginPath()
+        ctx.arc(leftX, sunY, 38, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.stroke()
+        // Sun Face
+        ctx.fillStyle = C.dark
+        ctx.beginPath()
+        ctx.arc(leftX - 8, sunY - 4, 2.8, 0, Math.PI * 2)
+        ctx.arc(leftX + 8, sunY - 4, 2.8, 0, Math.PI * 2)
+        ctx.arc(leftX, sunY + 7, 2.2, 0, Math.PI * 2)
+        ctx.fill()
+        // Cheeks
+        ctx.fillStyle = C.pink
+        ctx.beginPath()
+        ctx.arc(leftX - 14, sunY + 2, 4, 0, Math.PI * 2)
+        ctx.arc(leftX + 14, sunY + 2, 4, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.restore()
 
-          // Clouds & Birds
-          drawCloud(ctx, stripWidth * 0.35, height * 0.22 + Math.sin(frameCount * 0.02) * 8, 38)
-          drawCloud(ctx, width - stripWidth * 0.75, height * 0.35 + Math.cos(frameCount * 0.02) * 8, 42)
+        // Clouds & Birds
+        drawCloud(ctx, leftX - 10, height * 0.2 + Math.sin(frameCount * 0.02) * 8, 44)
+        drawCloud(ctx, rightX - 25, height * 0.3 + Math.cos(frameCount * 0.02) * 8, 48)
 
-          // V-Birds
-          ctx.save()
-          ctx.strokeStyle = C.dark
-          ctx.lineWidth = 2
-          ctx.beginPath()
-          ctx.moveTo(stripWidth * 0.75, height * 0.15)
-          ctx.lineTo(stripWidth * 0.75 + 7, height * 0.12)
-          ctx.lineTo(stripWidth * 0.75 + 14, height * 0.15)
-          ctx.stroke()
-          ctx.restore()
+        // V-Birds
+        ctx.save()
+        ctx.strokeStyle = C.dark
+        ctx.lineWidth = 2.2
+        ctx.beginPath()
+        ctx.moveTo(rightX - 20, height * 0.16)
+        ctx.lineTo(rightX - 12, height * 0.12)
+        ctx.lineTo(rightX - 4, height * 0.16)
+        ctx.stroke()
+        ctx.restore()
 
-          // Rabbit looking up with wonder
-          drawRabbit(ctx, stripWidth * 0.5, height - 52, 1.1)
-          drawRabbit(ctx, width - stripWidth * 0.5, height - 52, 1.1)
-        }
-
-        // --- SCENE 2: The Classroom 📚 ---
-        if (sceneIndex === 1 || (sceneIndex === 2 && sceneProgress < 0.2)) {
-          // Chalkboard on left
-          ctx.save()
-          ctx.fillStyle = '#2D3748'
-          ctx.strokeStyle = '#D97706'
-          ctx.lineWidth = 3
-          ctx.fillRect(stripWidth * 0.15, height * 0.26, stripWidth * 0.7, 50)
-          ctx.strokeRect(stripWidth * 0.15, height * 0.26, stripWidth * 0.7, 50)
-          ctx.fillStyle = C.white
-          ctx.font = 'bold 12px sans-serif'
-          ctx.fillText('Hello! ✏️', stripWidth * 0.24, height * 0.26 + 30)
-          ctx.restore()
-
-          // Rabbit with open book
-          drawRabbit(ctx, stripWidth * 0.5, height - 52, 1.1, true)
-          drawRabbit(ctx, width - stripWidth * 0.5, height - 52, 1.1, true)
-
-          drawStar(ctx, stripWidth * 0.4, height * 0.16, 7)
-          drawStar(ctx, width - stripWidth * 0.4, height * 0.24, 8)
-        }
-
-        // --- SCENE 3: The Art Atelier ✂️ ---
-        if (sceneIndex === 2 || (sceneIndex === 3 && sceneProgress < 0.2)) {
-          drawBear(ctx, stripWidth * 0.5, height - 52, 1.1)
-          drawBear(ctx, width - stripWidth * 0.5, height - 52, 1.1)
-
-          // Craft paper & scissors
-          ctx.save()
-          ctx.fillStyle = C.pink
-          ctx.fillRect(stripWidth * 0.3, height * 0.24 + Math.sin(frameCount * 0.03) * 10, 14, 14)
-          ctx.fillStyle = C.green
-          ctx.fillRect(width - stripWidth * 0.6, height * 0.32 + Math.cos(frameCount * 0.03) * 10, 13, 13)
-          ctx.restore()
-        }
-
-        // --- SCENE 4: Story Time 🎬 ---
-        if (sceneIndex === 3 || (sceneIndex === 4 && sceneProgress < 0.2)) {
-          drawFox(ctx, stripWidth * 0.5, height - 52, 1.1)
-          drawFox(ctx, width - stripWidth * 0.5, height - 52, 1.1)
-
-          ctx.save()
-          ctx.fillStyle = C.purple
-          ctx.font = 'bold 18px sans-serif'
-          ctx.fillText('♪', stripWidth * 0.35, height * 0.28 + Math.sin(frameCount * 0.04) * 12)
-          ctx.fillText('♫', width - stripWidth * 0.65, height * 0.24 + Math.cos(frameCount * 0.04) * 12)
-          ctx.restore()
-        }
-
-        // --- SCENE 5: The Market 🛒 ---
-        if (sceneIndex === 4 || (sceneIndex === 5 && sceneProgress < 0.2)) {
-          drawCat(ctx, stripWidth * 0.5, height - 52, 1.1)
-          drawCat(ctx, width - stripWidth * 0.5, height - 52, 1.1)
-
-          ctx.save()
-          ctx.fillStyle = C.yellow
-          ctx.strokeStyle = C.dark
-          ctx.lineWidth = 1.5
-          ctx.fillRect(stripWidth * 0.25, height * 0.26, 26, 17)
-          ctx.strokeRect(stripWidth * 0.25, height * 0.26, 26, 17)
-          ctx.fillStyle = C.dark
-          ctx.font = 'bold 8px sans-serif'
-          ctx.fillText('SALE', stripWidth * 0.28, height * 0.26 + 12)
-          ctx.restore()
-        }
-
-        // --- SCENE 6: Who I Serve 🧸 (All 4 Animals Together!) ---
-        if (sceneIndex === 5 || (sceneIndex === 6 && sceneProgress < 0.2)) {
-          drawRabbit(ctx, stripWidth * 0.22, height - 48, 0.74)
-          drawBear(ctx, stripWidth * 0.42, height - 48, 0.74)
-          drawFox(ctx, stripWidth * 0.62, height - 48, 0.74)
-          drawCat(ctx, stripWidth * 0.82, height - 48, 0.74)
-
-          drawRabbit(ctx, width - stripWidth * 0.82, height - 48, 0.74)
-          drawBear(ctx, width - stripWidth * 0.62, height - 48, 0.74)
-          drawFox(ctx, width - stripWidth * 0.42, height - 48, 0.74)
-          drawCat(ctx, width - stripWidth * 0.22, height - 48, 0.74)
-
-          drawStar(ctx, stripWidth * 0.5, height * 0.28, 6, C.yellow)
-          drawStar(ctx, width - stripWidth * 0.5, height * 0.32, 6, C.pink)
-        }
-
-        // --- SCENE 7: Kind Words 💖 ---
-        if (sceneIndex === 6 || (sceneIndex === 7 && sceneProgress < 0.2)) {
-          drawRabbit(ctx, stripWidth * 0.5, height - 52, 1.1, false, true)
-          drawRabbit(ctx, width - stripWidth * 0.5, height - 52, 1.1, false, true)
-
-          // Speech bubble
-          ctx.save()
-          ctx.fillStyle = C.white
-          ctx.strokeStyle = C.dark
-          ctx.lineWidth = 1.8
-          ctx.beginPath()
-          ctx.ellipse(stripWidth * 0.46, height * 0.32, 24, 16, 0, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.stroke()
-          ctx.fillStyle = C.pinkDark
-          ctx.font = 'bold 12px sans-serif'
-          ctx.fillText('♥', stripWidth * 0.46 - 5, height * 0.32 + 4)
-          ctx.restore()
-        }
-
-        // --- SCENE 8: The End & Celebration 🌸 ---
-        if (sceneIndex === 7) {
-          drawBalloon(ctx, stripWidth * 0.3, height * 0.24 + Math.sin(frameCount * 0.03) * 15, C.pink)
-          drawBalloon(ctx, stripWidth * 0.7, height * 0.18 + Math.cos(frameCount * 0.03) * 15, C.yellow)
-          drawBalloon(ctx, width - stripWidth * 0.3, height * 0.26 + Math.sin(frameCount * 0.03) * 15, C.purple)
-          drawBalloon(ctx, width - stripWidth * 0.7, height * 0.2 + Math.cos(frameCount * 0.03) * 15, C.green)
-
-          drawRabbit(ctx, stripWidth * 0.22, height - 48, 0.74, false, false, true)
-          drawBear(ctx, stripWidth * 0.42, height - 48, 0.74, true)
-          drawFox(ctx, stripWidth * 0.62, height - 48, 0.74, true)
-          drawCat(ctx, stripWidth * 0.82, height - 48, 0.74, true)
-
-          drawRabbit(ctx, width - stripWidth * 0.82, height - 48, 0.74, false, false, true)
-          drawBear(ctx, width - stripWidth * 0.62, height - 48, 0.74, true)
-          drawFox(ctx, width - stripWidth * 0.42, height - 48, 0.74, true)
-          drawCat(ctx, width - stripWidth * 0.22, height - 48, 0.74, true)
-        }
-
-        // Floating upward story particles in the side gutters
-        particles.forEach((pt) => {
-          pt.y -= pt.speed
-          if (pt.y < -20) pt.y = height + 20
-          pt.rot += pt.rotSpeed
-
-          const px =
-            pt.side === 'left'
-              ? pt.xRel * (stripWidth - 30) + 15
-              : width - stripWidth + pt.xRel * (stripWidth - 30) + 15
-
-          ctx.save()
-          ctx.translate(px, pt.y)
-          ctx.rotate(pt.rot)
-          ctx.fillStyle = pt.color
-          ctx.font = `bold ${pt.size}px sans-serif`
-          ctx.fillText(pt.char, 0, 0)
-          ctx.restore()
-        })
+        // Rabbit at bottom-left looking up
+        drawRabbit(ctx, leftX, height * 0.78, 1.4)
+        drawRabbit(ctx, rightX, height * 0.78, 1.4)
       }
+
+      // --- SCENE 2: The Classroom 📚 ---
+      if (sceneIndex === 1 || (sceneIndex === 2 && sceneProgress < 0.2)) {
+        // Wooden Chalkboard on Left
+        ctx.save()
+        ctx.fillStyle = '#2D3748'
+        ctx.strokeStyle = '#D97706'
+        ctx.lineWidth = 3.5
+        ctx.fillRect(leftX - 28, height * 0.32, 68, 52)
+        ctx.strokeRect(leftX - 28, height * 0.32, 68, 52)
+        ctx.fillStyle = C.white
+        ctx.font = 'bold 12px sans-serif'
+        ctx.fillText('Hello! ✏️', leftX - 20, height * 0.32 + 32)
+        ctx.restore()
+
+        // Rabbit reading storybook
+        drawRabbit(ctx, leftX, height * 0.78, 1.4, true)
+        drawRabbit(ctx, rightX, height * 0.78, 1.4, true)
+
+        drawStar(ctx, leftX, height * 0.18, 9)
+        drawStar(ctx, rightX, height * 0.24, 10)
+      }
+
+      // --- SCENE 3: The Art Atelier ✂️ ---
+      if (sceneIndex === 2 || (sceneIndex === 3 && sceneProgress < 0.2)) {
+        // Bear holding paintbrush
+        drawBear(ctx, leftX, height * 0.78, 1.4)
+        drawBear(ctx, rightX, height * 0.78, 1.4)
+
+        // Craft paper squares & scissors
+        ctx.save()
+        ctx.fillStyle = C.pink
+        ctx.fillRect(leftX - 10, height * 0.3 + Math.sin(frameCount * 0.03) * 10, 16, 16)
+        ctx.fillStyle = C.green
+        ctx.fillRect(rightX - 10, height * 0.35 + Math.cos(frameCount * 0.03) * 10, 15, 15)
+        ctx.restore()
+      }
+
+      // --- SCENE 4: Story Time 🎬 ---
+      if (sceneIndex === 3 || (sceneIndex === 4 && sceneProgress < 0.2)) {
+        // Fox with megaphone
+        drawFox(ctx, leftX, height * 0.78, 1.4)
+        drawFox(ctx, rightX, height * 0.78, 1.4)
+
+        // Musical notes
+        ctx.save()
+        ctx.fillStyle = C.purple
+        ctx.font = 'bold 24px sans-serif'
+        ctx.fillText('♪', leftX - 8, height * 0.32 + Math.sin(frameCount * 0.04) * 12)
+        ctx.fillText('♫', rightX - 12, height * 0.28 + Math.cos(frameCount * 0.04) * 12)
+        ctx.restore()
+      }
+
+      // --- SCENE 5: The Market 🛒 ---
+      if (sceneIndex === 4 || (sceneIndex === 5 && sceneProgress < 0.2)) {
+        // Cat with shopping bag
+        drawCat(ctx, leftX, height * 0.78, 1.4)
+        drawCat(ctx, rightX, height * 0.78, 1.4)
+
+        // Price Tag
+        ctx.save()
+        ctx.fillStyle = C.yellow
+        ctx.strokeStyle = C.dark
+        ctx.lineWidth = 2
+        ctx.fillRect(leftX - 15, height * 0.3, 30, 20)
+        ctx.strokeRect(leftX - 15, height * 0.3, 30, 20)
+        ctx.fillStyle = C.dark
+        ctx.font = 'bold 9px sans-serif'
+        ctx.fillText('SALE', leftX - 12, height * 0.3 + 14)
+        ctx.restore()
+      }
+
+      // --- SCENE 6: For Everyone 🧸 (All 4 Animals Together!) ---
+      if (sceneIndex === 5 || (sceneIndex === 6 && sceneProgress < 0.2)) {
+        drawRabbit(ctx, leftX - 18, height * 0.78, 0.9)
+        drawBear(ctx, leftX + 18, height * 0.78, 0.9)
+
+        drawFox(ctx, rightX - 18, height * 0.78, 0.9)
+        drawCat(ctx, rightX + 18, height * 0.78, 0.9)
+
+        drawStar(ctx, leftX, height * 0.28, 8, C.yellow)
+        drawStar(ctx, rightX, height * 0.32, 8, C.pink)
+      }
+
+      // --- SCENE 7: Kind Words 💖 ---
+      if (sceneIndex === 6 || (sceneIndex === 7 && sceneProgress < 0.2)) {
+        // Rabbit with glowing heart
+        drawRabbit(ctx, leftX, height * 0.78, 1.4, false, true)
+        drawRabbit(ctx, rightX, height * 0.78, 1.4, false, true)
+
+        // Comic Speech Bubble
+        ctx.save()
+        ctx.fillStyle = C.white
+        ctx.strokeStyle = C.dark
+        ctx.lineWidth = 2.2
+        ctx.beginPath()
+        ctx.ellipse(leftX, height * 0.35, 24, 18, 0, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.stroke()
+        ctx.fillStyle = C.pinkDark
+        ctx.font = 'bold 15px sans-serif'
+        ctx.fillText('♥', leftX - 6, height * 0.35 + 5)
+        ctx.restore()
+      }
+
+      // --- SCENE 8: The Celebration 🌸 ---
+      if (sceneIndex === 7) {
+        // Balloons
+        drawBalloon(ctx, leftX - 10, height * 0.26 + Math.sin(frameCount * 0.03) * 15, C.pink)
+        drawBalloon(ctx, leftX + 18, height * 0.2 + Math.cos(frameCount * 0.03) * 15, C.yellow)
+        drawBalloon(ctx, rightX - 18, height * 0.28 + Math.sin(frameCount * 0.03) * 15, C.purple)
+        drawBalloon(ctx, rightX + 10, height * 0.22 + Math.cos(frameCount * 0.03) * 15, C.green)
+
+        // All 4 animals waving goodbye happily!
+        drawRabbit(ctx, leftX - 18, height * 0.78, 0.9, false, false, true)
+        drawBear(ctx, leftX + 18, height * 0.78, 0.9, true)
+        drawFox(ctx, rightX - 18, height * 0.78, 0.9, true)
+        drawCat(ctx, rightX + 18, height * 0.78, 0.9, true)
+      }
+
+      // Floating Upward Story Particles
+      particles.forEach((pt) => {
+        pt.y -= pt.speed
+        if (pt.y < -25) pt.y = height + 25
+        pt.rot += pt.rotSpeed
+
+        const px = pt.side === 'left' ? leftX + (pt.xRel - 0.5) * 50 : rightX + (pt.xRel - 0.5) * 50
+
+        ctx.save()
+        ctx.translate(px, pt.y)
+        ctx.rotate(pt.rot)
+        ctx.fillStyle = pt.color
+        ctx.font = `bold ${pt.size}px sans-serif`
+        ctx.fillText(pt.char, 0, 0)
+        ctx.restore()
+      })
 
       animFrameRef.current = requestAnimationFrame(render)
     }
@@ -668,12 +700,10 @@ export function StorybookCanvas() {
     }
   }, [])
 
-  if (!mounted) return null
-
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-0 size-full select-none"
+      className="pointer-events-none fixed inset-0 z-20 size-full select-none"
       aria-hidden="true"
     />
   )
