@@ -107,7 +107,9 @@ export function Contact() {
     'w-full appearance-none rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-3 text-xs font-bold text-[#2D1F1D] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#FFC837] cursor-pointer'
 
   return (
-    <section id="contact" className="section-shell relative bg-transparent py-10 sm:py-14 lg:py-16 overflow-hidden">
+    <section id="contact" className="section-shell relative bg-white py-10 sm:py-14 lg:py-16 overflow-hidden">
+      <SectionScene theme="contact" pattern="dots" />
+
       <div className="section-inner section-stack">
         <Reveal>
           <SectionHeading

@@ -16,7 +16,9 @@ export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
-    <section id="faq" className="section-shell relative overflow-hidden bg-transparent py-10 sm:py-14 lg:py-16">
+    <section id="faq" className="section-shell relative overflow-hidden bg-white py-10 sm:py-14 lg:py-16">
+      <SectionScene theme="faq" pattern="grid" />
+
       <div className="section-inner">
         <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
           {/* Left Column */}

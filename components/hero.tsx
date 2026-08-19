@@ -43,8 +43,52 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="section-shell relative flex min-h-[min(100svh,56rem)] flex-col justify-between overflow-hidden bg-transparent pt-[calc(var(--header-h)+2rem)] lg:pt-[calc(var(--header-h)+3rem)]"
+      className="section-shell relative flex min-h-[min(100svh,56rem)] flex-col justify-between overflow-hidden bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC] to-[#FFF9E6] pt-[calc(var(--header-h)+2rem)] lg:pt-[calc(var(--header-h)+3rem)]"
     >
+      {/* Floating Animated Background Decorations */}
+      <ParallaxFloat speed={0.2} className="absolute right-4 top-20 sm:right-12 sm:top-24">
+        <SmilingSun size={96} />
+      </ParallaxFloat>
+
+      <ParallaxFloat speed={-0.14} className="absolute left-[42%] top-28 hidden md:block">
+        <PaperPlaneDoodle size={72} />
+      </ParallaxFloat>
+
+      <ParallaxFloat speed={0.12} className="absolute -left-10 top-20">
+        <FloatingCloud size="lg" mood="laughing" />
+      </ParallaxFloat>
+      <ParallaxFloat speed={-0.1} className="absolute right-4 top-44 hidden sm:block">
+        <FloatingCloud size="md" mood="winking" style={{ animationDelay: '2s' }} />
+      </ParallaxFloat>
+      <ParallaxFloat speed={0.08} className="absolute left-1/3 bottom-24 hidden lg:block">
+        <FloatingCloud size="sm" mood="giggling" style={{ animationDelay: '3.5s' }} />
+      </ParallaxFloat>
+
+      <ParallaxFloat speed={0.18} className="absolute left-6 top-1/2">
+        <FloatingBalloon color="#FF7D6B" size={48} />
+      </ParallaxFloat>
+
+      {/* Cute Floating Tweety Birdie */}
+      <ParallaxFloat speed={-0.12} className="absolute left-[15%] bottom-28 hidden md:block">
+        <FloatingTweety size={52} />
+      </ParallaxFloat>
+
+      {/* Cute Floating Kawaii Turtle */}
+      <ParallaxFloat speed={0.15} className="absolute right-[8%] bottom-32 hidden md:block">
+        <FloatingTurtle size={56} />
+      </ParallaxFloat>
+
+      <FloatingBubble className="left-1/4 top-1/3" size={40} />
+      <FloatingBubble className="right-1/4 bottom-36" size={44} />
+
+      {/* Playful Floating Doodle Stars */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="grid-paper absolute inset-0 opacity-40" />
+        <DoodleStar className="absolute left-[8%] top-[25%] opacity-80" color="#FFC837" size={28} />
+        <DoodleStar className="absolute right-[12%] top-[18%] opacity-80" color="#FF7D6B" size={22} />
+        <DoodleStar className="absolute right-[22%] bottom-[30%] opacity-80" color="#A7F3D0" size={26} />
+      </div>
+
       {/* Main Content Grid */}
       <div className="section-inner my-auto w-full">
         <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 xl:gap-16">
