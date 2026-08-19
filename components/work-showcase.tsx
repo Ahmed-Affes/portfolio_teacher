@@ -8,30 +8,37 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Columns3,
   Grid,
   Info,
   LayoutGrid,
   Maximize2,
-  MessageSquare,
   Search,
   SlidersHorizontal,
   Sparkles,
   X,
+  Palette,
+  Heart,
 } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
+import { SectionScene } from '@/components/section-scene'
 import { type WorkCategory, type WorkItem } from '@/lib/data'
 import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
+import {
+  WashiTape,
+  CuteSticker,
+  PushPin,
+  SwirlyArrow,
+} from '@/components/cloud-decorations'
 
-const FILTERS: { id: WorkCategory; label: string }[] = [
-  { id: 'all', label: 'All Works' },
-  { id: 'props', label: 'DIY Props & Kits' },
-  { id: 'posters', label: 'Posters & Guides' },
-  { id: 'flyers', label: 'Flyers & Events' },
-  { id: 'worksheets', label: 'Worksheets & Quests' },
-  { id: 'classroom', label: 'Classroom Moments' },
+const FILTERS: { id: WorkCategory; label: string; color: string }[] = [
+  { id: 'all', label: 'All Works 🎨', color: 'bg-[#FFC837]' },
+  { id: 'props', label: 'DIY Props & Kits ✂️', color: 'bg-[#A7F3D0]' },
+  { id: 'posters', label: 'Posters & Guides 📜', color: 'bg-[#FFE68C]' },
+  { id: 'flyers', label: 'Flyers & Events 🎈', color: 'bg-[#FFB5B5]' },
+  { id: 'worksheets', label: 'Worksheets & Quests 📝', color: 'bg-[#DDD6FE]' },
+  { id: 'classroom', label: 'Classroom Moments 📸', color: 'bg-[#FED7AA]' },
 ]
 
 const INITIAL_VISIBLE_COUNT = 6
@@ -44,7 +51,7 @@ export function WorkShowcase() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null)
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
-  const [viewMode, setViewMode] = useState<'grid' | 'bento'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'bento'>('bento')
 
   // Only display active works on public site
   const activeWorks = useMemo(() => works.filter((w) => w.isActive !== false), [works])
@@ -69,7 +76,8 @@ export function WorkShowcase() {
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.highlights && item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())))
+        (item.highlights &&
+          item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())))
       return matchesCategory && matchesSearch
     })
   }, [activeWorks, filter, searchQuery])
@@ -112,10 +120,17 @@ export function WorkShowcase() {
     }
   }, [activeItemIndex, handlePrev, handleNext])
 
+  const pinColors: ('red' | 'purple' | 'yellow' | 'mint' | 'coral')[] = [
+    'red',
+    'purple',
+    'yellow',
+    'mint',
+    'coral',
+  ]
+
   return (
-    <section id="work" className="section-shell relative overflow-hidden">
-      {/* Background glow */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 section-glow" />
+    <section id="work" className="section-shell relative overflow-hidden bg-[#FAF5EC] py-10 sm:py-14 lg:py-16">
+      <SectionScene theme="work" pattern="grid" />
 
       <div className="section-inner section-stack">
         {/* Section Heading & Controls */}
@@ -123,30 +138,31 @@ export function WorkShowcase() {
           <Reveal>
             <SectionHeading
               number="02"
-              eyebrow="Creative Portfolio"
+              eyebrow="Creative Craft Gallery ✂️"
               title="Classroom aids, posters & handmade props"
               intro="Explore educational materials crafted to spark curiosity and active language acquisition."
+              typewriterIntro
             />
           </Reveal>
 
           {/* Search & Layout Switcher Controls */}
           <Reveal delay={60}>
-            <div className="flex flex-wrap items-center gap-2.5">
-              {/* Instant Search Bar */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Search Bar */}
               <div className="relative min-w-[200px] flex-1 sm:w-64 sm:flex-initial">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#2D1F1D]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search works, phonics, verbs..."
-                  className="w-full rounded-full border border-border/80 bg-card py-2 pl-9 pr-8 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="Search crafts, phonics..."
+                  className="w-full rounded-full border-2 border-[#2D1F1D] bg-white py-2 pl-9 pr-8 text-xs font-bold text-[#2D1F1D] placeholder:text-[#6B5550] shadow-[2px_2px_0px_#2D1F1D] focus:outline-none focus:ring-2 focus:ring-[#FFC837]"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#2D1F1D] hover:text-[#FF7D6B]"
                     aria-label="Clear search"
                   >
                     <X className="size-3.5" />
@@ -154,18 +170,14 @@ export function WorkShowcase() {
                 )}
               </div>
 
-              {/* Layout Switcher Toggle */}
-              <div className="flex items-center rounded-full border border-border/80 bg-card p-1 shadow-xs">
+              {/* Layout Switcher */}
+              <div className="flex items-center rounded-full border-2 border-[#2D1F1D] bg-white p-0.5 shadow-[2px_2px_0px_#2D1F1D]">
                 <button
                   type="button"
                   onClick={() => setViewMode('grid')}
-                  title="Grid View (Balanced Cards)"
-                  aria-label="Grid View"
                   className={cn(
-                    'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300',
-                    viewMode === 'grid'
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground',
+                    'flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black transition-all cursor-pointer',
+                    viewMode === 'grid' ? 'bg-[#FFC837] text-[#2D1F1D]' : 'text-[#6B5550]',
                   )}
                 >
                   <Grid className="size-3.5" />
@@ -174,13 +186,9 @@ export function WorkShowcase() {
                 <button
                   type="button"
                   onClick={() => setViewMode('bento')}
-                  title="Bento View (Editorial Magazine)"
-                  aria-label="Bento View"
                   className={cn(
-                    'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300',
-                    viewMode === 'bento'
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground',
+                    'flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black transition-all cursor-pointer',
+                    viewMode === 'bento' ? 'bg-[#FFC837] text-[#2D1F1D]' : 'text-[#6B5550]',
                   )}
                 >
                   <LayoutGrid className="size-3.5" />
@@ -193,7 +201,7 @@ export function WorkShowcase() {
 
         {/* Category Filter Chips with Live Counts */}
         <Reveal delay={80}>
-          <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
+          <div className="scrollbar-hide flex gap-2.5 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible">
             {FILTERS.map((f) => {
               const isSelected = filter === f.id
               const count = categoryCounts[f.id] || 0
@@ -203,17 +211,17 @@ export function WorkShowcase() {
                   type="button"
                   onClick={() => setFilter(f.id)}
                   className={cn(
-                    'group inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300',
+                    'group inline-flex shrink-0 items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] px-4 py-2 text-xs font-black transition-all duration-150 cursor-pointer',
                     isSelected
-                      ? 'bg-secondary text-secondary-foreground shadow-md'
-                      : 'border border-border/70 bg-card/80 text-muted-foreground hover:border-primary/40 hover:bg-card hover:text-foreground',
+                      ? `${f.color} text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] -translate-y-0.5`
+                      : 'bg-white text-[#6B5550] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
                   )}
                 >
                   <span>{f.label}</span>
                   <span
                     className={cn(
-                      'rounded-full px-1.5 py-0.2 text-[0.65rem] font-bold transition-colors',
-                      isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:text-foreground',
+                      'rounded-full border border-[#2D1F1D] px-1.5 py-0.2 text-[0.65rem] font-black',
+                      isSelected ? 'bg-white text-[#2D1F1D]' : 'bg-[#FAF5EC] text-[#2D1F1D]',
                     )}
                   >
                     {count}
@@ -226,10 +234,12 @@ export function WorkShowcase() {
 
         {/* Works Gallery Grid / Bento */}
         {filteredItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 bg-card/50 p-12 text-center">
-            <SlidersHorizontal className="size-10 text-muted-foreground/50" />
-            <h3 className="mt-3 font-serif text-lg font-semibold text-foreground">No matching materials found</h3>
-            <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+          <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#2D1F1D] bg-white p-12 text-center shadow-[4px_4px_0px_#2D1F1D]">
+            <SlidersHorizontal className="size-10 text-[#6B5550]" />
+            <h3 className="mt-3 font-sans text-lg font-black text-[#2D1F1D]">
+              No matching materials found
+            </h3>
+            <p className="mt-1 max-w-sm text-xs font-bold text-[#6B5550]">
               Try adjusting your search query or switching to another category.
             </p>
             <button
@@ -238,95 +248,24 @@ export function WorkShowcase() {
                 setFilter('all')
                 setSearchQuery('')
               }}
-              className="mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm"
+              className="cute-btn mt-4 bg-[#FFC837] px-5 py-2 text-xs font-black text-[#2D1F1D]"
             >
               Reset filters
             </button>
           </div>
-        ) : viewMode === 'grid' ? (
-          /* Standard 3-Column / 2-Column Grid */
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
-            {displayedItems.map((item, i) => {
-              const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
-              return (
-                <Reveal key={item.id} delay={(i % 6) * 40}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveItemIndex(actualIndex)}
-                    className="card-shine group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-foreground/5 will-change-transform"
-                  >
-                    {/* Media Thumbnail */}
-                    <div className="relative aspect-[16/10.5] w-full overflow-hidden isolate bg-muted">
-                      <Image
-                        src={item.image || '/placeholder.svg'}
-                        alt={item.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/15 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-85" />
-
-                      {/* Tag pill */}
-                      <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-primary-foreground shadow-md">
-                        {item.tag}
-                      </span>
-
-                      {/* Maximize Icon */}
-                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur-sm transform-gpu transition-[opacity,transform] duration-300 group-hover:opacity-100 group-hover:scale-105">
-                        <Maximize2 className="size-3.5" />
-                      </span>
-
-                      {/* Format pill */}
-                      {item.format && (
-                        <span className="absolute bottom-3 left-3 rounded-md bg-secondary/85 px-2 py-0.5 text-[0.65rem] font-medium text-white backdrop-blur-xs">
-                          {item.format}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Content Details */}
-                    <div className="flex flex-1 flex-col p-4 sm:p-5">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-serif text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
-                          {item.title}
-                        </h3>
-                        <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
-                      </div>
-
-                      <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                        {item.description}
-                      </p>
-
-                      {/* Micro highlights */}
-                      {item.highlights && item.highlights.length > 0 && (
-                        <div className="mt-3.5 flex flex-wrap gap-1.5 border-t border-border/50 pt-3">
-                          {item.highlights.slice(0, 2).map((h) => (
-                            <span
-                              key={h}
-                              className="rounded-full bg-muted/60 px-2 py-0.5 text-[0.65rem] font-medium text-muted-foreground"
-                            >
-                              {h}
-                            </span>
-                          ))}
-                          {item.highlights.length > 2 && (
-                            <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[0.65rem] font-bold text-foreground">
-                              +{item.highlights.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                </Reveal>
-              )
-            })}
-          </div>
         ) : (
-          /* Editorial Bento Layout */
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
-              const isFeature = i % 4 === 0 || i % 4 === 3
+              const isFeature = viewMode === 'bento' && (i % 4 === 0 || i % 4 === 3)
+              const pinColors: ('red' | 'purple' | 'yellow' | 'mint' | 'coral')[] = [
+                'yellow',
+                'mint',
+                'coral',
+                'purple',
+                'red',
+              ]
+              const pinColor = pinColors[i % pinColors.length]
 
               return (
                 <Reveal
@@ -334,248 +273,206 @@ export function WorkShowcase() {
                   delay={(i % 6) * 40}
                   className={cn(isFeature && 'sm:col-span-2 lg:col-span-2')}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setActiveItemIndex(actualIndex)}
-                    className={cn(
-                      'card-shine group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/75 bg-card text-left shadow-sm transform-gpu transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-foreground/5 will-change-transform',
-                      isFeature ? 'md:grid md:grid-cols-[1.1fr_0.9fr]' : 'flex flex-col',
+                  <div className="group relative h-full w-full">
+                    {/* 3D PushPin & WashiTape on unclipped outer container */}
+                    <PushPin color={pinColor} className={isFeature ? "right-8 -top-1" : "left-1/2 -top-1"} />
+                    {isFeature && (
+                      <WashiTape color="#FFC837" className="left-6 -top-2.5 w-20" pattern="stripes" />
                     )}
-                  >
-                    {/* Media Image */}
-                    <div
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveItemIndex(actualIndex)}
                       className={cn(
-                        'relative w-full overflow-hidden isolate bg-muted',
-                        isFeature ? 'aspect-[16/10] md:h-full md:aspect-auto' : 'aspect-[16/10.5]',
+                        'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-3 border-[#2D1F1D] bg-white text-left shadow-[5px_5px_0px_#2D1F1D] transition-all duration-200 hover:-translate-y-1 hover:shadow-[8px_8px_0px_#2D1F1D] cursor-pointer',
+                        isFeature ? 'rounded-[2.8rem_1.6rem_2.6rem_1.8rem] md:grid md:grid-cols-[1.15fr_0.85fr]' : (i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]'),
                       )}
                     >
-                      <Image
-                        src={item.image || '/placeholder.svg'}
-                        alt={item.title}
-                        fill
-                        sizes={isFeature ? '(max-width: 1024px) 100vw, 66vw' : '(max-width: 1024px) 50vw, 33vw'}
-                        className="object-cover transform-gpu transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/15 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-85" />
-
-                      <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-primary-foreground shadow-md">
-                        {item.tag}
-                      </span>
-
-                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/90 text-foreground opacity-0 shadow-lg backdrop-blur-sm transform-gpu transition-[opacity,transform] duration-300 group-hover:opacity-100 group-hover:scale-105">
-                        <Maximize2 className="size-3.5" />
-                      </span>
-
-                      {item.year && (
-                        <span className="absolute bottom-3 left-3 rounded-md bg-secondary/85 px-2 py-0.5 text-[0.65rem] font-medium text-white backdrop-blur-xs">
-                          {item.year}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Details Panel */}
-                    <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
-                      <div>
-                        {item.format && (
-                          <span className="text-[0.65rem] font-bold uppercase tracking-wider text-primary">
-                            {item.format}
-                          </span>
+                      {/* Media Thumbnail */}
+                      <div
+                        className={cn(
+                          'relative w-full overflow-hidden bg-[#FFF9E6]',
+                          isFeature ? 'aspect-[16/10] md:h-full md:aspect-auto' : 'aspect-[16/10.5]',
                         )}
-                        <h3 className="mt-1 font-serif text-lg font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-xl">
-                          {item.title}
-                        </h3>
-                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                          {item.description}
-                        </p>
+                      >
+                        <Image
+                          src={item.image || '/placeholder.svg'}
+                          alt={item.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+
+                        {/* Tag pill */}
+                        <div className="absolute left-3 top-3 flex items-center gap-1.5">
+                          <span className="rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-[0.7rem] font-black uppercase text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]">
+                            {item.tag}
+                          </span>
+                          {isFeature && (
+                            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border-2 border-[#2D1F1D] bg-[#A7F3D0] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                              <Sparkles className="size-3 text-[#10B981]" />
+                              <span>Featured</span>
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Maximize Icon */}
+                        <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-white text-[#2D1F1D] opacity-0 shadow-[2px_2px_0px_#2D1F1D] transition-all duration-200 group-hover:opacity-100 group-hover:scale-110">
+                          <Maximize2 className="size-4" />
+                        </span>
                       </div>
 
-                      {item.highlights && item.highlights.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-1.5 border-t border-border/50 pt-3">
-                          {item.highlights.map((h) => (
-                            <span
-                              key={h}
-                              className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[0.65rem] font-medium text-foreground"
-                            >
-                              <CheckCircle2 className="size-2.5 text-primary" />
-                              {h}
-                            </span>
-                          ))}
+                      {/* Content Details */}
+                      <div className="flex flex-1 flex-col p-5">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-sans text-base font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B] sm:text-lg">
+                            {item.title}
+                          </h3>
+                          <ArrowUpRight className="size-4.5 shrink-0 text-[#2D1F1D] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
                         </div>
-                      )}
-                    </div>
-                  </button>
+
+                        <p className="mt-2 flex-1 text-xs font-bold leading-relaxed text-[#6B5550] line-clamp-2">
+                          {item.description}
+                        </p>
+
+                        {/* Highlights */}
+                        {item.highlights && item.highlights.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-1.5 border-t-2 border-[#2D1F1D]/10 pt-3">
+                            {item.highlights.slice(0, 2).map((h) => (
+                              <span
+                                key={h}
+                                className="rounded-xl border border-[#2D1F1D] bg-[#FAF5EC] px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D]"
+                              >
+                                {h}
+                              </span>
+                            ))}
+                            {item.highlights.length > 2 && (
+                              <span className="rounded-xl border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.5 text-[0.68rem] font-black text-[#2D1F1D]">
+                                +{item.highlights.length - 2}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  </div>
                 </Reveal>
               )
             })}
           </div>
         )}
 
-        {/* Smart Progressive "Load More" */}
+        {/* Pagination Load More */}
         {filteredItems.length > visibleCount && (
-          <Reveal delay={100}>
-            <div className="flex flex-col items-center justify-center gap-2 pt-4">
-              <button
-                type="button"
-                onClick={() => setVisibleCount((prev) => prev + LOAD_MORE_STEP)}
-                className="group inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-7 py-3 text-xs font-semibold text-foreground shadow-sm transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:-translate-y-0.5 sm:text-sm"
-              >
-                <Sparkles className="size-4 text-primary transition-colors group-hover:text-primary-foreground" />
-                Show more materials ({filteredItems.length - visibleCount} remaining)
-              </button>
-              <p className="text-[0.65rem] text-muted-foreground">
-                Showing {visibleCount} of {filteredItems.length} items
-              </p>
-            </div>
-          </Reveal>
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((prev) => prev + LOAD_MORE_STEP)}
+              className="cute-btn bg-[#FFC837] px-8 py-3 text-sm font-black text-[#2D1F1D] hover:bg-[#FFB800]"
+            >
+              <span>Load More Works ({filteredItems.length - visibleCount} more)</span>
+              <ArrowRight className="size-4.5 stroke-[2.5]" />
+            </button>
+          </div>
         )}
       </div>
 
-      {/* World-Class Pro Lightbox Detail Modal */}
-      {activeItem && activeItemIndex !== null && (
+      {/* Lightbox Modal */}
+      {activeItem && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label={activeItem.title}
           onClick={() => setActiveItemIndex(null)}
-          className="fixed inset-0 z-[95] flex items-center justify-center bg-black/85 p-3 backdrop-blur-md duration-300 animate-in fade-in sm:p-5 lg:p-8"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D1F1D]/80 p-4 backdrop-blur-xs"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-white/20 bg-card shadow-2xl duration-300 animate-in zoom-in-95 lg:grid lg:grid-cols-[1.15fr_0.85fr]"
+            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2.5rem] border-3 border-[#2D1F1D] bg-white shadow-[12px_12px_0px_#2D1F1D]"
           >
-            {/* Close button */}
-            <button
-              type="button"
-              aria-label="Close modal"
-              onClick={() => setActiveItemIndex(null)}
-              className="absolute right-4 top-4 z-30 flex size-9 items-center justify-center rounded-full bg-black/70 text-white shadow-lg backdrop-blur-md transition-transform hover:scale-110 hover:bg-black"
-            >
-              <X className="size-4.5" />
-            </button>
-
-            {/* Left Column: Media Presentation Stage */}
-            <div className="relative flex aspect-[16/11] w-full flex-col justify-between overflow-hidden bg-muted lg:aspect-auto lg:h-full">
-              <Image
-                src={activeItem.image || '/placeholder.svg'}
-                alt={activeItem.title}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 600px"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-
-              {/* Top info badge */}
-              <div className="relative z-10 flex items-center justify-between p-4 sm:p-5">
-                <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow-md">
+            {/* Header with Title & Close button */}
+            <div className="flex items-center justify-between border-b-2 border-[#2D1F1D] bg-[#FFE68C] px-6 py-4">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full border border-[#2D1F1D] bg-white px-3 py-0.5 text-xs font-black text-[#2D1F1D]">
                   {activeItem.tag}
                 </span>
-                <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
-                  {activeItemIndex + 1} of {filteredItems.length}
-                </span>
-              </div>
-
-              {/* Left / Right Arrow Navigation buttons */}
-              {filteredItems.length > 1 && (
-                <div className="absolute inset-x-3 top-1/2 z-20 flex -translate-y-1/2 items-center justify-between pointer-events-none">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handlePrev()
-                    }}
-                    aria-label="Previous item"
-                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transform-gpu transition-transform duration-200 hover:scale-110 hover:bg-black will-change-transform"
-                  >
-                    <ChevronLeft className="size-6" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleNext()
-                    }}
-                    aria-label="Next item"
-                    className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-black/70 text-white shadow-xl backdrop-blur-md transform-gpu transition-transform duration-200 hover:scale-110 hover:bg-black will-change-transform"
-                  >
-                    <ChevronRight className="size-6" />
-                  </button>
-                </div>
-              )}
-
-              {/* Bottom interactive navigation dot bar */}
-              <div className="relative z-10 flex items-center justify-between p-4 text-xs text-white/80">
-                <span className="text-[0.7rem] font-medium">Use ← / → keys to browse</span>
-                <div className="flex gap-1">
-                  {filteredItems.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setActiveItemIndex(idx)}
-                      className={cn(
-                        'h-1.5 rounded-full transition-all',
-                        activeItemIndex === idx ? 'w-5 bg-primary' : 'w-1.5 bg-white/40 hover:bg-white',
-                      )}
-                      aria-label={`Jump to item ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Editorial Detail Drawer */}
-            <div className="flex flex-1 flex-col justify-between overflow-y-auto p-6 sm:p-8">
-              <div>
-                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
-                  {activeItem.format && (
-                    <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-foreground font-bold">
-                      {activeItem.format}
-                    </span>
-                  )}
-                  {activeItem.year && <span>· Released {activeItem.year}</span>}
-                </div>
-
-                <h3 className="mt-3 font-serif text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+                <h3 className="font-sans text-lg font-black text-[#2D1F1D]">
                   {activeItem.title}
                 </h3>
+              </div>
+              <button
+                type="button"
+                aria-label="Close modal"
+                onClick={() => setActiveItemIndex(null)}
+                className="flex size-8 items-center justify-center rounded-full border border-[#2D1F1D] bg-white text-[#2D1F1D] transition-colors hover:bg-[#FF7D6B] hover:text-white"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
 
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground sm:text-sm text-pretty">
+            {/* Modal Body */}
+            <div className="overflow-y-auto p-6 sm:p-8">
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border-2 border-[#2D1F1D] bg-[#FFF9E6]">
+                <Image
+                  src={activeItem.image || '/placeholder.svg'}
+                  alt={activeItem.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 768px"
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="mt-5 space-y-4">
+                <p className="text-sm font-bold leading-relaxed text-[#6B5550]">
                   {activeItem.description}
                 </p>
 
-                {/* Pedagogical Highlights Breakdown */}
                 {activeItem.highlights && activeItem.highlights.length > 0 && (
-                  <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
-                    <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground">
-                      <Sparkles className="size-3.5 text-primary" />
-                      Pedagogical Highlights
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+                      Pedagogical Highlights &amp; Craft Details
                     </h4>
-                    <ul className="mt-2.5 space-y-2">
+                    <div className="flex flex-wrap gap-2">
                       {activeItem.highlights.map((h) => (
-                        <li key={h} className="flex items-start gap-2.5 text-xs text-foreground sm:text-sm">
-                          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
-                          <span>{h}</span>
-                        </li>
+                        <span
+                          key={h}
+                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-3 py-1 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]"
+                        >
+                          <CheckCircle2 className="size-3.5 stroke-[2.5]" />
+                          {h}
+                        </span>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
-              </div>
 
-              {/* Inquire & Order Action Footer */}
-              <div className="mt-6 border-t border-border/60 pt-4">
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#2D1F1D]/10 pt-4">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      className="flex size-9 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFE68C]"
+                    >
+                      <ChevronLeft className="size-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="flex size-9 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFE68C]"
+                    >
+                      <ChevronRight className="size-5" />
+                    </button>
+                  </div>
+
                   <a
                     href="#contact"
                     onClick={() => setActiveItemIndex(null)}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-xl sm:text-sm"
+                    className="cute-btn bg-[#FF7D6B] px-5 py-2 text-xs font-black text-white hover:bg-[#FF6B6B]"
                   >
-                    <MessageSquare className="size-4" />
-                    Inquire or request this material
+                    <span>Inquire About This Craft 🌸</span>
+                    <ArrowRight className="size-4 stroke-[2.5]" />
                   </a>
-                  <p className="text-center text-[0.65rem] text-muted-foreground">
-                    Available for workshop demonstration, custom sizing, or localized rental in Tunis.
-                  </p>
                 </div>
               </div>
             </div>

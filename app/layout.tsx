@@ -1,18 +1,27 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google'
+import { Fredoka, Patrick_Hand, Plus_Jakarta_Sans } from 'next/font/google'
 import { Providers } from '@/components/providers'
+import { CuteCursor } from '@/components/cute-cursor'
 import './globals.css'
+
+const fredoka = Fredoka({
+  subsets: ['latin'],
+  variable: '--font-fredoka',
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+})
+
+const patrickHand = Patrick_Hand({
+  subsets: ['latin'],
+  variable: '--font-hand',
+  weight: ['400'],
+  display: 'swap',
+})
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-jakarta',
-  display: 'swap',
-})
-
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  variable: '--font-fraunces',
   display: 'swap',
 })
 
@@ -39,7 +48,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#F7C948',
+  themeColor: '#FFC837',
 }
 
 export default function RootLayout({
@@ -48,13 +57,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${fraunces.variable} bg-background`}>
-      <body className="font-sans antialiased">
-        <Providers>
-          {children}
-        </Providers>
+    <html
+      lang="en"
+      className={`${fredoka.variable} ${patrickHand.variable} ${jakarta.variable} bg-background`}
+    >
+      <body className="font-sans antialiased text-foreground bg-background selection:bg-[#FFC837] selection:text-[#2D1F1D]">
+        <CuteCursor />
+        <Providers>{children}</Providers>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )
 }
+

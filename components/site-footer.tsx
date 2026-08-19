@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Globe, Lock, Mail, MapPin, MessageCircle, Send, Sparkles } from 'lucide-react'
+import { Globe, Lock, Mail, MapPin, MessageCircle, Send, Sparkles, Heart } from 'lucide-react'
 import { NAV_ITEMS } from '@/lib/data'
 import { usePortfolio } from '@/lib/portfolio-context'
+import { CloudDivider, DoodleStar } from '@/components/cloud-decorations'
 
 export function SiteFooter() {
   const { state } = usePortfolio()
@@ -12,67 +13,65 @@ export function SiteFooter() {
   const whatsappRaw = contact.whatsappRaw || contact.whatsapp.replace(/[^0-9]/g, '')
 
   return (
-    <footer className="relative overflow-hidden bg-secondary text-secondary-foreground">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-20 top-0 size-80 rounded-full bg-primary/8 blur-[100px]" />
-        <div className="noise-overlay absolute inset-0 opacity-[0.03]" />
-      </div>
-
-      <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
+    <footer className="relative overflow-hidden bg-[#FAF5EC] text-[#2D1F1D] border-t-3 border-[#2D1F1D]">
+      <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-18">
+        <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
           <div>
             <a href="#home" className="group flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
-                <Sparkles className="size-5" />
+              <span className="flex size-11 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] transition-transform duration-200 group-hover:rotate-12">
+                <Sparkles className="size-5 fill-[#FF7D6B] text-[#2D1F1D]" />
               </span>
               <div>
-                <span className="font-serif text-xl font-semibold">Farah Affes</span>
-                <p className="text-[0.65rem] font-medium uppercase tracking-widest text-secondary-foreground/50">
-                  English Educator &amp; Studio
+                <span className="font-sans text-xl font-black text-[#2D1F1D]">Farah Affes</span>
+                <p className="text-xs font-bold text-[#FF7D6B] flex items-center gap-1">
+                  <span>English Educator &amp; Studio</span>
+                  <Heart className="size-3 fill-[#FF7D6B]" />
                 </p>
               </div>
             </a>
-            <p className="mt-5 max-w-sm leading-relaxed text-secondary-foreground/70 text-pretty">
+            <p className="mt-4 max-w-sm text-sm font-medium leading-relaxed text-[#6B5550] text-pretty">
               English educator and DIY material designer helping learners grow through
               interactive, hands-on English education in {contact.location}.
             </p>
-            <div className="mt-6 flex gap-2.5">
+            <div className="mt-5 flex gap-2.5">
               {[
-                { icon: Mail, href: `mailto:${contact.email}`, label: 'Email' },
+                { icon: Mail, href: `mailto:${contact.email}`, label: 'Email', bg: 'bg-[#FFE68C]' },
                 {
                   icon: MessageCircle,
                   href: `https://wa.me/${whatsappRaw}`,
                   label: 'WhatsApp',
+                  bg: 'bg-[#A7F3D0]',
                 },
                 {
                   icon: Send,
                   href: `https://t.me/${contact.email.split('@')[0]}`,
                   label: 'Telegram',
+                  bg: 'bg-[#DDD6FE]',
                 },
-                { icon: Globe, href: '#home', label: 'Website' },
+                { icon: Globe, href: '#home', label: 'Website', bg: 'bg-[#FFB5B5]' },
               ].map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-secondary-foreground transition-all duration-300 hover:border-primary/50 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/20"
+                  className={`flex size-10 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] ${s.bg} text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_#2D1F1D] active:translate-y-0 active:shadow-none`}
                 >
-                  <s.icon className="size-4" />
+                  <s.icon className="size-4.5 stroke-[2.5]" />
                 </a>
               ))}
             </div>
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-secondary-foreground/50">
-              Explore
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+              Explore Sections 🎒
             </h3>
-            <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-2.5">
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5">
               {NAV_ITEMS.map((n) => (
                 <li key={n.id}>
                   <a
                     href={`#${n.id}`}
-                    className="text-sm text-secondary-foreground/75 transition-colors duration-300 hover:text-primary"
+                    className="text-xs font-bold text-[#6B5550] transition-colors hover:text-[#FF7D6B]"
                   >
                     {n.label}
                   </a>
@@ -82,49 +81,45 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-secondary-foreground/50">
-              Reach out
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+              Contact Details 🌸
             </h3>
-            <ul className="mt-5 flex flex-col gap-3.5 text-sm text-secondary-foreground/75">
-              <li className="flex items-center gap-3">
-                <Mail className="size-4 shrink-0 text-primary" />
-                <a href={`mailto:${contact.email}`} className="transition-colors hover:text-primary">
+            <ul className="mt-4 flex flex-col gap-3 text-xs font-bold text-[#6B5550]">
+              <li className="flex items-center gap-2.5">
+                <span className="flex size-7 items-center justify-center rounded-xl border border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D]">
+                  <Mail className="size-3.5" />
+                </span>
+                <a href={`mailto:${contact.email}`} className="hover:text-[#FF7D6B]">
                   {contact.email}
                 </a>
               </li>
-              <li className="flex items-center gap-3">
-                <MessageCircle className="size-4 shrink-0 text-primary" />
+              <li className="flex items-center gap-2.5">
+                <span className="flex size-7 items-center justify-center rounded-xl border border-[#2D1F1D] bg-[#A7F3D0] text-[#2D1F1D]">
+                  <MessageCircle className="size-3.5" />
+                </span>
                 <a
                   href={`https://wa.me/${whatsappRaw}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-primary"
+                  className="hover:text-[#FF7D6B]"
                 >
                   {contact.whatsapp}
                 </a>
               </li>
-              <li className="flex items-center gap-3">
-                <MapPin className="size-4 shrink-0 text-primary" />
-                {contact.location}
+              <li className="flex items-center gap-2.5">
+                <span className="flex size-7 items-center justify-center rounded-xl border border-[#2D1F1D] bg-[#DDD6FE] text-[#2D1F1D]">
+                  <MapPin className="size-3.5" />
+                </span>
+                <span>{contact.location}</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-secondary-foreground/50 sm:flex-row">
-          <div className="flex flex-wrap items-center gap-3">
-            <p>© {new Date().getFullYear()} Farah Affes. All rights reserved.</p>
-            <span className="hidden text-white/20 sm:inline">•</span>
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-secondary-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/20 hover:text-primary"
-            >
-              <Lock className="size-3" />
-              Teacher Admin Studio
-            </Link>
-          </div>
-          <p className="text-center italic sm:text-right">
-            Empowering learners, one hands-on lesson at a time.
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t-2 border-[#2D1F1D]/10 pt-6 text-xs font-bold text-[#6B5550] sm:flex-row">
+          <p>© {new Date().getFullYear()} Farah Affes Studio. All rights reserved.</p>
+          <p className="text-center handwriting text-base text-[#FF7D6B] font-bold sm:text-right">
+            Handmade with love &amp; imagination in Sfax 🌸
           </p>
         </div>
       </div>

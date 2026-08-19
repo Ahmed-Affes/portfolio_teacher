@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Menu, ShoppingBag, Sparkles, X } from 'lucide-react'
+import { Menu, ShoppingBag, Sparkles, X, Heart } from 'lucide-react'
 import { NAV_ITEMS } from '@/lib/data'
 import { useCart } from '@/components/cart-provider'
+import { HeaderMusicButton } from '@/components/ambient-music'
 import { cn } from '@/lib/utils'
 
 export function SiteHeader() {
@@ -38,7 +39,9 @@ export function SiteHeader() {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [menuOpen])
 
   const handleNav = (id: string, e?: React.MouseEvent) => {
@@ -53,59 +56,70 @@ export function SiteHeader() {
   }
 
   return (
-    <header
-      className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-300',
-        scrolled || menuOpen
-          ? 'border-b border-border/50 glass shadow-sm'
-          : 'bg-background/80 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none',
-      )}
-    >
-      <nav className="section-inner flex h-16 items-center justify-between gap-3 sm:h-[var(--header-h)]">
+    <header className="fixed inset-x-0 top-0 z-50 transition-all duration-300 px-3 pt-3 sm:px-6 sm:pt-4">
+      <nav
+        className={cn(
+          'mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 rounded-full border-2 border-[#2D1F1D] px-4 py-2 transition-all duration-300 sm:h-16 sm:px-6',
+          scrolled || menuOpen
+            ? 'bg-white/95 shadow-[4px_4px_0px_#2D1F1D] backdrop-blur-md'
+            : 'bg-white/85 shadow-[3px_3px_0px_#2D1F1D] backdrop-blur-sm',
+        )}
+      >
         <a
           href="#home"
           onClick={(e) => handleNav('home', e)}
-          className="group flex min-w-0 items-center gap-2"
+          className="group flex min-w-0 items-center gap-2.5 transition-transform hover:scale-105 active:scale-95"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm sm:size-10 sm:rounded-xl">
-            <Sparkles className="size-4 sm:size-5" />
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] group-hover:rotate-12 transition-transform sm:size-10">
+            <Sparkles className="size-4 text-[#2D1F1D] fill-[#FFC837]" />
           </span>
-          <span className="truncate font-serif text-base font-semibold leading-none sm:text-lg">
-            Farah Affes
-          </span>
+          <div className="flex flex-col">
+            <span className="truncate font-sans text-base font-bold leading-none text-[#2D1F1D] sm:text-lg">
+              Farah Affes
+            </span>
+            <span className="text-[0.65rem] font-bold text-[#FF7D6B] leading-tight flex items-center gap-1">
+              <span>Teacher Studio</span>
+              <Heart className="size-2.5 fill-[#FF7D6B]" />
+            </span>
+          </div>
         </a>
 
-        {/* Desktop nav — only on xl+ where 9 items fit */}
-        <ul className="hidden items-center gap-0.5 rounded-full border border-border/50 bg-card/70 p-1 xl:flex">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.id}>
-              <a
-                href={`#${item.id}`}
-                onClick={(e) => handleNav(item.id, e)}
-                className={cn(
-                  'relative whitespace-nowrap rounded-full px-2.5 py-1.5 text-[0.75rem] font-medium transition-colors 2xl:px-3.5 2xl:text-[0.8125rem]',
-                  active === item.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                {active === item.id && (
-                  <span className="absolute inset-0 -z-10 rounded-full bg-primary/30" />
-                )}
-                {item.label}
-              </a>
-            </li>
-          ))}
+        {/* Desktop Navigation Links */}
+        <ul className="hidden items-center gap-1 rounded-full border-2 border-[#2D1F1D]/15 bg-[#FAF5EC] p-1 xl:flex">
+          {NAV_ITEMS.map((item) => {
+            const isActive = active === item.id
+            return (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => handleNav(item.id, e)}
+                  className={cn(
+                    'relative whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold transition-all duration-150',
+                    isActive
+                      ? 'bg-[#FFC837] text-[#2D1F1D] border-2 border-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
+                      : 'text-[#6B5550] hover:text-[#2D1F1D] hover:bg-[#FFE68C]/40',
+                  )}
+                >
+                  {item.label}
+                </a>
+              </li>
+            )
+          })}
         </ul>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        {/* Action Buttons: Cart + Ambient Music + Contact + Mobile Menu */}
+        <div className="flex shrink-0 items-center gap-2">
+          <HeaderMusicButton />
+
           <button
             type="button"
             onClick={openCart}
             aria-label={`Open cart, ${count} items`}
-            className="relative flex size-9 items-center justify-center rounded-full border border-border/60 bg-card text-foreground sm:size-10"
+            className="relative flex size-9 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#A7F3D0] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:scale-105 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all sm:size-10 cursor-pointer"
           >
             <ShoppingBag className="size-4" />
             {count > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex min-w-4 items-center justify-center rounded-full bg-secondary px-1 py-px text-[0.6rem] font-bold text-secondary-foreground ring-2 ring-background">
+              <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FF7D6B] px-1 py-0.5 text-[0.65rem] font-black text-white shadow-xs animate-bounce">
                 {count}
               </span>
             )}
@@ -114,9 +128,9 @@ export function SiteHeader() {
           <a
             href="#contact"
             onClick={(e) => handleNav('contact', e)}
-            className="hidden rounded-full bg-secondary px-4 py-2 text-xs font-semibold text-secondary-foreground sm:inline-flex sm:text-sm"
+            className="hidden rounded-full border-2 border-[#2D1F1D] bg-[#FF7D6B] px-4 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FF6B6B] hover:scale-105 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all sm:inline-flex sm:text-sm"
           >
-            Contact
+            Say Hello! 🌸
           </a>
 
           <button
@@ -124,27 +138,27 @@ export function SiteHeader() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex size-9 items-center justify-center rounded-full border border-border/60 bg-card xl:hidden sm:size-10"
+            className="flex size-9 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] xl:hidden sm:size-10 cursor-pointer"
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile + tablet menu */}
+      {/* Mobile Menu Drawer */}
       {menuOpen && (
-        <div className="fixed inset-0 top-16 z-40 bg-background/95 backdrop-blur-lg xl:hidden sm:top-[var(--header-h)]">
-          <ul className="section-inner grid max-h-[calc(100dvh-var(--header-h))] grid-cols-2 gap-1.5 overflow-y-auto py-4 content-start">
+        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-2 border-[#2D1F1D] bg-white p-4 shadow-[6px_6px_0px_#2D1F1D] xl:hidden">
+          <ul className="grid grid-cols-2 gap-2">
             {NAV_ITEMS.map((item) => (
               <li key={item.id}>
                 <a
                   href={`#${item.id}`}
                   onClick={(e) => handleNav(item.id, e)}
                   className={cn(
-                    'block rounded-xl px-3 py-3 text-sm font-medium transition-colors',
+                    'block rounded-2xl border-2 border-[#2D1F1D] px-3 py-2.5 text-center text-xs font-bold transition-all shadow-[2px_2px_0px_#2D1F1D] active:shadow-none active:translate-y-[2px]',
                     active === item.id
-                      ? 'bg-primary/25 font-semibold text-foreground'
-                      : 'text-muted-foreground hover:bg-muted',
+                      ? 'bg-[#FFC837] text-[#2D1F1D]'
+                      : 'bg-[#FAF5EC] text-[#2D1F1D] hover:bg-[#FFE68C]',
                   )}
                 >
                   {item.label}

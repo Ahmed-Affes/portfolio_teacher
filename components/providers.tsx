@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { PortfolioProvider } from '@/lib/portfolio-context'
 import { CartProvider } from '@/components/cart-provider'
 import { ToastProvider } from '@/components/toast-provider'
+import { MusicProvider } from '@/components/ambient-music'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -23,7 +24,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <PortfolioProvider>
       <ToastProvider>
-        <CartProvider>{children}</CartProvider>
+        <CartProvider>
+          <MusicProvider>{children}</MusicProvider>
+        </CartProvider>
       </ToastProvider>
     </PortfolioProvider>
   )
