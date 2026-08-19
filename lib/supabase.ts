@@ -644,6 +644,9 @@ export type PushNotificationData = {
 
 export const PUSH_EVENT_KEY = 'farah_device_push_notification'
 
+let lastDispatchedFingerprint = ''
+let lastDispatchedTimestamp = 0
+
 /**
  * Check if the current device/browser is authorized as an Admin Studio device
  * (Prevents public visitors and students from hearing chimes or receiving admin push popups)
@@ -658,8 +661,8 @@ export function checkIsAdminDevice(): boolean {
 }
 
 /**
- * Send an SMS-style high priority browser / OS / mobile notification (Outside & Inside App)
- * ONLY targeted to Farah's authorized Admin devices
+ * Send an SMS-style high priority browser / OS / mobile notification
+ * ONLY targeted to Farah's authorized Admin devices, with strict single-instance deduplication
  */
 export function sendDeviceNotification(
   title: string,
@@ -672,10 +675,31 @@ export function sendDeviceNotification(
 
   if (isNotificationsMuted()) return
 
-  // 2. Play audio chime immediately
+  // 2. Strict cross-tab and in-memory deduplication (prevents duplicate triggers from multi-tab Realtime events)
+  const fingerprint = `${title}:::${options?.body || ''}`
+  const now = Date.now()
+  if (fingerprint === lastDispatchedFingerprint && now - lastDispatchedTimestamp < 3500) {
+    return
+  }
+  lastDispatchedFingerprint = fingerprint
+  lastDispatchedTimestamp = now
+
+  try {
+    const globalLast = sessionStorage.getItem('farah_last_push_fingerprint')
+    const globalTime = Number(sessionStorage.getItem('farah_last_push_time') || 0)
+    if (globalLast === fingerprint && now - globalTime < 3500) {
+      return
+    }
+    sessionStorage.setItem('farah_last_push_fingerprint', fingerprint)
+    sessionStorage.setItem('farah_last_push_time', String(now))
+  } catch {
+    // ignore
+  }
+
+  // 3. Play audio chime immediately
   playNotificationSound()
 
-  // 3. Vibrate mobile device (if supported) - SMS pattern: buzz, pause, buzz
+  // 4. Vibrate mobile device (if supported) - SMS pattern: buzz, pause, buzz
   if ('navigator' in window && 'vibrate' in navigator) {
     try {
       navigator.vibrate([300, 100, 300, 100, 400])
@@ -684,58 +708,44 @@ export function sendDeviceNotification(
     }
   }
 
-  // 4. Dispatch In-App Visual Push Popup Banner (Only inside Admin)
-  try {
-    const event = new CustomEvent<PushNotificationData>(PUSH_EVENT_KEY, {
-      detail: {
-        title,
-        body: options?.body,
-        icon: options?.icon || '/images/farah-portrait.png',
-        tag: options?.tag,
-        href: options?.href || '/admin',
-        timestamp: Date.now(),
-      },
-    })
-    window.dispatchEvent(event)
-  } catch (err) {
-    console.warn('In-app push event dispatch error:', err)
-  }
-
   // 5. Trigger exactly ONE Native OS / Mobile Lock-Screen & System Tray Notification
-  const alertTag = options?.tag || `farah-alert-${Date.now()}`
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    const deterministicTag =
+      options?.tag || `farah-notify-${encodeURIComponent(title.replace(/\s+/g, '-').slice(0, 30))}`
 
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-    navigator.serviceWorker.ready
-      .then((registration) => {
-        registration.showNotification(title, {
-          body: options?.body || 'New update in Farah Affes Studio',
-          icon: options?.icon || '/images/farah-portrait.png',
-          badge: '/favicon.ico',
-          vibrate: [300, 100, 300, 100, 400],
-          tag: alertTag,
-          renotify: true,
-          requireInteraction: true,
-          data: { url: options?.href || '/admin' },
-        } as any)
-      })
-      .catch(() => {
-        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-          new Notification(title, {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready
+        .then((registration) => {
+          registration.showNotification(title, {
             body: options?.body || 'New update in Farah Affes Studio',
             icon: options?.icon || '/images/farah-portrait.png',
             badge: '/favicon.ico',
-            tag: alertTag,
-          })
-        }
-      })
-  } else if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-    try {
-      new Notification(title, {
-        body: options?.body || 'New update in Farah Affes Studio',
-        icon: options?.icon || '/images/farah-portrait.png',
-        badge: '/favicon.ico',
-        tag: alertTag,
-      })
-    } catch {}
+            vibrate: [300, 100, 300, 100, 400],
+            tag: deterministicTag,
+            renotify: false,
+            requireInteraction: true,
+            data: { url: options?.href || '/admin' },
+          } as any)
+        })
+        .catch(() => {
+          try {
+            new Notification(title, {
+              body: options?.body || 'New update in Farah Affes Studio',
+              icon: options?.icon || '/images/farah-portrait.png',
+              badge: '/favicon.ico',
+              tag: deterministicTag,
+            })
+          } catch {}
+        })
+    } else {
+      try {
+        new Notification(title, {
+          body: options?.body || 'New update in Farah Affes Studio',
+          icon: options?.icon || '/images/farah-portrait.png',
+          badge: '/favicon.ico',
+          tag: deterministicTag,
+        })
+      } catch {}
+    }
   }
 }
