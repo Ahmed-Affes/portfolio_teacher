@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Fredoka, Patrick_Hand, Plus_Jakarta_Sans } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import { CuteCursor } from '@/components/cute-cursor'
+import { ScrollPaperPlane } from '@/components/scroll-paper-plane'
 import './globals.css'
 
 const fredoka = Fredoka({
@@ -63,6 +64,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased text-foreground bg-background selection:bg-[#FFC837] selection:text-[#2D1F1D]">
         <CuteCursor />
+        <ScrollPaperPlane />
         <Providers>{children}</Providers>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
