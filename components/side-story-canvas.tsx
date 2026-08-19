@@ -2,52 +2,256 @@
 
 import { useEffect, useRef } from 'react'
 
-const chapters = ['WELCOME', 'STORY', 'MAKE', 'PLAY', 'SHARE', 'GATHER', 'CHEER', 'HELLO']
-const palette = { ink: '#2D1F1D', yellow: '#FFC837', coral: '#FF7D6B', pink: '#F9A8C9', mint: '#A7F3D0', white: '#FFFFFF', blue: '#BFE8F2' }
-
-type Particle = { x: number; y: number; size: number; speed: number; phase: number }
-
-function cloud(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, alpha = 0.8) {
-  ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = palette.white; ctx.strokeStyle = palette.ink; ctx.lineWidth = 2
-  ctx.beginPath(); ctx.arc(x, y + 8 * s, 17 * s, Math.PI, 0); ctx.arc(x + 22 * s, y, 23 * s, Math.PI, 0); ctx.arc(x + 49 * s, y + 9 * s, 16 * s, Math.PI, 0); ctx.lineTo(x + 65 * s, y + 22 * s); ctx.lineTo(x, y + 22 * s); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore()
+const palette = {
+  ink: '#2D1F1D',
+  yellow: '#FFC837',
+  coral: '#FF7D6B',
+  pink: '#FFB5B5',
+  mint: '#A7F3D0',
+  blue: '#BFE8F2',
+  white: '#FFFFFF',
+  paper: '#FAF5EC',
 }
-function balloon(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, color: string, drift: number) {
-  ctx.save(); ctx.translate(x + Math.sin(drift) * 15 * s, y); ctx.fillStyle = color; ctx.strokeStyle = palette.ink; ctx.lineWidth = 2
-  ctx.beginPath(); ctx.ellipse(0, 0, 19 * s, 25 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-4 * s, 24 * s); ctx.lineTo(0, 31 * s); ctx.lineTo(4 * s, 24 * s); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, 31 * s); ctx.quadraticCurveTo(Math.sin(drift) * 10, 58 * s, 3 * s, 78 * s); ctx.stroke(); ctx.restore()
+
+type Particle = { x: number; y: number; size: number; speed: number; phase: number; color: string }
+
+function cloud(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, alpha: number) {
+  ctx.save()
+  ctx.globalAlpha = alpha
+  ctx.fillStyle = palette.white
+  ctx.strokeStyle = palette.ink
+  ctx.lineWidth = 2.2
+  ctx.beginPath()
+  ctx.arc(x, y + 12 * scale, 22 * scale, Math.PI, 0)
+  ctx.arc(x + 28 * scale, y, 30 * scale, Math.PI, 0)
+  ctx.arc(x + 64 * scale, y + 12 * scale, 21 * scale, Math.PI, 0)
+  ctx.lineTo(x + 85 * scale, y + 30 * scale)
+  ctx.lineTo(x, y + 30 * scale)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+  ctx.restore()
 }
-function bird(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, flap: number) { ctx.save(); ctx.translate(x, y); ctx.strokeStyle = palette.ink; ctx.lineWidth = 2.5 * s; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-17 * s, Math.sin(flap) * 5 * s); ctx.quadraticCurveTo(-8 * s, -10 * s, 0, 0); ctx.quadraticCurveTo(9 * s, -10 * s, 18 * s, Math.sin(flap) * 5 * s); ctx.stroke(); ctx.restore() }
-function plane(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, angle: number) { ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.fillStyle = palette.white; ctx.strokeStyle = palette.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-28 * s, -7 * s); ctx.lineTo(30 * s, 0); ctx.lineTo(-22 * s, 11 * s); ctx.lineTo(-7 * s, 2 * s); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-7 * s, 2 * s); ctx.lineTo(-20 * s, -16 * s); ctx.lineTo(30 * s, 0); ctx.stroke(); ctx.restore() }
-function sun(ctx: CanvasRenderingContext2D, x: number, y: number, s: number) { ctx.save(); ctx.fillStyle = palette.yellow; ctx.strokeStyle = palette.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 34 * s, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * 44 * s, y + Math.sin(a) * 44 * s); ctx.lineTo(x + Math.cos(a) * 58 * s, y + Math.sin(a) * 58 * s); ctx.stroke() } ctx.restore() }
-function stars(ctx: CanvasRenderingContext2D, progress: number, w: number, h: number) { ctx.fillStyle = palette.yellow; for (let i = 0; i < 18; i++) { const x = ((i * 137 + progress * 220) % (w + 120)) - 60; const y = (i * 83 + Math.sin(progress * 8 + i) * 40) % h; ctx.globalAlpha = 0.2 + (i % 3) * 0.15; ctx.beginPath(); ctx.arc(x, y, 2 + (i % 3), 0, Math.PI * 2); ctx.fill() } ctx.globalAlpha = 1 }
+
+function balloon(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, color: string, sway: number) {
+  ctx.save()
+  ctx.translate(x + Math.sin(sway) * 18 * scale, y)
+  ctx.fillStyle = color
+  ctx.strokeStyle = palette.ink
+  ctx.lineWidth = 2.2
+  ctx.beginPath()
+  ctx.ellipse(0, 0, 22 * scale, 29 * scale, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.stroke()
+  ctx.fillStyle = palette.white
+  ctx.globalAlpha = 0.5
+  ctx.beginPath()
+  ctx.ellipse(-7 * scale, -9 * scale, 5 * scale, 10 * scale, -0.35, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.globalAlpha = 1
+  ctx.strokeStyle = palette.ink
+  ctx.beginPath()
+  ctx.moveTo(-4 * scale, 28 * scale)
+  ctx.lineTo(0, 35 * scale)
+  ctx.lineTo(4 * scale, 28 * scale)
+  ctx.moveTo(0, 35 * scale)
+  ctx.quadraticCurveTo(Math.sin(sway) * 12 * scale, 60 * scale, 3 * scale, 84 * scale)
+  ctx.stroke()
+  ctx.restore()
+}
+
+function bird(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, flap: number) {
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.strokeStyle = palette.ink
+  ctx.lineWidth = 2.8 * scale
+  ctx.lineCap = 'round'
+  const wing = Math.sin(flap) * 7 * scale
+  ctx.beginPath()
+  ctx.moveTo(-19 * scale, wing)
+  ctx.quadraticCurveTo(-9 * scale, -12 * scale - wing, 0, 0)
+  ctx.quadraticCurveTo(9 * scale, -12 * scale - wing, 19 * scale, wing)
+  ctx.stroke()
+  ctx.restore()
+}
+
+function star(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, color: string, alpha: number) {
+  ctx.save()
+  ctx.globalAlpha = alpha
+  ctx.fillStyle = color
+  ctx.strokeStyle = palette.ink
+  ctx.lineWidth = 1.4
+  ctx.beginPath()
+  for (let i = 0; i < 10; i++) {
+    const angle = -Math.PI / 2 + (i * Math.PI) / 5
+    const radius = (i % 2 ? 0.42 : 1) * 8 * scale
+    const px = x + Math.cos(angle) * radius
+    const py = y + Math.sin(angle) * radius
+    if (i === 0) ctx.moveTo(px, py)
+    else ctx.lineTo(px, py)
+  }
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+  ctx.restore()
+}
+
+function sun(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, rotation: number) {
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.rotate(rotation)
+  ctx.strokeStyle = palette.ink
+  ctx.lineWidth = 2.2
+  for (let i = 0; i < 8; i++) {
+    const angle = (i * Math.PI) / 4
+    ctx.beginPath()
+    ctx.moveTo(Math.cos(angle) * 44 * scale, Math.sin(angle) * 44 * scale)
+    ctx.lineTo(Math.cos(angle) * 59 * scale, Math.sin(angle) * 59 * scale)
+    ctx.stroke()
+  }
+  ctx.fillStyle = palette.yellow
+  ctx.beginPath()
+  ctx.arc(0, 0, 34 * scale, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.stroke()
+  ctx.fillStyle = palette.ink
+  ctx.beginPath()
+  ctx.arc(-10 * scale, -3 * scale, 2.5 * scale, 0, Math.PI * 2)
+  ctx.arc(10 * scale, -3 * scale, 2.5 * scale, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.beginPath()
+  ctx.arc(0, 5 * scale, 10 * scale, 0.2, Math.PI - 0.2)
+  ctx.stroke()
+  ctx.restore()
+}
+
+function plane(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, angle: number) {
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.rotate(angle)
+  ctx.fillStyle = palette.white
+  ctx.strokeStyle = palette.ink
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(-31 * scale, -8 * scale)
+  ctx.lineTo(32 * scale, 0)
+  ctx.lineTo(-23 * scale, 12 * scale)
+  ctx.lineTo(-7 * scale, 2 * scale)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+  ctx.fillStyle = palette.yellow
+  ctx.beginPath()
+  ctx.moveTo(-7 * scale, 2 * scale)
+  ctx.lineTo(32 * scale, 0)
+  ctx.lineTo(-18 * scale, -15 * scale)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+  ctx.restore()
+}
 
 export function SideStoryCanvas() {
-  const ref = useRef<HTMLCanvasElement>(null)
-  const target = useRef(0); const current = useRef(0); const particles = useRef<Particle[]>([])
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const targetProgress = useRef(0)
+  const smoothProgress = useRef(0)
+  const particles = useRef<Particle[]>([])
+
   useEffect(() => {
     if (window.innerWidth < 900) return
-    const canvas = ref.current; const ctx = canvas?.getContext('2d'); if (!canvas || !ctx) return
-    particles.current = Array.from({ length: 42 }, (_, i) => ({ x: (i * 71) % 100, y: (i * 43) % 100, size: 1 + i % 3, speed: 0.2 + (i % 4) * 0.08, phase: i * 1.7 }))
-    let raf = 0
-    const resize = () => { const d = Math.min(2, devicePixelRatio); canvas.width = innerWidth * d; canvas.height = innerHeight * d; canvas.style.width = `${innerWidth}px`; canvas.style.height = `${innerHeight}px`; ctx.setTransform(d, 0, 0, d, 0, 0) }
-    const scroll = () => { target.current = Math.min(1, Math.max(0, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight))) }
-    const render = (time: number) => {
-      current.current += (target.current - current.current) * 0.065; const p = current.current; const w = innerWidth; const h = innerHeight; ctx.clearRect(0, 0, w, h)
-      const chapter = Math.floor(p * 7); const local = p * 7 - chapter; const sky = ctx.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, chapter % 3 === 2 ? '#F9D7CC' : palette.blue); sky.addColorStop(1, palette.white); ctx.fillStyle = sky; ctx.globalAlpha = 0.18; ctx.fillRect(0, 0, w, h); ctx.globalAlpha = 1
-      stars(ctx, p, w, h)
-      particles.current.forEach((item) => { const x = ((item.x / 100 * w + time * item.speed + p * 220 * (item.phase % 2 ? 1 : -1)) % (w + 100)) - 50; const y = ((item.y / 100 * h + Math.sin(time * 0.001 + item.phase) * 28 + p * h * 0.7) % (h + 80)) - 40; ctx.fillStyle = item.phase % 3 ? palette.white : palette.pink; ctx.globalAlpha = 0.28; ctx.beginPath(); ctx.arc(x, y, item.size, 0, Math.PI * 2); ctx.fill() }); ctx.globalAlpha = 1
-      cloud(ctx, ((w * 0.08 + p * w * 0.8) % (w + 260)) - 130, h * 0.16 + Math.sin(time * 0.0005) * 14, 1.45, 0.65)
-      cloud(ctx, ((w * 0.72 - p * w * 0.65) % (w + 300)) - 150, h * 0.63 + Math.sin(time * 0.0007 + 2) * 18, 1.1, 0.55)
-      cloud(ctx, ((w * 0.42 + p * w * 0.45) % (w + 220)) - 110, h * 0.88, 0.8, 0.5)
-      balloon(ctx, w * 0.16 + Math.sin(p * 11) * 30, h * 0.42 - p * h * 0.12, 0.9, palette.coral, time * 0.001); balloon(ctx, w * 0.82, h * 0.25 + Math.sin(p * 9) * 40, 0.7, palette.pink, time * 0.001 + 2)
-      bird(ctx, w * (0.24 + ((p * 0.9) % 0.65)), h * (0.22 + Math.sin(time * 0.0008) * 0.04), 0.85, time * 0.006); bird(ctx, w * (0.68 - ((p * 0.55) % 0.4)), h * 0.48, 0.55, time * 0.006 + 1)
-      plane(ctx, w * (0.76 - p * 0.34), h * (0.72 - p * 0.28), 1, -0.12 + Math.sin(time * 0.001) * 0.06)
-      sun(ctx, w * (0.84 - p * 0.45), h * (0.16 + p * 0.38), 0.65)
-      ctx.save(); ctx.globalAlpha = 0.65; ctx.fillStyle = palette.ink; ctx.font = '700 11px sans-serif'; ctx.letterSpacing = '2px'; ctx.textAlign = 'center'; ctx.fillText(chapters[chapter], w / 2, h - 28); ctx.restore()
-      if (local > 0.82 && chapter < 7) { ctx.globalAlpha = (local - 0.82) / 0.18; ctx.fillStyle = palette.ink; ctx.font = '700 11px sans-serif'; ctx.fillText(chapters[chapter + 1], w / 2, h - 28); ctx.globalAlpha = 1 }
-      raf = requestAnimationFrame(render)
+    const canvas = canvasRef.current
+    const ctx = canvas?.getContext('2d')
+    if (!canvas || !ctx) return
+
+    particles.current = Array.from({ length: 34 }, (_, index) => ({
+      x: (index * 37 + 11) % 100,
+      y: (index * 61 + 7) % 100,
+      size: 1.5 + (index % 3),
+      speed: 0.012 + (index % 4) * 0.004,
+      phase: index * 1.9,
+      color: index % 3 === 0 ? palette.coral : index % 3 === 1 ? palette.yellow : palette.mint,
+    }))
+
+    let frame = 0
+    let time = 0
+    const resize = () => {
+      const scale = Math.min(2, window.devicePixelRatio || 1)
+      canvas.width = window.innerWidth * scale
+      canvas.height = window.innerHeight * scale
+      canvas.style.width = `${window.innerWidth}px`
+      canvas.style.height = `${window.innerHeight}px`
+      ctx.setTransform(scale, 0, 0, scale, 0, 0)
     }
-    resize(); scroll(); addEventListener('resize', resize); addEventListener('scroll', scroll, { passive: true }); raf = requestAnimationFrame(render)
-    return () => { cancelAnimationFrame(raf); removeEventListener('resize', resize); removeEventListener('scroll', scroll) }
+    const updateScroll = () => {
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
+      targetProgress.current = Math.max(0, Math.min(1, window.scrollY / max))
+    }
+    const render = (timestamp: number) => {
+      time = timestamp * 0.001
+      smoothProgress.current += (targetProgress.current - smoothProgress.current) * 0.075
+      const progress = smoothProgress.current
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const chapter = Math.min(7, Math.floor(progress * 8))
+      const fade = progress * 8 - chapter
+      ctx.clearRect(0, 0, width, height)
+
+      const sky = ctx.createLinearGradient(0, 0, 0, height)
+      sky.addColorStop(0, chapter >= 5 ? '#F9D7CC' : palette.blue)
+      sky.addColorStop(1, palette.paper)
+      ctx.globalAlpha = 0.2
+      ctx.fillStyle = sky
+      ctx.fillRect(0, 0, width, height)
+      ctx.globalAlpha = 1
+
+      // Keep most decoration in the gutters, with a few large pieces crossing behind sections.
+      const drift = time * 0.22
+      cloud(ctx, ((width * 0.03 + drift * 35 + progress * width * 0.35) % (width + 220)) - 120, height * 0.14 + Math.sin(time * 0.35) * 12, 1.35, 0.62)
+      cloud(ctx, ((width * 0.69 - drift * 24 - progress * width * 0.3) % (width + 260)) - 130, height * 0.69 + Math.sin(time * 0.28 + 2) * 14, 1.05, 0.52)
+      cloud(ctx, ((width * 0.38 + drift * 18 + progress * width * 0.18) % (width + 180)) - 90, height * 0.93, 0.76, 0.46)
+
+      balloon(ctx, width * 0.11 + Math.sin(progress * 8) * 34, height * 0.34 + Math.sin(time * 0.3) * 16 - progress * height * 0.12, 0.92, palette.coral, time * 1.2)
+      balloon(ctx, width * 0.88 + Math.sin(progress * 10 + 2) * 25, height * 0.48 + Math.cos(time * 0.26) * 20 - progress * height * 0.2, 0.7, palette.pink, time * 1.05 + 2)
+
+      bird(ctx, width * (0.22 + ((progress * 0.75 + time * 0.018) % 0.62)), height * 0.22 + Math.sin(time * 0.8) * 18, 0.82, time * 5)
+      bird(ctx, width * (0.76 - ((progress * 0.55 + time * 0.012) % 0.48)), height * 0.57 + Math.cos(time * 0.62) * 22, 0.58, time * 5 + 1.3)
+
+      sun(ctx, width * (0.87 - progress * 0.46), height * (0.13 + progress * 0.42), 0.62, time * 0.08)
+      plane(ctx, width * (0.73 - progress * 0.42 + Math.sin(time * 0.5) * 0.03), height * (0.76 - progress * 0.34 + Math.cos(time * 0.4) * 0.03), 0.9, -0.12 + Math.sin(time * 0.7) * 0.08)
+
+      particles.current.forEach((particle) => {
+        const x = ((particle.x / 100) * width + time * particle.speed * width * 0.18 + progress * width * (particle.phase % 2 ? 0.2 : -0.14)) % (width + 80) - 40
+        const y = ((particle.y / 100) * height + Math.sin(time * 0.8 + particle.phase) * 25 + progress * height * 0.45) % (height + 60) - 30
+        star(ctx, x, y, particle.size * 0.45, particle.color, 0.3 + (particle.phase % 3) * 0.08)
+      })
+
+      ctx.save()
+      ctx.globalAlpha = 0.68
+      ctx.fillStyle = palette.ink
+      ctx.font = '700 11px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.letterSpacing = '2px'
+      ctx.fillText(['WELCOME', 'STORY', 'MAKE', 'PLAY', 'SHARE', 'GATHER', 'CHEER', 'HELLO'][chapter], width / 2, height - 28)
+      if (fade > 0.82 && chapter < 7) {
+        ctx.globalAlpha = (fade - 0.82) / 0.18
+        ctx.fillText(['WELCOME', 'STORY', 'MAKE', 'PLAY', 'SHARE', 'GATHER', 'CHEER', 'HELLO'][chapter + 1], width / 2, height - 28)
+      }
+      ctx.restore()
+
+      frame = requestAnimationFrame(render)
+    }
+
+    resize()
+    updateScroll()
+    window.addEventListener('resize', resize)
+    window.addEventListener('scroll', updateScroll, { passive: true })
+    frame = requestAnimationFrame(render)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('scroll', updateScroll)
+    }
   }, [])
-  return <canvas ref={ref} aria-hidden="true" className="side-story-canvas" />
+
+  return <canvas ref={canvasRef} aria-hidden="true" className="side-story-canvas" />
 }
