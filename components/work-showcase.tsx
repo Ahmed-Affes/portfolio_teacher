@@ -130,8 +130,6 @@ export function WorkShowcase() {
 
   return (
     <section id="work" className="section-shell relative overflow-hidden bg-transparent py-10 sm:py-14 lg:py-16">
-      <SectionScene theme="work" pattern="grid" />
-
       <div className="section-inner section-stack">
         {/* Section Heading & Controls */}
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">

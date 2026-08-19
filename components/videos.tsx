@@ -68,8 +68,6 @@ export function Videos() {
       id="videos"
       className="section-shell relative overflow-hidden bg-transparent py-10 sm:py-14 lg:py-16"
     >
-      <SectionScene theme="videos" pattern="dots" />
-
       <div className="section-inner section-stack relative">
         {/* Top Header & Filter Tabs */}
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">

@@ -108,8 +108,6 @@ export function Contact() {
 
   return (
     <section id="contact" className="section-shell relative bg-transparent py-10 sm:py-14 lg:py-16 overflow-hidden">
-      <SectionScene theme="contact" pattern="dots" />
-
       <div className="section-inner section-stack">
         <Reveal>
           <SectionHeading
