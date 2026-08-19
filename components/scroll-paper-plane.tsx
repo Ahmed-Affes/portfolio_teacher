@@ -9,7 +9,7 @@ type SectionWaypoint = {
   label: string
   number: string
   icon: string
-  yRatio: number // estimated document position ratio (0 to 1)
+  yRatio: number
 }
 
 const SECTIONS: SectionWaypoint[] = [
@@ -26,12 +26,15 @@ const SECTIONS: SectionWaypoint[] = [
 
 export function ScrollPaperPlane() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const planeRef = useRef<HTMLDivElement | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const planeIconRef = useRef<HTMLDivElement | null>(null)
+  const bannerRef = useRef<HTMLDivElement | null>(null)
   const trailPoints = useRef<{ x: number; y: number; time: number }[]>([])
   const currentPosRef = useRef({ x: 100, y: 100, angle: 0 })
   const animFrameId = useRef<number | null>(null)
   const [activeSection, setActiveSection] = useState<SectionWaypoint>(SECTIONS[0])
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isRightSide, setIsRightSide] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   // Smooth flight interpolation targets
@@ -100,20 +103,22 @@ export function ScrollPaperPlane() {
       const isMobile = width < 768
 
       if (isMobile) {
-        // On mobile, keep plane tucked elegantly along the right edge with gentle wave
+        // On mobile, keep plane tucked gracefully on right edge
         targetX.current = width * 0.82 + Math.sin(scrollProgress * Math.PI * 3) * (width * 0.08)
         targetY.current = height * 0.15 + scrollProgress * (height * 0.7)
+        setIsRightSide(true)
       } else {
-        // On desktop, airplane swoops across sections to guide the visitor to each section title!
-        // We alternate left and right waypoints based on section index
-        const isLeftTarget = activeIdx % 2 === 0
+        // On desktop, airplane swoops across sections
+        const isLeft = activeIdx % 2 === 0
         const sectionProgressInViewport = (scrollY % (window.innerHeight * 0.8)) / (window.innerHeight * 0.8)
         const swoopWave = Math.sin(sectionProgressInViewport * Math.PI) * 45
 
-        if (isLeftTarget) {
-          targetX.current = Math.max(70, width * 0.12 + swoopWave)
+        if (isLeft) {
+          targetX.current = Math.max(80, width * 0.14 + swoopWave)
+          setIsRightSide(false)
         } else {
-          targetX.current = Math.min(width - 80, width * 0.86 - swoopWave)
+          targetX.current = Math.min(width - 90, width * 0.84 - swoopWave)
+          setIsRightSide(true)
         }
 
         targetY.current = Math.max(80, Math.min(height - 120, height * 0.22 + (activeIdx % 3) * (height * 0.22)))
@@ -128,7 +133,7 @@ export function ScrollPaperPlane() {
 
     // Animation Render Loop (60 FPS smooth flight)
     const render = () => {
-      // Lerp positions for natural aerodynamic gliding
+      // Smooth lerp for position
       currentX.current += (targetX.current - currentX.current) * 0.065
       currentY.current += (targetY.current - currentY.current) * 0.065
 
@@ -136,11 +141,10 @@ export function ScrollPaperPlane() {
       const dy = targetY.current - currentY.current
       const flightSpeed = Math.sqrt(dx * dx + dy * dy)
 
-      // Calculate angle of flight based on movement vector
+      // Calculate airplane heading angle
       let angleDeg = currentPosRef.current.angle
       if (flightSpeed > 0.4) {
         const targetAngle = (Math.atan2(dy, dx) * 180) / Math.PI
-        // Smooth rotation angle
         let diff = targetAngle - angleDeg
         while (diff < -180) diff += 360
         while (diff > 180) diff -= 360
@@ -150,10 +154,17 @@ export function ScrollPaperPlane() {
       currentPosRef.current = { x: currentX.current, y: currentY.current, angle: angleDeg }
 
       const canvas = canvasRef.current
-      const plane = planeRef.current
+      const container = containerRef.current
+      const planeIcon = planeIconRef.current
 
-      if (plane) {
-        plane.style.transform = `translate3d(${currentX.current}px, ${currentY.current}px, 0) translate(-50%, -50%) rotate(${angleDeg}deg)`
+      // Position the main flight anchor
+      if (container) {
+        container.style.transform = `translate3d(${currentX.current}px, ${currentY.current}px, 0)`
+      }
+
+      // Rotate ONLY the paper airplane icon (so the guide banner always remains 100% upright!)
+      if (planeIcon) {
+        planeIcon.style.transform = `rotate(${angleDeg}deg)`
       }
 
       // Record flight path history for trailing dashed line
@@ -216,65 +227,73 @@ export function ScrollPaperPlane() {
       {/* Canvas for trailing dotted flight path */}
       <canvas ref={canvasRef} className="absolute inset-0 size-full" />
 
-      {/* Floating Paper Airplane & Storybook Section Guide */}
+      {/* Floating Airplane Flight Anchor */}
       <div
-        ref={planeRef}
+        ref={containerRef}
         className="pointer-events-auto absolute left-0 top-0 will-change-transform group cursor-pointer"
         style={{ transform: 'translate3d(-120px, -120px, 0)' }}
         onClick={flyToNextSection}
         title="Click to fly to next section ✈️"
       >
         <div className="relative flex items-center">
-          {/* Paper Airplane Visual */}
-          <div className="animate-bob" style={{ animationDuration: '3.4s' }}>
-            <svg
-              viewBox="0 0 54 44"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="size-8 sm:size-11 drop-shadow-[0_4px_10px_rgba(45,31,29,0.22)] transition-transform duration-200 group-hover:scale-115"
-            >
-              {/* Soft pink bottom fold */}
-              <path
-                d="M2 22L50 4L28 40L20 27L2 22Z"
-                fill="#F9A8C9"
-                stroke="#2D1F1D"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
+          {/* 1. Paper Airplane Visual (Rotates naturally with flight angle) */}
+          <div ref={planeIconRef} className="will-change-transform -translate-x-1/2 -translate-y-1/2">
+            <div className="animate-bob" style={{ animationDuration: '3.4s' }}>
+              <svg
+                viewBox="0 0 54 44"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-8 sm:size-11 drop-shadow-[0_4px_10px_rgba(45,31,29,0.22)] transition-transform duration-200 group-hover:scale-115"
+              >
+                {/* Soft pink bottom fold */}
+                <path
+                  d="M2 22L50 4L28 40L20 27L2 22Z"
+                  fill="#F9A8C9"
+                  stroke="#2D1F1D"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
 
-              {/* Main Upper Wing (White) */}
-              <path
-                d="M50 4L2 22L20 27L50 4Z"
-                fill="#FFFFFF"
-                stroke="#2D1F1D"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
+                {/* Main Upper Wing (White) */}
+                <path
+                  d="M50 4L2 22L20 27L50 4Z"
+                  fill="#FFFFFF"
+                  stroke="#2D1F1D"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
 
-              {/* Inner Crease & Pastel Yellow Wing Fold */}
-              <path
-                d="M50 4L20 27L28 40L50 4Z"
-                fill="#FFF9E6"
-                stroke="#2D1F1D"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
+                {/* Inner Crease & Pastel Yellow Wing Fold */}
+                <path
+                  d="M50 4L20 27L28 40L50 4Z"
+                  fill="#FFF9E6"
+                  stroke="#2D1F1D"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
 
-              {/* Center Fold Crease Line */}
-              <path d="M50 4L20 27" stroke="#FFC837" strokeWidth="2" strokeLinecap="round" />
-              <path d="M20 27L24 33" stroke="#F9A8C9" strokeWidth="2" strokeLinecap="round" />
+                {/* Center Fold Crease Line */}
+                <path d="M50 4L20 27" stroke="#FFC837" strokeWidth="2" strokeLinecap="round" />
+                <path d="M20 27L24 33" stroke="#F9A8C9" strokeWidth="2" strokeLinecap="round" />
 
-              {/* Nose Sparkle Dot */}
-              <circle cx="50" cy="4" r="2.2" fill="#FFC837" stroke="#2D1F1D" strokeWidth="1" />
-            </svg>
+                {/* Nose Sparkle Dot */}
+                <circle cx="50" cy="4" r="2.2" fill="#FFC837" stroke="#2D1F1D" strokeWidth="1" />
+              </svg>
+            </div>
           </div>
 
-          {/* Section Flight Banner Ribbon trailing behind the plane on desktop */}
-          <div className="absolute -left-36 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1.5 rounded-full border-2 border-[#2D1F1D] bg-white/95 px-3 py-1 text-[0.68rem] font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] backdrop-blur-sm transition-all duration-200 group-hover:scale-105 group-hover:bg-[#FFE68C]">
+          {/* 2. Section Flight Banner Ribbon (ALWAYS 100% Upright & Crystal Clear to Read) */}
+          <div
+            ref={bannerRef}
+            className={cn(
+              'absolute top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1.5 rounded-full border-2 border-[#2D1F1D] bg-white/95 px-3 py-1 text-[0.68rem] font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] backdrop-blur-md transition-all duration-200 group-hover:scale-105 group-hover:bg-[#FFE68C] whitespace-nowrap',
+              isRightSide ? 'right-6' : 'left-6',
+            )}
+          >
             <span>{activeSection.icon}</span>
-            <span className="text-[#FF7D6B]">{activeSection.number}</span>
-            <span className="max-w-[100px] truncate">{activeSection.label}</span>
-            <ChevronRight className="size-3 text-[#2D1F1D]" />
+            <span className="text-[#FF7D6B] font-black">{activeSection.number}</span>
+            <span className="text-[#2D1F1D] font-bold">{activeSection.label}</span>
+            <ChevronRight className="size-3 text-[#2D1F1D] stroke-[2.5]" />
           </div>
         </div>
       </div>
