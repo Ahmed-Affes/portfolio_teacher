@@ -9,57 +9,55 @@ type SectionWaypoint = {
   label: string
   number: string
   icon: string
-  yRatio: number
 }
 
 const SECTIONS: SectionWaypoint[] = [
-  { id: 'home', label: 'Welcome to Atelier', number: '00', icon: '✨', yRatio: 0.02 },
-  { id: 'about', label: 'About Farah', number: '01', icon: '🌸', yRatio: 0.14 },
-  { id: 'work', label: 'Craft Showcase', number: '02', icon: '✂️', yRatio: 0.28 },
-  { id: 'videos', label: 'Video Lessons', number: '03', icon: '🎬', yRatio: 0.42 },
-  { id: 'shop', label: 'Resource Shop', number: '04', icon: '🛍️', yRatio: 0.56 },
-  { id: 'who-i-serve', label: 'Who I Serve', number: '05', icon: '🎒', yRatio: 0.70 },
-  { id: 'testimonials', label: 'Endorsements', number: '06', icon: '💬', yRatio: 0.82 },
-  { id: 'faq', label: 'Atelier FAQ', number: '07', icon: '💡', yRatio: 0.91 },
-  { id: 'contact', label: 'Get in Touch', number: '08', icon: '💌', yRatio: 0.98 },
+  { id: 'home', label: 'Welcome to Atelier', number: '00', icon: '✨' },
+  { id: 'about', label: 'About Farah', number: '01', icon: '🌸' },
+  { id: 'work', label: 'Craft Showcase', number: '02', icon: '✂️' },
+  { id: 'videos', label: 'Video Lessons', number: '03', icon: '🎬' },
+  { id: 'shop', label: 'Resource Shop', number: '04', icon: '🛍️' },
+  { id: 'serve', label: 'Who I Serve', number: '05', icon: '🧸' },
+  { id: 'testimonials', label: 'Endorsements', number: '06', icon: '💬' },
+  { id: 'faq', label: 'Atelier FAQ', number: '07', icon: '💡' },
+  { id: 'contact', label: 'Get in Touch', number: '08', icon: '💌' },
 ]
 
 export function ScrollPaperPlane() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const planeIconRef = useRef<HTMLDivElement | null>(null)
-  const bannerRef = useRef<HTMLDivElement | null>(null)
   const trailPoints = useRef<{ x: number; y: number; time: number }[]>([])
-  const currentPosRef = useRef({ x: 100, y: 100, angle: 0 })
   const animFrameId = useRef<number | null>(null)
   const [activeSection, setActiveSection] = useState<SectionWaypoint>(SECTIONS[0])
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isRightSide, setIsRightSide] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  // Smooth flight interpolation targets
-  const targetX = useRef(100)
-  const targetY = useRef(100)
+  // Smooth coordinates & velocity tracking
   const currentX = useRef(100)
   const currentY = useRef(100)
+  const targetX = useRef(100)
+  const targetY = useRef(100)
+  const currentAngle = useRef(10)
+  const targetAngle = useRef(10)
   const lastScrollY = useRef(0)
-  const isScrolling = useRef(false)
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
+  const scrollVelocity = useRef(0)
+  const scrollIdleTimer = useRef<NodeJS.Timeout | null>(null)
 
-  const findCurrentSectionIndex = useCallback(() => {
+  const findActiveSection = useCallback(() => {
     const scrollY = window.scrollY || window.pageYOffset || 0
-    const scrollMiddle = scrollY + window.innerHeight * 0.45
+    const viewportMiddle = scrollY + window.innerHeight * 0.4
 
     for (let i = SECTIONS.length - 1; i >= 0; i--) {
       const el = document.getElementById(SECTIONS[i].id)
       if (el) {
         const top = el.offsetTop
-        if (scrollMiddle >= top - 150) {
-          return i
+        if (viewportMiddle >= top - 120) {
+          return SECTIONS[i]
         }
       }
     }
-    return 0
+    return SECTIONS[0]
   }, [])
 
   const flyToNextSection = () => {
@@ -83,75 +81,65 @@ export function ScrollPaperPlane() {
   useEffect(() => {
     setMounted(true)
 
-    const updateTargets = () => {
-      isScrolling.current = true
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
-      scrollTimeout.current = setTimeout(() => {
-        isScrolling.current = false
-      }, 150)
-
+    const updateScrollFlight = () => {
       const scrollY = window.scrollY || window.pageYOffset || 0
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
-      const scrollProgress = Math.min(1, Math.max(0, scrollY / maxScroll))
+      const progress = Math.min(1, Math.max(0, scrollY / maxScroll))
 
-      const activeIdx = findCurrentSectionIndex()
-      const currentSec = SECTIONS[activeIdx] || SECTIONS[0]
-      setActiveSection(currentSec)
+      // Compute scroll delta for natural pitch banking
+      const deltaY = scrollY - lastScrollY.current
+      scrollVelocity.current = deltaY
+      lastScrollY.current = scrollY
+
+      // Detect current active section
+      const active = findActiveSection()
+      setActiveSection(active)
 
       const width = window.innerWidth
       const height = window.innerHeight
       const isMobile = width < 768
 
       if (isMobile) {
-        // On mobile, keep plane tucked gracefully on right edge
-        targetX.current = width * 0.82 + Math.sin(scrollProgress * Math.PI * 3) * (width * 0.08)
-        targetY.current = height * 0.15 + scrollProgress * (height * 0.7)
-        setIsRightSide(true)
+        // Mobile flight path: steady right edge glide
+        targetX.current = width * 0.86 + Math.sin(progress * Math.PI * 4) * (width * 0.04)
+        targetY.current = height * 0.15 + progress * (height * 0.68)
       } else {
-        // On desktop, airplane swoops across sections
-        const isLeft = activeIdx % 2 === 0
-        const sectionProgressInViewport = (scrollY % (window.innerHeight * 0.8)) / (window.innerHeight * 0.8)
-        const swoopWave = Math.sin(sectionProgressInViewport * Math.PI) * 45
-
-        if (isLeft) {
-          targetX.current = Math.max(80, width * 0.14 + swoopWave)
-          setIsRightSide(false)
-        } else {
-          targetX.current = Math.min(width - 90, width * 0.84 - swoopWave)
-          setIsRightSide(true)
-        }
-
-        targetY.current = Math.max(80, Math.min(height - 120, height * 0.22 + (activeIdx % 3) * (height * 0.22)))
+        // Desktop flight path: Smooth, elegant continuous glide in the right gutter
+        // Calculates right gutter margin dynamically so it stays comfortably beside max-w-7xl
+        const rightGutterMargin = Math.max(60, (width - 1200) / 2)
+        const baseX = width - Math.min(160, Math.max(70, rightGutterMargin * 0.75))
+        // Gentle wave modulation (continuous function with NO jumps)
+        const waveX = Math.sin(progress * Math.PI * 5) * 22
+        targetX.current = baseX + waveX
+        targetY.current = height * 0.16 + progress * (height * 0.64)
       }
 
-      lastScrollY.current = scrollY
+      // Compute natural flight pitch angle based on scroll direction
+      if (deltaY > 2) {
+        // Scrolling Down: Natural aerodynamic downward nose pitch
+        targetAngle.current = Math.min(32, 10 + deltaY * 0.35)
+      } else if (deltaY < -2) {
+        // Scrolling Up: Upward climb pitch
+        targetAngle.current = Math.max(-28, -8 + deltaY * 0.35)
+      }
+
+      // Reset to level cruise when scroll stops
+      if (scrollIdleTimer.current) clearTimeout(scrollIdleTimer.current)
+      scrollIdleTimer.current = setTimeout(() => {
+        targetAngle.current = 8 // gentle default cruising tilt
+      }, 140)
     }
 
-    window.addEventListener('scroll', updateTargets, { passive: true })
-    window.addEventListener('resize', updateTargets, { passive: true })
-    updateTargets()
+    window.addEventListener('scroll', updateScrollFlight, { passive: true })
+    window.addEventListener('resize', updateScrollFlight, { passive: true })
+    updateScrollFlight()
 
-    // Animation Render Loop (60 FPS smooth flight)
+    // 60 FPS Fluid Aerodynamic Render Loop
     const render = () => {
-      // Smooth lerp for position
-      currentX.current += (targetX.current - currentX.current) * 0.065
-      currentY.current += (targetY.current - currentY.current) * 0.065
-
-      const dx = targetX.current - currentX.current
-      const dy = targetY.current - currentY.current
-      const flightSpeed = Math.sqrt(dx * dx + dy * dy)
-
-      // Calculate airplane heading angle
-      let angleDeg = currentPosRef.current.angle
-      if (flightSpeed > 0.4) {
-        const targetAngle = (Math.atan2(dy, dx) * 180) / Math.PI
-        let diff = targetAngle - angleDeg
-        while (diff < -180) diff += 360
-        while (diff > 180) diff -= 360
-        angleDeg += diff * 0.1
-      }
-
-      currentPosRef.current = { x: currentX.current, y: currentY.current, angle: angleDeg }
+      // Smooth lerp for position & angle
+      currentX.current += (targetX.current - currentX.current) * 0.08
+      currentY.current += (targetY.current - currentY.current) * 0.08
+      currentAngle.current += (targetAngle.current - currentAngle.current) * 0.07
 
       const canvas = canvasRef.current
       const container = containerRef.current
@@ -162,15 +150,15 @@ export function ScrollPaperPlane() {
         container.style.transform = `translate3d(${currentX.current}px, ${currentY.current}px, 0)`
       }
 
-      // Rotate ONLY the paper airplane icon (so the guide banner always remains 100% upright!)
+      // Rotate ONLY the paper airplane (so the guide ribbon always stays 100% upright!)
       if (planeIcon) {
-        planeIcon.style.transform = `rotate(${angleDeg}deg)`
+        planeIcon.style.transform = `rotate(${currentAngle.current}deg)`
       }
 
-      // Record flight path history for trailing dashed line
+      // Record tail points for the dashed flight trail
       const now = performance.now()
       trailPoints.current.push({ x: currentX.current, y: currentY.current, time: now })
-      trailPoints.current = trailPoints.current.filter((pt) => now - pt.time < 1500)
+      trailPoints.current = trailPoints.current.filter((pt) => now - pt.time < 1400)
 
       if (canvas) {
         const width = window.innerWidth
@@ -187,13 +175,13 @@ export function ScrollPaperPlane() {
 
           if (pts.length > 2) {
             for (let i = 1; i < pts.length; i++) {
-              const age = (now - pts[i].time) / 1500
+              const age = (now - pts[i].time) / 1400
               const alpha = Math.max(0, 1 - age) * 0.8
 
               ctx.save()
               ctx.beginPath()
               ctx.setLineDash([4, 6])
-              ctx.lineWidth = 2.5
+              ctx.lineWidth = 2.2
               ctx.strokeStyle = `rgba(255, 200, 55, ${alpha})`
               ctx.shadowColor = `rgba(249, 168, 201, ${alpha * 0.6})`
               ctx.shadowBlur = 4
@@ -213,12 +201,12 @@ export function ScrollPaperPlane() {
     animFrameId.current = requestAnimationFrame(render)
 
     return () => {
-      window.removeEventListener('scroll', updateTargets)
-      window.removeEventListener('resize', updateTargets)
+      window.removeEventListener('scroll', updateScrollFlight)
+      window.removeEventListener('resize', updateScrollFlight)
       if (animFrameId.current) cancelAnimationFrame(animFrameId.current)
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
+      if (scrollIdleTimer.current) clearTimeout(scrollIdleTimer.current)
     }
-  }, [findCurrentSectionIndex])
+  }, [findActiveSection])
 
   if (!mounted) return null
 
@@ -227,23 +215,23 @@ export function ScrollPaperPlane() {
       {/* Canvas for trailing dotted flight path */}
       <canvas ref={canvasRef} className="absolute inset-0 size-full" />
 
-      {/* Floating Airplane Flight Anchor */}
+      {/* Floating Paper Airplane Flight Anchor */}
       <div
         ref={containerRef}
         className="pointer-events-auto absolute left-0 top-0 will-change-transform group cursor-pointer"
         style={{ transform: 'translate3d(-120px, -120px, 0)' }}
         onClick={flyToNextSection}
-        title="Click to fly to next section ✈️"
+        title="Click to fly to next chapter ✈️"
       >
         <div className="relative flex items-center">
-          {/* 1. Paper Airplane Visual (Rotates naturally with flight angle) */}
+          {/* 1. Paper Airplane Visual (Rotates aerodynamically with flight pitch) */}
           <div ref={planeIconRef} className="will-change-transform -translate-x-1/2 -translate-y-1/2">
-            <div className="animate-bob" style={{ animationDuration: '3.4s' }}>
+            <div className="animate-bob" style={{ animationDuration: '3.6s' }}>
               <svg
                 viewBox="0 0 54 44"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="size-8 sm:size-11 drop-shadow-[0_4px_10px_rgba(45,31,29,0.22)] transition-transform duration-200 group-hover:scale-115"
+                className="size-8 sm:size-10 drop-shadow-[0_4px_10px_rgba(45,31,29,0.22)] transition-transform duration-200 group-hover:scale-115"
               >
                 {/* Soft pink bottom fold */}
                 <path
@@ -282,14 +270,8 @@ export function ScrollPaperPlane() {
             </div>
           </div>
 
-          {/* 2. Section Flight Banner Ribbon (ALWAYS 100% Upright & Crystal Clear to Read) */}
-          <div
-            ref={bannerRef}
-            className={cn(
-              'absolute top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1.5 rounded-full border-2 border-[#2D1F1D] bg-white/95 px-3 py-1 text-[0.68rem] font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] backdrop-blur-md transition-all duration-200 group-hover:scale-105 group-hover:bg-[#FFE68C] whitespace-nowrap',
-              isRightSide ? 'right-6' : 'left-6',
-            )}
-          >
+          {/* 2. Section Flight Guide Ribbon (Always 100% Upright, positioned on left of plane) */}
+          <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1.5 rounded-full border-2 border-[#2D1F1D] bg-white/95 px-3 py-1 text-[0.68rem] font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] backdrop-blur-md transition-all duration-200 group-hover:scale-105 group-hover:bg-[#FFE68C] whitespace-nowrap">
             <span>{activeSection.icon}</span>
             <span className="text-[#FF7D6B] font-black">{activeSection.number}</span>
             <span className="text-[#2D1F1D] font-bold">{activeSection.label}</span>
@@ -329,7 +311,7 @@ export function ScrollPaperPlane() {
               </button>
             </div>
 
-            <div className="mt-2 flex max-h-60 flex-col gap-1 overflow-y-auto pr-1">
+            <div className="mt-2 flex max-h-64 flex-col gap-1 overflow-y-auto pr-1">
               {SECTIONS.map((sec) => {
                 const isActive = sec.id === activeSection.id
                 return (
