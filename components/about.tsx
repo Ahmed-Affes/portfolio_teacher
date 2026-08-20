@@ -41,95 +41,95 @@ const CHAPTER_CONFIG: {
   summaryBullets: string[]
   teaser: string
 }[] = [
-  {
-    id: 'education',
-    chapterNum: 1,
-    title: 'Education',
-    subtitle: 'Academic Linguistics & Research',
-    icon: '🎓',
-    color: 'bg-[#A7F3D0]',
-    accentColor: '#059669',
-    badgeBg: '#E6F9F0',
-    summaryBullets: [
-      'Bachelor in English Linguistics & Literature (Faculty of Letters Sfax)',
-      'Advanced research in Phonetics & Communicative Language Teaching (CLT)',
-      'Grounded in multi-sensory second-language acquisition for young learners',
-    ],
-    teaser:
-      'With university linguistic theory mastered, step into Farah’s vibrant primary classroom to see concepts brought to life.',
-  },
-  {
-    id: 'career',
-    chapterNum: 2,
-    title: 'Teaching',
-    subtitle: 'Classroom Leadership & ESL',
-    icon: '💼',
-    color: 'bg-[#DDD6FE]',
-    accentColor: '#7C3AED',
-    badgeBg: '#F3EEFF',
-    summaryBullets: [
-      '6+ years instructing primary & middle school ESL student cohorts',
-      '900+ learners empowered with gamified speaking & theater quests',
-      'Low affective filter methodology that turns shy students into confident speakers',
-    ],
-    teaser:
-      'To solve classroom learning hurdles, Farah launched her own sensory prop atelier to handcraft tactile learning tools.',
-  },
-  {
-    id: 'life',
-    chapterNum: 3,
-    title: 'Atelier',
-    subtitle: 'Handcrafted Props & Sensory Lab',
-    icon: '✂️',
-    color: 'bg-[#FFB5B5]',
-    accentColor: '#E11D48',
-    badgeBg: '#FFF0F0',
-    summaryBullets: [
-      'Founded Farah Creative Atelier & Tactile Educational Material Lab',
-      'Handcrafted 100+ bespoke felt storytelling boards & double-disc phonics dials',
-      'Teacher prop rental service loved by educators across Tunisia',
-    ],
-    teaser:
-      'With popular props in high demand, Farah started leading teacher training masterclasses and pedagogical workshops.',
-  },
-  {
-    id: 'achievement',
-    chapterNum: 4,
-    title: 'Workshops',
-    subtitle: 'Teacher Training & Seminars',
-    icon: '🏆',
-    color: 'bg-[#FED7AA]',
-    accentColor: '#EA580C',
-    badgeBg: '#FFF6EB',
-    summaryBullets: [
-      'Hands-on masterclasses for Tunisian educators on building DIY sensory aids',
-      'Print-ready visual bundles, differentiated grammar worksheets & phonics sets',
-      'Pedagogical keynote speaker on communicative ESL methodologies',
-    ],
-    teaser:
-      'You have explored all 4 chapters of Farah’s journey! Ready to collaborate or book a prop?',
-  },
-]
+    {
+      id: 'education',
+      chapterNum: 1,
+      title: 'Education',
+      subtitle: 'Academic Linguistics & Research',
+      icon: '🎓',
+      color: 'bg-[#A7F3D0]',
+      accentColor: '#059669',
+      badgeBg: '#E6F9F0',
+      summaryBullets: [
+        'Bachelor in English Linguistics & Literature (Faculty of Letters Sfax)',
+        'Advanced research in Phonetics & Communicative Language Teaching (CLT)',
+        'Grounded in multi-sensory second-language acquisition for young learners',
+      ],
+      teaser:
+        'With university linguistic theory mastered, step into Farah’s vibrant primary classroom to see concepts brought to life.',
+    },
+    {
+      id: 'career',
+      chapterNum: 2,
+      title: 'Teaching',
+      subtitle: 'Classroom Leadership & ESL',
+      icon: '💼',
+      color: 'bg-[#DDD6FE]',
+      accentColor: '#7C3AED',
+      badgeBg: '#F3EEFF',
+      summaryBullets: [
+        '6+ years instructing primary & middle school ESL student cohorts',
+        '900+ learners empowered with gamified speaking & theater quests',
+        'Low affective filter methodology that turns shy students into confident speakers',
+      ],
+      teaser:
+        'To solve classroom learning hurdles, Farah launched her own sensory prop atelier to handcraft tactile learning tools.',
+    },
+    {
+      id: 'life',
+      chapterNum: 3,
+      title: 'Atelier',
+      subtitle: 'Handcrafted Props & Sensory Lab',
+      icon: '✂️',
+      color: 'bg-[#FFB5B5]',
+      accentColor: '#E11D48',
+      badgeBg: '#FFF0F0',
+      summaryBullets: [
+        'Founded Farah Creative Atelier & Tactile Educational Material Lab',
+        'Handcrafted 100+ bespoke felt storytelling boards & double-disc phonics dials',
+        'Teacher prop rental service loved by educators across Tunisia',
+      ],
+      teaser:
+        'With popular props in high demand, Farah started leading teacher training masterclasses and pedagogical workshops.',
+    },
+    {
+      id: 'achievement',
+      chapterNum: 4,
+      title: 'Workshops',
+      subtitle: 'Teacher Training & Seminars',
+      icon: '🏆',
+      color: 'bg-[#FED7AA]',
+      accentColor: '#EA580C',
+      badgeBg: '#FFF6EB',
+      summaryBullets: [
+        'Hands-on masterclasses for Tunisian educators on building DIY sensory aids',
+        'Print-ready visual bundles, differentiated grammar worksheets & phonics sets',
+        'Pedagogical keynote speaker on communicative ESL methodologies',
+      ],
+      teaser:
+        'You have explored all 4 chapters of Farah’s journey! Ready to collaborate or book a prop?',
+    },
+  ]
 
 type BookSpread =
   | {
-      type: 'milestone'
-      chapter: (typeof CHAPTER_CONFIG)[number]
-      milestone: CareerMilestone
-      pageInChapter: number
-      totalInChapter: number
-      spreadIndex: number
-    }
+    type: 'milestone'
+    chapter: (typeof CHAPTER_CONFIG)[number]
+    milestone: CareerMilestone
+    pageInChapter: number
+    totalInChapter: number
+    spreadIndex: number
+  }
   | {
-      type: 'chapter-transition'
-      completedChapter: (typeof CHAPTER_CONFIG)[number]
-      nextChapter: (typeof CHAPTER_CONFIG)[number]
-      spreadIndex: number
-    }
+    type: 'chapter-transition'
+    completedChapter: (typeof CHAPTER_CONFIG)[number]
+    nextChapter: (typeof CHAPTER_CONFIG)[number]
+    spreadIndex: number
+  }
   | {
-      type: 'finale'
-      spreadIndex: number
-    }
+    type: 'finale'
+    spreadIndex: number
+  }
 
 type FlipState = {
   isFlipping: boolean
@@ -349,27 +349,27 @@ export function About() {
       const spotlightImg = photos[0]
 
       return (
-        <div className="size-full flex flex-col justify-between p-3.5 sm:p-4.5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
+        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
           {/* Top Chapter Header */}
-          <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-1.5 shrink-0 gap-2">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-[0.68rem] font-black uppercase tracking-wider font-sans text-[#FF7D6B] shrink-0">
+          <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs font-black uppercase tracking-wider font-sans text-[#FF7D6B] shrink-0">
                 Chapter {chapter.chapterNum}: {chapter.title}
               </span>
               {totalInChapter > 1 && (
-                <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.2 text-[0.55rem] font-black font-sans text-[#2D1F1D] shrink-0">
+                <span className="rounded-full border border-[#2D1F1D]/60 bg-[#FFE68C] px-2 py-0.5 text-[0.65rem] font-bold font-sans text-[#2D1F1D] shrink-0">
                   Part {pageInChapter}/{totalInChapter}
                 </span>
               )}
             </div>
 
-            <span className="text-[0.62rem] font-bold text-[#6B5550] font-sans shrink-0 whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.2">
+            <span className="text-xs font-bold text-[#6B5550] font-sans shrink-0 whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2 - 1}
             </span>
           </div>
 
           {/* Chapter Spotlight Photo Pinned with 3D Pushpin */}
-          <div className="relative mx-auto w-full max-w-[175px] h-[126px] flex items-center justify-center my-auto pt-1">
+          <div className="relative mx-auto w-full max-w-[190px] h-[138px] flex items-center justify-center my-auto pt-1">
             <PushPin color="red" size={24} className="left-1/2 top-0" />
 
             <div
@@ -380,50 +380,50 @@ export function About() {
                   photoIndex: 0,
                 })
               }
-              className="group/spotlight relative aspect-[4/3] h-full overflow-hidden rounded-xl border-2 border-[#2D1F1D] bg-white p-1 shadow-[3px_3px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[4.5px_4.5px_0px_#2D1F1D] rotate-[-0.6deg]"
+              className="group/spotlight relative aspect-[4/3] h-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2.5px_2.5px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#2D1F1D] rotate-[-0.6deg]"
             >
               <div className="relative size-full overflow-hidden rounded-lg">
                 <Image
                   src={spotlightImg}
                   alt={milestone?.title || 'Milestone photo'}
                   fill
-                  sizes="(max-width: 768px) 180px, 200px"
+                  sizes="(max-width: 768px) 180px, 220px"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/spotlight:opacity-100 transition-opacity">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-xs">
-                    <Maximize2 className="size-2.5" />
+                  <span className="flex size-6 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-xs">
+                    <Maximize2 className="size-3" />
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Highlights / Skills Stickers (Clean & Fully Visible) */}
+          {/* Highlights / Skills Stickers (Large, Clear & High Legibility) */}
           <div className="flex flex-wrap gap-1.5 items-center my-auto py-1 shrink-0">
             {milestone?.highlights &&
               milestone.highlights.length > 0 &&
               milestone.highlights.slice(0, 3).map((h, hIdx) => (
                 <span
                   key={hIdx}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-white px-2 py-0.5 text-[0.62rem] font-bold font-sans text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]"
+                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/60 bg-white px-2.5 py-1 text-[0.72rem] font-bold font-sans text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]"
                 >
-                  <CheckCircle2 className="size-2.5 stroke-[2.5] text-[#10B981] shrink-0" />
-                  <span className="truncate max-w-[135px]">{h}</span>
+                  <CheckCircle2 className="size-3 stroke-[2.5] text-[#10B981] shrink-0" />
+                  <span className="truncate max-w-[145px]">{h}</span>
                 </span>
               ))}
           </div>
 
           {/* BOTTOM-LEFT CORNER: Turn Back Navigation Button */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/15 shrink-0">
+          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
             <button
               type="button"
               disabled={idx === 0 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx - 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] px-2.5 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
                 idx > 0 && isStatic
-                  ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:-translate-x-0.5 hover:bg-[#FFD952]'
+                  ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:-translate-x-0.5 hover:bg-[#FFD952]'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
@@ -431,7 +431,7 @@ export function About() {
               <span>‹ Previous</span>
             </button>
 
-            <span className="text-[0.62rem] font-bold text-[#6B5550] font-sans">
+            <span className="text-xs font-bold text-[#6B5550] font-sans">
               {idx + 1} of {totalSpreads}
             </span>
           </div>
@@ -443,37 +443,37 @@ export function About() {
       const { completedChapter } = spread
 
       return (
-        <div className="size-full flex flex-col justify-between p-3.5 sm:p-4.5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
+        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
           {/* Top Header */}
-          <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-1.5 shrink-0">
-            <span className="rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2.5 py-0.5 text-[0.65rem] font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
+          <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0">
+            <span className="rounded-full border border-[#2D1F1D]/60 bg-[#A7F3D0] px-3 py-0.5 text-xs font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
               ✨ Chapter {completedChapter.chapterNum} Complete
             </span>
-            <span className="text-[0.62rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.2">
+            <span className="text-xs font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2 - 1}
             </span>
           </div>
 
           {/* Center Achievement Certificate Card */}
-          <div className="my-auto space-y-2 rounded-2xl border-2 border-[#2D1F1D] bg-[#FFF8E7] p-3 shadow-[3px_3px_0px_#2D1F1D]">
-            <div className="flex items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-xl border border-[#2D1F1D] bg-white text-base shadow-xs">
+          <div className="my-auto space-y-2.5 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-[#FFF8E7] p-3.5 shadow-[2.5px_2.5px_0px_#2D1F1D]">
+            <div className="flex items-center gap-2.5">
+              <div className="flex size-9 items-center justify-center rounded-xl border border-[#2D1F1D] bg-white text-lg shadow-xs">
                 {completedChapter.icon}
               </div>
               <div>
-                <h4 className="font-sans text-xs font-black text-[#2D1F1D]">
+                <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
                   Chapter {completedChapter.chapterNum}: {completedChapter.title}
                 </h4>
-                <p className="text-[0.6rem] font-bold text-[#6B5550]">
+                <p className="text-xs font-bold text-[#6B5550]">
                   {completedChapter.subtitle}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-1 border-t border-[#2D1F1D]/15 pt-2">
+            <div className="space-y-1.5 border-t border-[#2D1F1D]/15 pt-2">
               {completedChapter.summaryBullets.map((bullet, bIdx) => (
-                <div key={bIdx} className="flex items-start gap-1.5 text-[0.65rem] font-medium text-[#2D1F1D] leading-tight">
-                  <CheckCircle2 className="size-3 text-[#10B981] shrink-0 mt-0.5" />
+                <div key={bIdx} className="flex items-start gap-2 text-xs font-medium text-[#2D1F1D] leading-snug">
+                  <CheckCircle2 className="size-3.5 text-[#10B981] shrink-0 mt-0.5" />
                   <span>{bullet}</span>
                 </div>
               ))}
@@ -481,22 +481,22 @@ export function About() {
           </div>
 
           {/* Bottom Left Button */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/15 shrink-0">
+          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
             <button
               type="button"
               disabled={idx === 0 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx - 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] px-2.5 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
                 idx > 0 && isStatic
-                  ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:-translate-x-0.5'
+                  ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:-translate-x-0.5'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
               <ChevronLeft className="size-3.5" />
               <span>‹ Previous Page</span>
             </button>
-            <span className="text-[0.62rem] font-bold text-[#6B5550]">
+            <span className="text-xs font-bold text-[#6B5550]">
               {idx + 1} of {totalSpreads}
             </span>
           </div>
@@ -506,52 +506,52 @@ export function About() {
 
     // Finale Left Page (Timeline Recap)
     return (
-      <div className="size-full flex flex-col justify-between p-3.5 sm:p-4.5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
-        <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-1.5 shrink-0">
-          <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black text-[#2D1F1D]">
+      <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
+        <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0">
+          <span className="rounded-full border border-[#2D1F1D]/60 bg-[#FFE68C] px-3 py-0.5 text-xs font-black text-[#2D1F1D]">
             🌟 Farah’s Journey Recap
           </span>
-          <span className="text-[0.62rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.2">
+          <span className="text-xs font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
             Page {(idx + 1) * 2 - 1}
           </span>
         </div>
 
-        <div className="my-auto space-y-1.5 rounded-2xl border-2 border-[#2D1F1D] bg-white p-3 shadow-[3px_3px_0px_#2D1F1D]">
+        <div className="my-auto space-y-2 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-white p-3.5 shadow-[2.5px_2.5px_0px_#2D1F1D]">
           <div className="flex items-center gap-1.5 text-xs font-black text-[#2D1F1D]">
             <Sparkles className="size-3.5 text-[#FF7D6B]" />
             <span>4 Chapters of Dedication</span>
           </div>
-          <div className="grid grid-cols-2 gap-1.5 pt-1 text-[0.62rem]">
-            <div className="rounded-lg border border-[#2D1F1D]/20 bg-[#F0FDF4] p-1.5">
+          <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#F0FDF4] p-2">
               <span className="font-black text-[#059669]">🎓 Linguistics</span>
-              <p className="text-[0.55rem] text-[#6B5550]">Phonetics &amp; CLT</p>
+              <p className="text-[0.65rem] text-[#6B5550]">Phonetics &amp; CLT</p>
             </div>
-            <div className="rounded-lg border border-[#2D1F1D]/20 bg-[#FAF5FF] p-1.5">
+            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#FAF5FF] p-2">
               <span className="font-black text-[#7C3AED]">💼 Classroom</span>
-              <p className="text-[0.55rem] text-[#6B5550]">900+ ESL Learners</p>
+              <p className="text-[0.65rem] text-[#6B5550]">900+ ESL Learners</p>
             </div>
-            <div className="rounded-lg border border-[#2D1F1D]/20 bg-[#FFF1F2] p-1.5">
+            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#FFF1F2] p-2">
               <span className="font-black text-[#E11D48]">✂️ Atelier</span>
-              <p className="text-[0.55rem] text-[#6B5550]">100+ Custom Props</p>
+              <p className="text-[0.65rem] text-[#6B5550]">100+ Custom Props</p>
             </div>
-            <div className="rounded-lg border border-[#2D1F1D]/20 bg-[#FFF7ED] p-1.5">
+            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#FFF7ED] p-2">
               <span className="font-black text-[#EA580C]">🏆 Workshops</span>
-              <p className="text-[0.55rem] text-[#6B5550]">Teacher Seminars</p>
+              <p className="text-[0.65rem] text-[#6B5550]">Teacher Seminars</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/15 shrink-0">
+        <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
           <button
             type="button"
             disabled={idx === 0 || !isStatic}
             onClick={() => isStatic && turnToSpread(idx - 1)}
-            className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black shadow-[2px_2px_0px_#2D1F1D] cursor-pointer"
+            className="flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-3 py-1.5 text-xs font-black shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer"
           >
             <ChevronLeft className="size-3.5" />
             <span>‹ Previous Page</span>
           </button>
-          <span className="text-[0.62rem] font-bold text-[#6B5550]">
+          <span className="text-xs font-bold text-[#6B5550]">
             {idx + 1} of {totalSpreads}
           </span>
         </div>
@@ -575,52 +575,52 @@ export function About() {
           : [milestone?.image || '/images/farah-portrait.png']
 
       return (
-        <div className="size-full flex flex-col justify-between p-3.5 sm:p-4.5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6]/80">
+        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6]/80">
           {/* Right Page Top Header */}
-          <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-1.5 shrink-0 gap-2">
-            <div className="flex items-center gap-1.5 min-w-0 flex-1">
-              <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2.5 py-0.5 text-[0.62rem] font-black font-sans text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]">
+          <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0 gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-[#2D1F1D]/60 bg-[#A7F3D0] px-2.5 py-0.5 text-[0.72rem] font-black font-sans text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]">
                 <span>{milestone?.badgeEmoji || chapter.icon}</span>
-                <span className="truncate max-w-[90px] sm:max-w-none">
+                <span className="truncate max-w-[100px] sm:max-w-none">
                   {milestone?.categoryLabel || chapter.title}
                 </span>
               </span>
 
-              <span className="inline-flex items-center gap-1 text-[0.68rem] font-bold text-[#6B5550] font-sans truncate min-w-0">
-                <MapPin className="size-2.5 text-[#FF7D6B] shrink-0" />
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-[#55403C] font-sans truncate min-w-0">
+                <MapPin className="size-3 text-[#FF7D6B] shrink-0" />
                 <span className="truncate">{milestone?.organization}</span>
               </span>
             </div>
 
-            <span className="shrink-0 text-[0.62rem] font-bold text-[#6B5550] font-sans whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.2">
+            <span className="shrink-0 text-xs font-bold text-[#6B5550] font-sans whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2}
             </span>
           </div>
 
-          {/* Title & Narrative Section */}
-          <div className="space-y-1 my-auto">
-            <h3 className="font-sans text-sm sm:text-[0.92rem] font-black text-[#2D1F1D] leading-snug line-clamp-2 min-h-[2.3rem] flex items-center">
+          {/* Title & Narrative Section (Large, Crisp & Easy to Read) */}
+          <div className="space-y-1.5 my-auto">
+            <h3 className="font-sans text-[1.02rem] sm:text-[1.12rem] font-black text-[#2D1F1D] leading-tight tracking-tight line-clamp-2">
               {milestone?.title}
             </h3>
 
-            <p className="font-sans text-xs sm:text-[0.76rem] font-medium leading-relaxed text-[#2D1F1D] line-clamp-3 overflow-hidden">
+            <p className="font-sans text-[0.82rem] sm:text-[0.86rem] font-medium leading-relaxed text-[#2D1F1D]/90 line-clamp-3 overflow-hidden">
               {milestone?.description}
             </p>
           </div>
 
           {/* Multi-Photo Snapshots Strip (Clean & Uncrowded) */}
-          <div className="pt-1 border-t border-[#2D1F1D]/15 shrink-0">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[0.62rem] font-black uppercase font-sans text-[#2D1F1D] flex items-center gap-1">
-                <Sparkles className="size-2.5 text-[#FF7D6B]" />
+          <div className="pt-1.5 border-t border-[#2D1F1D]/12 shrink-0">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-black uppercase font-sans text-[#2D1F1D] flex items-center gap-1">
+                <Sparkles className="size-3 text-[#FF7D6B]" />
                 <span>Snapshots ({photos.length})</span>
               </span>
-              <span className="text-[0.55rem] font-bold text-[#6B5550] font-sans">
+              <span className="text-[0.68rem] font-bold text-[#6B5550] font-sans">
                 Click to zoom 🔍
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 h-[56px]">
+            <div className="grid grid-cols-3 gap-2 h-[64px]">
               {photos.slice(0, 3).map((photoUrl, pIdx) => {
                 const pinColors: ('mint' | 'purple' | 'coral')[] = ['mint', 'purple', 'coral']
                 const pinColor = pinColors[pIdx % pinColors.length]
@@ -635,7 +635,7 @@ export function About() {
                         photoIndex: pIdx,
                       })
                     }
-                    className="group/photo relative h-full rounded-xl border-2 border-[#2D1F1D] bg-white p-0.5 shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#2D1F1D] select-none"
+                    className="group/photo relative h-full rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-0.5 shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#2D1F1D] select-none"
                   >
                     <PushPin color={pinColor} size={16} className="left-1/2 top-0" />
 
@@ -649,12 +649,12 @@ export function About() {
                       />
 
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity duration-200 group-hover/photo:opacity-100">
-                        <span className="flex size-4 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D]">
-                          <Maximize2 className="size-2" />
+                        <span className="flex size-5 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D]">
+                          <Maximize2 className="size-2.5" />
                         </span>
                       </div>
 
-                      <div className="absolute bottom-0.5 right-0.5 rounded bg-white/95 px-1 text-[0.45rem] font-black font-sans text-[#2D1F1D] border border-[#2D1F1D]/30">
+                      <div className="absolute bottom-0.5 right-0.5 rounded bg-white/95 px-1 text-[0.55rem] font-bold font-sans text-[#2D1F1D] border border-[#2D1F1D]/30">
                         #{pIdx + 1}
                       </div>
                     </div>
@@ -665,7 +665,7 @@ export function About() {
           </div>
 
           {/* BOTTOM-RIGHT CORNER: Turn Page Forward Navigation Button */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/15 shrink-0">
+          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
             <div className="flex items-center gap-1">
               {bookSpreads.map((_, dotIdx) => (
                 <button
@@ -688,7 +688,7 @@ export function About() {
               disabled={idx === totalSpreads - 1 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] px-2.5 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3.5 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
                 idx < totalSpreads - 1 && isStatic
                   ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:translate-x-0.5 hover:bg-[#6EE7B7]'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
@@ -706,33 +706,33 @@ export function About() {
       const { nextChapter } = spread
 
       return (
-        <div className="size-full flex flex-col justify-between p-3.5 sm:p-4.5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6]/80">
+        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6]/80">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-1.5 shrink-0">
-            <span className="rounded-full border border-[#2D1F1D] bg-[#DDD6FE] px-2.5 py-0.5 text-[0.65rem] font-black text-[#5B21B6] shadow-[1px_1px_0px_#2D1F1D]">
+          <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0">
+            <span className="rounded-full border border-[#2D1F1D]/60 bg-[#DDD6FE] px-3 py-0.5 text-xs font-black text-[#5B21B6] shadow-[1px_1px_0px_#2D1F1D]">
               🚀 Up Next: Chapter {nextChapter.chapterNum}
             </span>
-            <span className="text-[0.62rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.2">
+            <span className="text-xs font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2}
             </span>
           </div>
 
           {/* Big Next Chapter Invitation Card */}
-          <div className="my-auto space-y-2.5 rounded-2xl border-3 border-[#2D1F1D] bg-white p-3.5 shadow-[4px_4px_0px_#2D1F1D] text-center">
-            <div className="mx-auto flex size-11 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FFE68C] text-xl shadow-[2px_2px_0px_#2D1F1D] animate-bounce">
+          <div className="my-auto space-y-3 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-white p-4 shadow-[3px_3px_0px_#2D1F1D] text-center">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#2D1F1D] bg-[#FFE68C] text-2xl shadow-[2px_2px_0px_#2D1F1D] animate-bounce">
               {nextChapter.icon}
             </div>
 
             <div>
-              <h3 className="font-sans text-sm sm:text-base font-black text-[#2D1F1D]">
+              <h3 className="font-sans text-base sm:text-lg font-black text-[#2D1F1D]">
                 Chapter {nextChapter.chapterNum}: {nextChapter.title}
               </h3>
-              <p className="text-[0.68rem] font-bold text-[#6B5550]">
+              <p className="text-xs font-bold text-[#6B5550]">
                 {nextChapter.subtitle}
               </p>
             </div>
 
-            <p className="text-[0.68rem] font-medium leading-relaxed text-[#2D1F1D]/80">
+            <p className="text-xs font-medium leading-relaxed text-[#2D1F1D]/80">
               {nextChapter.teaser}
             </p>
 
@@ -740,7 +740,7 @@ export function About() {
               type="button"
               disabled={!isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
-              className="w-full rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] hover:bg-[#6EE7B7] py-2 px-3 text-xs font-black text-[#065F46] shadow-[2.5px_2.5px_0px_#2D1F1D] flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:translate-y-[-1px]"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-[#A7F3D0] hover:bg-[#6EE7B7] py-2.5 px-3 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:translate-y-[-1px]"
             >
               <span>Open Chapter {nextChapter.chapterNum}: {nextChapter.title}</span>
               <ArrowRight className="size-3.5" />
@@ -748,7 +748,7 @@ export function About() {
           </div>
 
           {/* Bottom Right Page Turn Button */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/15 shrink-0">
+          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
             <div className="flex items-center gap-1">
               {bookSpreads.map((_, dotIdx) => (
                 <button
@@ -767,9 +767,15 @@ export function About() {
               type="button"
               disabled={idx === totalSpreads - 1 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
-              className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#A7F3D0] px-2.5 py-1 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] cursor-pointer"
+              className={cn(
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3.5 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                idx < totalSpreads - 1 && isStatic
+                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:translate-x-0.5'
+                  : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
+              )}
             >
-              <span>Next Chapter ➔</span>
+              <span>Turn Page 📄</span>
+              <ChevronRight className="size-3.5" />
             </button>
           </div>
         </div>
@@ -984,19 +990,19 @@ export function About() {
                       type="button"
                       onClick={() => handleCategoryClick(tab.id)}
                       className={cn(
-                        'relative -mb-[3px] flex items-center justify-center gap-1 sm:gap-1.5 rounded-t-xl sm:rounded-t-2xl border-3 border-[#2D1F1D] py-1.5 sm:py-2 px-1 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none',
+                        'relative -mb-[2px] flex items-center justify-center gap-1 sm:gap-1.5 rounded-t-xl sm:rounded-t-2xl border-2 border-[#2D1F1D] py-1.5 sm:py-2 px-1 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none',
                         tab.color,
                         isSelected
-                          ? 'z-20 -translate-y-1 sm:-translate-y-1.5 border-b-0 shadow-[0_-3px_0_#2D1F1D] text-[#2D1F1D]'
+                          ? 'z-20 -translate-y-1 sm:-translate-y-1.5 border-b-0 shadow-[0_-2px_0_#2D1F1D] text-[#2D1F1D]'
                           : 'z-10 opacity-70 hover:opacity-100 hover:-translate-y-0.5 text-[#2D1F1D]',
                       )}
                     >
                       <span className="text-xs sm:text-sm">{tab.icon}</span>
-                      <span className="text-[0.7rem] sm:text-xs font-black truncate">
+                      <span className="text-[0.72rem] sm:text-xs font-black truncate">
                         {tab.title}
                       </span>
                       {count > 0 && (
-                        <span className="rounded-full bg-white/90 border border-[#2D1F1D]/30 px-1.5 py-0.2 text-[0.55rem] font-black shrink-0 hidden sm:inline">
+                        <span className="rounded-full bg-white/90 border border-[#2D1F1D]/30 px-1.5 py-0.2 text-[0.6rem] font-black shrink-0 hidden sm:inline">
                           {count}
                         </span>
                       )}
@@ -1005,8 +1011,8 @@ export function About() {
                 })}
               </div>
 
-              {/* REALISTIC VINTAGE HARDCOVER BOOK WITH BRASS CORNERS */}
-              <div className="relative rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-4 border-[#2D1F1D] bg-[#241713] p-2.5 sm:p-3 shadow-[0_22px_48px_rgba(36,23,19,0.4),8px_12px_0px_#2D1F1D]">
+              {/* REALISTIC VINTAGE HARDCOVER BOOK WITH BRASS CORNERS (Refined borders & height) */}
+              <div className="relative rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-2 border-[#2D1F1D] bg-[#241713] p-2.5 sm:p-3 shadow-[0_20px_45px_rgba(36,23,19,0.35),6px_8px_0px_#2D1F1D]">
                 {/* 4 Antique Brass Filigree Metallic Corners */}
                 <BookBrassCorner position="top-left" />
                 <BookBrassCorner position="top-right" />
@@ -1024,7 +1030,7 @@ export function About() {
                     background:
                       'repeating-linear-gradient(to bottom, #F7F1E5, #F7F1E5 2px, #EBE1CE 3px, #EBE1CE 4px)',
                   }}
-                  className="relative rounded-[1.6rem_1.6rem_1.2rem_1.2rem] p-1.5 sm:p-2 border-r-4 border-l-3 border-b-3 border-[#C9BDA8] shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]"
+                  className="relative rounded-[1.6rem_1.6rem_1.2rem_1.2rem] p-1.5 sm:p-2 border-r-3 border-l-2 border-b-2 border-[#C9BDA8] shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]"
                 >
                   {/* Left Side Paper Thickness Stack Fanning */}
                   <div className="absolute inset-y-2 left-0.5 w-1 border-r border-[#C9BDA8] pointer-events-none" />
@@ -1037,7 +1043,7 @@ export function About() {
 
                   {/* Hanging Crimson Silk Bookmark Ribbon from Center Spine */}
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none drop-shadow-md">
-                    <div className="h-7 w-3.5 bg-gradient-to-b from-[#DC2626] to-[#B91C1C] border-2 border-[#2D1F1D] rounded-t-xs relative">
+                    <div className="h-7 w-3.5 bg-gradient-to-b from-[#DC2626] to-[#B91C1C] border border-[#2D1F1D] rounded-t-xs relative">
                       <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-[#B91C1C] clip-ribbon-v" />
                     </div>
                   </div>
@@ -1047,8 +1053,9 @@ export function About() {
                   {/* ----------------------------------------------------------------- */}
                   <div
                     style={{ perspective: '1600px' }}
-                    className="hidden lg:block relative rounded-[1.1rem] border-2 border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[395px]"
+                    className="hidden lg:block relative rounded-[1.1rem] border border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[435px]"
                   >
+
                     {/* BASE LAYER (Underneath): Left Page Base + Right Page Base */}
                     <div className="absolute inset-0 grid grid-cols-2 bg-[#FCF9F2]">
                       {/* Left Static Base */}
