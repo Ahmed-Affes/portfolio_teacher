@@ -192,7 +192,7 @@ export function WorkShowcase() {
           </div>
         </Reveal>
 
-        {/* Showcase Items Gallery Grid (Consistent, Balanced 3-Column Layout with Zero Gaps) */}
+        {/* Showcase Items Exhibition: Masterpiece Workbench + Masonry Scrapbook Wall */}
         {filteredItems.length === 0 ? (
           <Reveal>
             <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#2D1F1D]/30 bg-white p-12 text-center shadow-[0_10px_25px_rgba(45,31,29,0.05),3px_3px_0px_rgba(45,31,29,0.5)]">
@@ -213,87 +213,190 @@ export function WorkShowcase() {
             </div>
           </Reveal>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {displayedItems.map((item, i) => {
-              const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
-              const pinColor = PIN_COLORS[i % PIN_COLORS.length]
+          <div className="space-y-8">
+            {/* 1. MASTERPIECE OF THE ATELIER (Featured Wide Workbench Card) */}
+            {displayedItems.length > 0 && searchQuery === '' && (
+              <Reveal>
+                <div className="group relative w-full">
+                  <PushPin color="red" size={32} className="right-10 -top-1 z-20" />
+                  <WashiTape color="#FFC837" className="left-8 -top-3 w-28" pattern="stripes" />
 
-              return (
-                <Reveal key={item.id} delay={(i % 6) * 40}>
-                  <div className="group relative h-full w-full">
-                    {/* 3D PushPin centered on top */}
-                    <PushPin color={pinColor} className="left-1/2 -top-1" />
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveItemIndex(actualIndex)}
-                      className={cn(
-                        'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
-                        i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]',
-                      )}
-                    >
-                      {/* Media Thumbnail */}
-                      <div className="relative aspect-[16/10.5] w-full overflow-hidden bg-[#FFF9E6] border-b border-[#2D1F1D]/15">
+                  <div className="relative overflow-hidden rounded-[2.8rem_1.6rem_2.6rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0] p-4 sm:p-6 shadow-[0_12px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.7)] transition-all duration-300 hover:shadow-[0_18px_40px_rgba(45,31,29,0.12),5px_5px_0px_rgba(45,31,29,0.8)]">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+                      {/* Left: Expansive Media Window */}
+                      <div
+                        onClick={() => setActiveItemIndex(0)}
+                        className="relative aspect-[16/10.5] w-full overflow-hidden rounded-[2rem] border-[1.5px] border-[#2D1F1D]/30 bg-[#FFF9E6] cursor-pointer group/img shadow-inner"
+                      >
                         <Image
-                          src={item.image || '/placeholder.svg'}
-                          alt={item.title}
+                          src={displayedItems[0].image || '/placeholder.svg'}
+                          alt={displayedItems[0].title}
                           fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 1024px) 100vw, 650px"
+                          className="object-cover transition-transform duration-700 group-hover/img:scale-105"
                         />
 
-                        {/* Tag pill */}
-                        <div className="absolute left-3 top-3 flex items-center gap-1.5">
-                          <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-3 py-1 text-[0.7rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
-                            {item.tag}
+                        {/* Top Badge */}
+                        <div className="absolute left-4 top-4 flex items-center gap-2">
+                          <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFC837] px-3.5 py-1 text-xs font-black uppercase text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)]">
+                            Featured Masterpiece ✂️
+                          </span>
+                          <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-3 py-1 text-[0.7rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                            {displayedItems[0].tag}
                           </span>
                         </div>
 
                         {/* Maximize Icon */}
-                        <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] opacity-0 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-all duration-200 group-hover:opacity-100 group-hover:scale-110">
+                        <span className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.3)] transition-all duration-200 group-hover/img:scale-110">
                           <Maximize2 className="size-4" />
                         </span>
                       </div>
 
-                      {/* Content Details */}
-                      <div className="flex flex-1 flex-col justify-between p-5">
+                      {/* Right: Studio Craft Details */}
+                      <div className="flex flex-col justify-between space-y-4">
                         <div>
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-sans text-base font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B] sm:text-lg">
-                              {item.title}
-                            </h3>
-                            <ArrowUpRight className="size-4.5 shrink-0 text-[#2D1F1D] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                          <div className="flex items-center gap-2">
+                            <span className="flex size-6 items-center justify-center rounded-full bg-[#A7F3D0] text-[0.65rem] font-black text-[#2D1F1D] border border-[#2D1F1D]/30">
+                              ★
+                            </span>
+                            <span className="text-[0.72rem] font-black uppercase tracking-wider text-[#FF7D6B]">
+                              Atelier Craft Highlight
+                            </span>
                           </div>
 
-                          <p className="mt-2 text-xs font-bold leading-relaxed text-[#6B5550] line-clamp-2">
-                            {item.description}
+                          <h3 className="mt-2 font-sans text-xl sm:text-2xl font-black text-[#2D1F1D] leading-tight">
+                            {displayedItems[0].title}
+                          </h3>
+
+                          <p className="mt-3 text-xs sm:text-sm font-bold leading-relaxed text-[#6B5550]">
+                            {displayedItems[0].description}
                           </p>
                         </div>
 
-                        {/* Highlights */}
-                        {item.highlights && item.highlights.length > 0 && (
-                          <div className="mt-4 flex flex-wrap gap-1.5 border-t border-[#2D1F1D]/10 pt-3">
-                            {item.highlights.slice(0, 2).map((h) => (
-                              <span
-                                key={h}
-                                className="rounded-xl border border-[#2D1F1D]/30 bg-[#FAF5EC] px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D]"
-                              >
-                                {h}
-                              </span>
-                            ))}
-                            {item.highlights.length > 2 && (
-                              <span className="rounded-xl border border-[#2D1F1D]/30 bg-[#FFE68C] px-2 py-0.5 text-[0.68rem] font-black text-[#2D1F1D]">
-                                +{item.highlights.length - 2}
-                              </span>
-                            )}
+                        {/* Highlights Badges */}
+                        {displayedItems[0].highlights && displayedItems[0].highlights.length > 0 && (
+                          <div className="space-y-2 border-t border-[#2D1F1D]/10 pt-3.5">
+                            <p className="text-[0.68rem] font-black uppercase tracking-wider text-[#2D1F1D]">
+                              Pedagogical Craft Highlights:
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {displayedItems[0].highlights.map((h) => (
+                                <span
+                                  key={h}
+                                  className="inline-flex items-center gap-1 rounded-xl border border-[#2D1F1D]/30 bg-[#FAF5EC] px-3 py-1 text-xs font-bold text-[#2D1F1D]"
+                                >
+                                  <Sparkles className="size-3 text-[#FF7D6B]" />
+                                  <span>{h}</span>
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
+
+                        {/* Action CTAs */}
+                        <div className="flex flex-wrap items-center gap-3 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setActiveItemIndex(0)}
+                            className="cute-btn bg-[#FFE68C] px-5 py-2.5 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] cursor-pointer shadow-[2px_2px_0px_#2D1F1D]"
+                          >
+                            <span>Inspect Lightbox 🔍</span>
+                            <ArrowUpRight className="size-4" />
+                          </button>
+                          <a
+                            href="#contact"
+                            className="cute-btn bg-white px-5 py-2.5 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer shadow-[2px_2px_0px_#2D1F1D]"
+                          >
+                            <span>Order Custom Kit 💌</span>
+                          </a>
+                        </div>
                       </div>
-                    </button>
+                    </div>
                   </div>
-                </Reveal>
-              )
-            })}
+                </div>
+              </Reveal>
+            )}
+
+            {/* 2. MASONRY SCRAPBOOK ATELIER WALL (Gapless, Organic Dynamic Flow) */}
+            <div className="columns-1 gap-6 space-y-6 sm:columns-2 lg:columns-3">
+              {(searchQuery !== '' ? displayedItems : displayedItems.slice(1)).map((item, i) => {
+                const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
+                const pinColor = PIN_COLORS[i % PIN_COLORS.length]
+
+                return (
+                  <div key={item.id} className="break-inside-avoid">
+                    <Reveal delay={(i % 4) * 50}>
+                      <div className="group relative w-full pt-2">
+                        {/* 3D PushPin on top */}
+                        <PushPin color={pinColor} className="left-1/2 -top-1 z-10" />
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveItemIndex(actualIndex)}
+                          className={cn(
+                            'relative flex h-full w-full flex-col overflow-hidden rounded-[2.2rem_1.4rem_2.4rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1.5 hover:shadow-[0_14px_30px_rgba(45,31,29,0.12),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
+                            i % 2 === 0 ? 'rotate-[-0.5deg]' : 'rotate-[0.5deg]',
+                          )}
+                        >
+                          {/* Media Thumbnail */}
+                          <div className="relative aspect-[16/11] w-full overflow-hidden bg-[#FFF9E6] border-b border-[#2D1F1D]/15">
+                            <Image
+                              src={item.image || '/placeholder.svg'}
+                              alt={item.title}
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+
+                            {/* Tag pill */}
+                            <div className="absolute left-3 top-3 flex items-center gap-1.5">
+                              <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-3 py-1 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
+                                {item.tag}
+                              </span>
+                            </div>
+
+                            {/* Maximize Icon */}
+                            <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] opacity-0 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-all duration-200 group-hover:opacity-100 group-hover:scale-110">
+                              <Maximize2 className="size-4" />
+                            </span>
+                          </div>
+
+                          {/* Content Details */}
+                          <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
+                            <div>
+                              <div className="flex items-start justify-between gap-2">
+                                <h4 className="font-sans text-base font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B]">
+                                  {item.title}
+                                </h4>
+                                <ArrowUpRight className="size-4.5 shrink-0 text-[#2D1F1D] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                              </div>
+
+                              <p className="mt-2 text-xs font-bold leading-relaxed text-[#6B5550] line-clamp-2">
+                                {item.description}
+                              </p>
+                            </div>
+
+                            {/* Highlights */}
+                            {item.highlights && item.highlights.length > 0 && (
+                              <div className="mt-4 flex flex-wrap gap-1.5 border-t border-[#2D1F1D]/10 pt-3">
+                                {item.highlights.map((h) => (
+                                  <span
+                                    key={h}
+                                    className="rounded-xl border border-[#2D1F1D]/30 bg-[#FAF5EC] px-2.5 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
+                                  >
+                                    {h}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      </div>
+                    </Reveal>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
 

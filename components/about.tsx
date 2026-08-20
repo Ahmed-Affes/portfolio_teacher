@@ -875,7 +875,7 @@ export function About() {
         {/* ========================================================================= */}
         {/* 2-COLUMN LAYOUT: LEFT (PORTRAIT + MANIFESTO) | RIGHT (REAL PHYSICAL BOOK) */}
         {/* ========================================================================= */}
-        <div className="grid items-start gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:gap-8">
+        <div className="grid items-start gap-6 lg:grid-cols-[290px_1fr] xl:grid-cols-[320px_1fr] lg:gap-8">
           {/* ========================================================================= */}
           {/* LEFT COLUMN: Clean Polaroid Portrait & Teacher Manifesto (OUTSIDE BOOK)   */}
           {/* ========================================================================= */}
@@ -978,7 +978,7 @@ export function About() {
           {/* ========================================================================= */}
           {/* RIGHT COLUMN: REALISTIC PHYSICAL HARDCOVER BOOK WITH STACKED PAGES & TABS */}
           {/* ========================================================================= */}
-          <div className="relative lg:pr-32 xl:pr-36">
+          <div className="relative lg:pr-10 xl:pr-12">
             <Reveal delay={80}>
               {/* MOBILE / TABLET TOP CHAPTER TABS (lg:hidden) */}
               <div className="grid grid-cols-4 gap-1 sm:gap-2 px-3 sm:px-5 mb-0 select-none lg:hidden">
@@ -1025,7 +1025,7 @@ export function About() {
                 <div className="absolute inset-1.5 rounded-[1.8rem_1.8rem_1.4rem_1.4rem] border border-dashed border-[#F3DF9C]/40 pointer-events-none" />
 
                 {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Completely Outside the Book Cover) */}
-                <div className="hidden lg:flex absolute left-[calc(100%-3px)] top-8 bottom-8 flex-col justify-around z-30 pointer-events-auto">
+                <div className="hidden lg:flex absolute left-[calc(100%-2px)] top-6 bottom-6 flex-col justify-around z-30 pointer-events-auto">
                   {CHAPTER_CONFIG.map((tab) => {
                     const isSelected = activeCategory === tab.id
                     const count = allMilestones.filter((m) => m.category === tab.id).length
@@ -1039,11 +1039,11 @@ export function About() {
                         aria-selected={isSelected}
                         role="tab"
                         className={cn(
-                          'group relative flex items-center gap-2 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D]/40 text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-[2px_3px_8px_rgba(45,31,29,0.12)]',
+                          'group relative flex items-center gap-1.5 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D]/40 text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-[2px_3px_8px_rgba(45,31,29,0.12)]',
                           tab.color,
                           isSelected
-                            ? 'w-44 py-3 px-3.5 translate-x-1.5 shadow-[4px_6px_18px_rgba(45,31,29,0.22)] z-40 ring-2 ring-[#FFC837]/80 text-[#2D1F1D] text-xs'
-                            : 'w-32 py-2 px-2.5 translate-x-0 opacity-85 hover:opacity-100 hover:w-36 hover:translate-x-1 text-[#2D1F1D] z-20 text-[0.75rem]',
+                            ? 'w-36 py-2.5 px-3 translate-x-1.5 shadow-[3px_5px_15px_rgba(45,31,29,0.2)] z-40 ring-2 ring-[#FFC837]/80 text-[#2D1F1D] text-xs'
+                            : 'w-26 py-2 px-2.5 translate-x-0 opacity-85 hover:opacity-100 hover:w-30 hover:translate-x-1 text-[#2D1F1D] z-20 text-[0.72rem]',
                         )}
                       >
                         <span className={cn('shrink-0 transition-transform', isSelected ? 'text-base scale-110' : 'text-sm')}>
@@ -1100,7 +1100,7 @@ export function About() {
                   {/* ----------------------------------------------------------------- */}
                   <div
                     style={{ perspective: '1600px' }}
-                    className="hidden lg:block relative rounded-[1.1rem] border border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[435px]"
+                    className="hidden lg:block relative rounded-[1.1rem] border border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[475px] xl:h-[495px]"
                   >
 
                     {/* BASE LAYER (Underneath): Left Page Base + Right Page Base */}

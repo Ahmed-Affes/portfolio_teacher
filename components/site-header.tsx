@@ -167,7 +167,7 @@ export function SiteHeader() {
 
       {/* Mobile Menu Drawer */}
       {menuOpen && (
-        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-[1.5px] border-[#2D1F1D]/40 bg-white p-4 shadow-[0_16px_36px_rgba(45,31,29,0.12),3px_3px_0px_rgba(45,31,29,0.5)] xl:hidden">
+        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-[1.5px] border-[#2D1F1D]/40 bg-white p-4 shadow-[0_16px_36px_rgba(45,31,29,0.18),3px_3px_0px_rgba(45,31,29,0.5)] xl:hidden">
           <ul className="grid grid-cols-2 gap-2">
             {NAV_ITEMS.map((item) => (
               <li key={item.id}>
@@ -175,10 +175,10 @@ export function SiteHeader() {
                   href={`#${item.id}`}
                   onClick={(e) => handleNav(item.id, e)}
                   className={cn(
-                    'block rounded-2xl border border-[#2D1F1D]/30 px-3 py-2.5 text-center text-xs font-bold transition-all shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] active:shadow-none active:translate-y-[1px]',
+                    'block rounded-2xl border border-[#2D1F1D]/30 px-3 py-2.5 text-center text-xs font-black transition-all shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.25)] active:shadow-none active:translate-y-[1px]',
                     active === item.id
-                      ? 'bg-[#FFC837] text-[#2D1F1D]'
-                      : 'bg-[#FAF5EC] text-[#6B5550]',
+                      ? 'bg-[#FFC837] text-[#2D1F1D] border-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
+                      : 'bg-[#FAF5EC] text-[#2D1F1D] hover:bg-[#FFE68C]/50',
                   )}
                 >
                   {item.label}
