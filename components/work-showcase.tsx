@@ -52,7 +52,6 @@ export function WorkShowcase() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null)
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
-  const [viewMode, setViewMode] = useState<'grid' | 'bento'>('bento')
 
   // Only display active works on public site
   const activeWorks = useMemo(() => works.filter((w) => w.isActive !== false), [works])
@@ -107,35 +106,24 @@ export function WorkShowcase() {
   }, [activeItemIndex, filteredItems.length])
 
   useEffect(() => {
-    if (activeItemIndex === null) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActiveItemIndex(null)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeItemIndex === null) return
       if (e.key === 'ArrowLeft') handlePrev()
       if (e.key === 'ArrowRight') handleNext()
+      if (e.key === 'Escape') setActiveItemIndex(null)
     }
-    document.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [activeItemIndex, handlePrev, handleNext])
 
-  const pinColors: ('red' | 'purple' | 'yellow' | 'mint' | 'coral')[] = [
-    'red',
-    'purple',
-    'yellow',
-    'mint',
-    'coral',
-  ]
-
   return (
-    <section id="work" className="section-shell relative overflow-hidden bg-[#FAF5EC] py-10 sm:py-14 lg:py-16">
+    <section id="work" className="section-shell relative bg-[#FAF5EC] py-10 sm:py-14 lg:py-16 overflow-hidden">
       <SectionScene theme="work" pattern="grid" />
 
       <div className="section-inner section-stack">
-        {/* Section Heading & Controls */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        {/* Section Header */}
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <Reveal>
             <SectionHeading
               number="02"
@@ -146,56 +134,27 @@ export function WorkShowcase() {
             />
           </Reveal>
 
-          {/* Search & Layout Switcher Controls */}
+          {/* Search Bar Control */}
           <Reveal delay={60}>
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Search Bar */}
-              <div className="relative min-w-[200px] flex-1 sm:w-64 sm:flex-initial">
-                <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#2D1F1D]" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search crafts, phonics..."
-                  className="w-full rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-white py-2 pl-9 pr-8 text-xs font-bold text-[#2D1F1D] placeholder:text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] focus:outline-none focus:ring-2 focus:ring-[#FFC837]"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#2D1F1D] hover:text-[#FF7D6B]"
-                    aria-label="Clear search"
-                  >
-                    <X className="size-3.5" />
-                  </button>
-                )}
-              </div>
-
-              {/* Layout Switcher */}
-              <div className="flex items-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-white p-0.5 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)]">
+            <div className="relative w-full sm:w-72">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#2D1F1D]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search crafts, phonics..."
+                className="w-full rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-white py-2.5 pl-9 pr-8 text-xs font-bold text-[#2D1F1D] placeholder:text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] focus:outline-none focus:ring-2 focus:ring-[#FFC837]"
+              />
+              {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setViewMode('grid')}
-                  className={cn(
-                    'flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black transition-all cursor-pointer',
-                    viewMode === 'grid' ? 'bg-[#FFC837] text-[#2D1F1D]' : 'text-[#6B5550]',
-                  )}
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer"
+                  aria-label="Clear search"
                 >
-                  <Grid className="size-3.5" />
-                  <span className="hidden sm:inline">Grid</span>
+                  <X className="size-3.5" />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('bento')}
-                  className={cn(
-                    'flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black transition-all cursor-pointer',
-                    viewMode === 'bento' ? 'bg-[#FFC837] text-[#2D1F1D]' : 'text-[#6B5550]',
-                  )}
-                >
-                  <LayoutGrid className="size-3.5" />
-                  <span className="hidden sm:inline">Bento</span>
-                </button>
-              </div>
+              )}
             </div>
           </Reveal>
         </div>
@@ -233,7 +192,7 @@ export function WorkShowcase() {
           </div>
         </Reveal>
 
-        {/* Showcase Items Grid/Bento Container */}
+        {/* Showcase Items Gallery Grid (Consistent, Balanced 3-Column Layout with Zero Gaps) */}
         {filteredItems.length === 0 ? (
           <Reveal>
             <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#2D1F1D]/30 bg-white p-12 text-center shadow-[0_10px_25px_rgba(45,31,29,0.05),3px_3px_0px_rgba(45,31,29,0.5)]">
@@ -254,47 +213,27 @@ export function WorkShowcase() {
             </div>
           </Reveal>
         ) : (
-          <div
-            className={cn(
-              'grid gap-6',
-              viewMode === 'grid'
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[auto]',
-            )}
-          >
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
-              const isFeature = viewMode === 'bento' && (i === 0 || i === 3)
               const pinColor = PIN_COLORS[i % PIN_COLORS.length]
 
               return (
-                <Reveal
-                  key={item.id}
-                  delay={(i % 6) * 40}
-                  className={cn(isFeature && 'sm:col-span-2 lg:col-span-2')}
-                >
+                <Reveal key={item.id} delay={(i % 6) * 40}>
                   <div className="group relative h-full w-full">
-                    {/* 3D PushPin & WashiTape on unclipped outer container */}
-                    <PushPin color={pinColor} className={isFeature ? "right-8 -top-1" : "left-1/2 -top-1"} />
-                    {isFeature && (
-                      <WashiTape color="#FFC837" className="left-6 -top-2.5 w-20" pattern="stripes" />
-                    )}
+                    {/* 3D PushPin centered on top */}
+                    <PushPin color={pinColor} className="left-1/2 -top-1" />
 
                     <button
                       type="button"
                       onClick={() => setActiveItemIndex(actualIndex)}
                       className={cn(
                         'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
-                        isFeature ? 'rounded-[2.8rem_1.6rem_2.6rem_1.8rem] md:grid md:grid-cols-[1.15fr_0.85fr]' : (i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]'),
+                        i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]',
                       )}
                     >
                       {/* Media Thumbnail */}
-                      <div
-                        className={cn(
-                          'relative w-full overflow-hidden bg-[#FFF9E6]',
-                          isFeature ? 'aspect-[16/10] md:h-full md:aspect-auto' : 'aspect-[16/10.5]',
-                        )}
-                      >
+                      <div className="relative aspect-[16/10.5] w-full overflow-hidden bg-[#FFF9E6] border-b border-[#2D1F1D]/15">
                         <Image
                           src={item.image || '/placeholder.svg'}
                           alt={item.title}
@@ -308,12 +247,6 @@ export function WorkShowcase() {
                           <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-3 py-1 text-[0.7rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
                             {item.tag}
                           </span>
-                          {isFeature && (
-                            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-[#2D1F1D]/40 bg-[#A7F3D0] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
-                              <Sparkles className="size-3 text-[#10B981]" />
-                              <span>Featured</span>
-                            </span>
-                          )}
                         </div>
 
                         {/* Maximize Icon */}
@@ -323,31 +256,33 @@ export function WorkShowcase() {
                       </div>
 
                       {/* Content Details */}
-                      <div className="flex flex-1 flex-col p-5">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-sans text-base font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B] sm:text-lg">
-                            {item.title}
-                          </h3>
-                          <ArrowUpRight className="size-4.5 shrink-0 text-[#2D1F1D] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
-                        </div>
+                      <div className="flex flex-1 flex-col justify-between p-5">
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-sans text-base font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B] sm:text-lg">
+                              {item.title}
+                            </h3>
+                            <ArrowUpRight className="size-4.5 shrink-0 text-[#2D1F1D] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                          </div>
 
-                        <p className="mt-2 flex-1 text-xs font-bold leading-relaxed text-[#6B5550] line-clamp-2">
-                          {item.description}
-                        </p>
+                          <p className="mt-2 text-xs font-bold leading-relaxed text-[#6B5550] line-clamp-2">
+                            {item.description}
+                          </p>
+                        </div>
 
                         {/* Highlights */}
                         {item.highlights && item.highlights.length > 0 && (
-                          <div className="mt-4 flex flex-wrap gap-1.5 border-t-2 border-[#2D1F1D]/10 pt-3">
+                          <div className="mt-4 flex flex-wrap gap-1.5 border-t border-[#2D1F1D]/10 pt-3">
                             {item.highlights.slice(0, 2).map((h) => (
                               <span
                                 key={h}
-                                className="rounded-xl border border-[#2D1F1D] bg-[#FAF5EC] px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D]"
+                                className="rounded-xl border border-[#2D1F1D]/30 bg-[#FAF5EC] px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D]"
                               >
                                 {h}
                               </span>
                             ))}
                             {item.highlights.length > 2 && (
-                              <span className="rounded-xl border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.5 text-[0.68rem] font-black text-[#2D1F1D]">
+                              <span className="rounded-xl border border-[#2D1F1D]/30 bg-[#FFE68C] px-2 py-0.5 text-[0.68rem] font-black text-[#2D1F1D]">
                                 +{item.highlights.length - 2}
                               </span>
                             )}
@@ -368,10 +303,9 @@ export function WorkShowcase() {
             <button
               type="button"
               onClick={() => setVisibleCount((prev) => prev + LOAD_MORE_STEP)}
-              className="cute-btn bg-[#FFC837] px-8 py-3 text-sm font-black text-[#2D1F1D] hover:bg-[#FFB800]"
+              className="cute-btn bg-white px-8 py-3 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] sm:text-sm cursor-pointer shadow-[0_4px_12px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.5)]"
             >
-              <span>Load More Works ({filteredItems.length - visibleCount} more)</span>
-              <ArrowRight className="size-4.5 stroke-[2.5]" />
+              <span>Load More Crafts ({filteredItems.length - visibleCount} remaining) 🎒</span>
             </button>
           </div>
         )}

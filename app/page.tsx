@@ -11,10 +11,11 @@ import { Contact } from '@/components/contact'
 import { SiteFooter } from '@/components/site-footer'
 import { CartDrawer } from '@/components/cart-drawer'
 import { BackToTop } from '@/components/back-to-top'
+import { MobileBottomNav } from '@/components/mobile-bottom-nav'
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 lg:pb-0">
       <SiteHeader />
       <main>
         <Hero />
@@ -30,6 +31,7 @@ export default function Page() {
       <SiteFooter />
       <CartDrawer />
       <BackToTop />
+      <MobileBottomNav />
     </div>
   )
 }

@@ -978,7 +978,7 @@ export function About() {
           {/* ========================================================================= */}
           {/* RIGHT COLUMN: REALISTIC PHYSICAL HARDCOVER BOOK WITH STACKED PAGES & TABS */}
           {/* ========================================================================= */}
-          <div className="relative lg:pr-10">
+          <div className="relative lg:pr-32 xl:pr-36">
             <Reveal delay={80}>
               {/* MOBILE / TABLET TOP CHAPTER TABS (lg:hidden) */}
               <div className="grid grid-cols-4 gap-1 sm:gap-2 px-3 sm:px-5 mb-0 select-none lg:hidden">
@@ -1024,8 +1024,8 @@ export function About() {
                 {/* Hardcover Perimeter Gold Stitched Line */}
                 <div className="absolute inset-1.5 rounded-[1.8rem_1.8rem_1.4rem_1.4rem] border border-dashed border-[#F3DF9C]/40 pointer-events-none" />
 
-                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Hidden on mobile) */}
-                <div className="hidden lg:flex absolute -right-9 xl:-right-11 top-10 bottom-10 flex-col justify-around z-30 pointer-events-auto">
+                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Completely Outside the Book Cover) */}
+                <div className="hidden lg:flex absolute left-[calc(100%-3px)] top-8 bottom-8 flex-col justify-around z-30 pointer-events-auto">
                   {CHAPTER_CONFIG.map((tab) => {
                     const isSelected = activeCategory === tab.id
                     const count = allMilestones.filter((m) => m.category === tab.id).length
@@ -1039,19 +1039,26 @@ export function About() {
                         aria-selected={isSelected}
                         role="tab"
                         className={cn(
-                          'group relative flex items-center gap-1.5 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D]/40 px-2.5 py-2 text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-sm',
+                          'group relative flex items-center gap-2 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D]/40 text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-[2px_3px_8px_rgba(45,31,29,0.12)]',
                           tab.color,
                           isSelected
-                            ? 'translate-x-3.5 sm:translate-x-4.5 shadow-[4px_4px_14px_rgba(45,31,29,0.2)] z-30 scale-105 ring-1 ring-[#4A2E1E]/25 text-[#2D1F1D]'
-                            : 'translate-x-0 opacity-80 hover:opacity-100 hover:translate-x-1.5 text-[#2D1F1D] z-10',
+                            ? 'w-44 py-3 px-3.5 translate-x-1.5 shadow-[4px_6px_18px_rgba(45,31,29,0.22)] z-40 ring-2 ring-[#FFC837]/80 text-[#2D1F1D] text-xs'
+                            : 'w-32 py-2 px-2.5 translate-x-0 opacity-85 hover:opacity-100 hover:w-36 hover:translate-x-1 text-[#2D1F1D] z-20 text-[0.75rem]',
                         )}
                       >
-                        <span className="text-sm shrink-0">{tab.icon}</span>
-                        <span className="text-[0.72rem] font-black whitespace-nowrap pr-1 tracking-tight">
+                        <span className={cn('shrink-0 transition-transform', isSelected ? 'text-base scale-110' : 'text-sm')}>
+                          {tab.icon}
+                        </span>
+                        <span className="font-black whitespace-nowrap pr-1 tracking-tight truncate">
                           {tab.title}
                         </span>
                         {count > 0 && (
-                          <span className="rounded-full bg-white/90 border border-[#2D1F1D]/25 px-1.5 py-0.2 text-[0.58rem] font-black text-[#2D1F1D] shrink-0">
+                          <span
+                            className={cn(
+                              'rounded-full bg-white/95 border border-[#2D1F1D]/25 font-black text-[#2D1F1D] shrink-0 ml-auto',
+                              isSelected ? 'px-2 py-0.5 text-[0.62rem]' : 'px-1.5 py-0.2 text-[0.56rem]',
+                            )}
+                          >
                             {count}
                           </span>
                         )}
@@ -1059,6 +1066,7 @@ export function About() {
                     )
                   })}
                 </div>
+
 
 
                 {/* ------------------------------------------------------------- */}

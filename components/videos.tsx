@@ -209,7 +209,7 @@ export function Videos() {
 
                       <div className="mt-4 flex items-center justify-between border-t border-[#2D1F1D]/10 pt-3">
                         <span className="text-[0.7rem] font-bold text-[#6B5550]">
-                          Target: {video.ageGroup}
+                          {video.ageGroup ? `Target: ${video.ageGroup}` : `Level: ${video.level || 'All Levels'}`}
                         </span>
                         <span className="inline-flex items-center gap-1 text-xs font-black text-[#FF7D6B] group-hover:underline">
                           Watch Video <ChevronRight className="size-3.5" />
