@@ -348,6 +348,7 @@ export function About() {
           : [milestone?.image || '/images/farah-portrait.png']
       const spotlightImg = photos[0]
 
+
       return (
         <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
           {/* Top Chapter Header */}
@@ -886,7 +887,7 @@ export function About() {
                 <PushPin color="red" size={30} className="left-1/2 -top-1" />
                 <WashiTape color="#FFC837" className="left-8 -top-3 w-22" pattern="stripes" />
 
-                <div className="relative aspect-[4/3.2] max-h-[260px] w-full overflow-hidden rounded-[2.2rem_1.4rem_2.2rem_1.6rem] border-3 border-[#2D1F1D] bg-white shadow-[6px_6px_0px_#2D1F1D] transition-transform duration-300 hover:rotate-1 rotate-[-0.6deg]">
+                <div className="relative aspect-[4/3.2] max-h-[260px] w-full overflow-hidden rounded-[2.2rem_1.4rem_2.2rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_10px_25px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-transform duration-300 hover:rotate-1 rotate-[-0.6deg]">
                   <Image
                     src={about.portraitImage || '/images/farah-portrait.png'}
                     alt="Portrait of Farah Affes holding an educational prop in Sfax"
@@ -897,9 +898,9 @@ export function About() {
                   />
 
                   {/* Floating educator pill */}
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between rounded-xl border-2 border-[#2D1F1D] bg-white/95 p-2 shadow-[2px_2px_0px_#2D1F1D] backdrop-blur-md">
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between rounded-xl border border-[#2D1F1D]/40 bg-white/95 p-2 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)] backdrop-blur-md">
                     <div className="flex items-center gap-2">
-                      <div className="flex size-6.5 items-center justify-center rounded-lg border border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D]">
+                      <div className="flex size-6.5 items-center justify-center rounded-lg border border-[#2D1F1D]/30 bg-[#FFE68C] text-[#2D1F1D]">
                         <GraduationCap className="size-3.5" />
                       </div>
                       <div>
@@ -909,7 +910,7 @@ export function About() {
                         </p>
                       </div>
                     </div>
-                    <span className="rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2 py-0.5 text-[0.58rem] font-black text-[#2D1F1D]">
+                    <span className="rounded-full border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.5 text-[0.58rem] font-black text-[#2D1F1D]">
                       Sfax, TN 🌸
                     </span>
                   </div>
@@ -922,7 +923,7 @@ export function About() {
               <div className="group relative">
                 <PushPin color="purple" size={26} className="right-8 -top-1" />
 
-                <div className="relative overflow-hidden rounded-[1.6rem_2.2rem_1.4rem_2rem] border-3 border-[#2D1F1D] bg-[#FFE68C] p-3.5 sm:p-4 text-[#2D1F1D] shadow-[5px_5px_0px_#2D1F1D] rotate-[0.6deg]">
+                <div className="relative overflow-hidden rounded-[1.6rem_2.2rem_1.4rem_2rem] border-[1.5px] border-[#3E251E]/40 bg-[#FFE68C] p-3.5 sm:p-4 text-[#2D1F1D] shadow-[0_10px_25px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] rotate-[0.6deg]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-[#2D1F1D]">
                       <Sparkles className="size-3.5 fill-[#FF7D6B] text-[#2D1F1D]" />
@@ -930,6 +931,7 @@ export function About() {
                         Teacher Manifesto
                       </span>
                     </div>
+
                     {/* Animated sound wave */}
                     <div className="flex h-3.5 items-end gap-1">
                       <Volume2 className="mr-0.5 size-3 text-[#2D1F1D]" />

@@ -101,10 +101,10 @@ export function Contact() {
   }
 
   const inputClass =
-    'w-full rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] px-4 py-2.5 text-xs font-bold text-[#2D1F1D] outline-none transition-all placeholder:text-[#6B5550]/60 focus:border-[#FF7D6B] focus:bg-white focus:shadow-[2px_2px_0px_#2D1F1D] sm:text-sm'
+    'w-full rounded-2xl border-[1.5px] border-[#2D1F1D]/35 bg-[#FAF5EC] px-4 py-2.5 text-xs font-bold text-[#2D1F1D] outline-none transition-all placeholder:text-[#6B5550]/60 focus:border-[#FF7D6B] focus:bg-white focus:shadow-[2px_2px_0px_rgba(45,31,29,0.2)] sm:text-sm'
 
   const selectClass =
-    'w-full appearance-none rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-3 text-xs font-bold text-[#2D1F1D] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#FFC837] cursor-pointer'
+    'w-full appearance-none rounded-2xl border-[1.5px] border-[#2D1F1D]/35 bg-[#FAF5EC] p-3 text-xs font-bold text-[#2D1F1D] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#FFC837] cursor-pointer'
   return (
     <section id="contact" className="section-shell relative bg-white py-10 sm:py-14 lg:py-16 overflow-hidden">
       <SectionScene theme="contact" pattern="dots" />
@@ -129,13 +129,13 @@ export function Contact() {
               <PushPin color="red" className="left-1/2 -top-1" />
               <a
                 href={`mailto:${contact.email}`}
-                className="relative flex items-center justify-between rounded-[2rem_1.4rem_2.2rem_1.4rem] border-3 border-[#2D1F1D] bg-[#FFE68C] p-4 shadow-[5px_5px_0px_#2D1F1D] transition-all hover:-translate-y-1 hover:shadow-[7px_7px_0px_#2D1F1D] rotate-[-0.6deg]"
+                className="relative flex items-center justify-between rounded-[2rem_1.4rem_2.2rem_1.4rem] border-[1.5px] border-[#3E251E]/40 bg-[#FFE68C] p-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] rotate-[-0.6deg]"
               >
                 {/* Inner Dashed Stitch Border */}
-                <div className="pointer-events-none absolute inset-1.5 rounded-[1.6rem_1rem_1.8rem_1rem] border-2 border-dashed border-[#2D1F1D]/25" />
+                <div className="pointer-events-none absolute inset-1.5 rounded-[1.6rem_1rem_1.8rem_1rem] border border-dashed border-[#2D1F1D]/20" />
 
                 <div className="relative flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-white text-[#2D1F1D] shadow-xs">
+                  <span className="flex size-10 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
                     <Mail className="size-5 text-[#FF7D6B]" />
                   </span>
                   <div>
@@ -155,13 +155,13 @@ export function Contact() {
                   href={`https://wa.me/${(contact.whatsappRaw || contact.whatsapp).replace(/[^0-9]/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative flex items-center justify-between rounded-[1.6rem_2.2rem_1.5rem_2.4rem] border-3 border-[#2D1F1D] bg-[#A7F3D0] p-4 shadow-[5px_5px_0px_#2D1F1D] transition-all hover:-translate-y-1 hover:shadow-[7px_7px_0px_#2D1F1D] rotate-[0.6deg]"
+                  className="relative flex items-center justify-between rounded-[1.6rem_2.2rem_1.5rem_2.4rem] border-[1.5px] border-[#3E251E]/40 bg-[#A7F3D0] p-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] rotate-[0.6deg]"
                 >
                   {/* Inner Dashed Stitch Border */}
-                  <div className="pointer-events-none absolute inset-1.5 rounded-[1.2rem_1.8rem_1.1rem_2rem] border-2 border-dashed border-[#2D1F1D]/25" />
+                  <div className="pointer-events-none absolute inset-1.5 rounded-[1.2rem_1.8rem_1.1rem_2rem] border border-dashed border-[#2D1F1D]/20" />
 
                   <div className="relative flex items-center gap-3">
-                    <span className="flex size-10 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-white text-[#2D1F1D] shadow-xs">
+                    <span className="flex size-10 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
                       <MessageCircle className="size-5 text-[#10B981]" />
                     </span>
                     <div>
@@ -177,11 +177,11 @@ export function Contact() {
             {/* 3. Studio Card */}
             <div className="group relative">
               <PushPin color="purple" className="left-1/2 -top-1" />
-              <div className="relative flex items-center gap-3 rounded-[2.2rem_1.5rem_2rem_1.8rem] border-3 border-[#2D1F1D] bg-[#DDD6FE] p-4 shadow-[5px_5px_0px_#2D1F1D] rotate-[-0.4deg]">
+              <div className="relative flex items-center gap-3 rounded-[2.2rem_1.5rem_2rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-[#DDD6FE] p-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] rotate-[-0.4deg]">
                 {/* Inner Dashed Stitch Border */}
-                <div className="pointer-events-none absolute inset-1.5 rounded-[1.8rem_1.1rem_1.6rem_1.4rem] border-2 border-dashed border-[#2D1F1D]/25" />
+                <div className="pointer-events-none absolute inset-1.5 rounded-[1.8rem_1.1rem_1.6rem_1.4rem] border border-dashed border-[#2D1F1D]/20" />
 
-                <span className="relative flex size-10 shrink-0 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-white text-[#2D1F1D] shadow-xs">
+                <span className="relative flex size-10 shrink-0 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
                   <MapPin className="size-5 text-[#8B5CF6]" />
                 </span>
                 <div className="relative">
@@ -199,10 +199,11 @@ export function Contact() {
             {/* 3D PushPin on unclipped outer wrapper */}
             <PushPin color="coral" className="left-1/2 -top-1" />
 
-            <div className="relative overflow-hidden rounded-[2.8rem_1.8rem_2.6rem_2rem] border-3 border-[#2D1F1D] bg-[#FAF5EC] shadow-[8px_8px_0px_#2D1F1D]">
+            <div className="relative overflow-hidden rounded-[2.8rem_1.8rem_2.6rem_2rem] border-[1.5px] border-[#3E251E]/40 bg-[#FAF5EC] shadow-[0_14px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)]">
               <div className="grid lg:grid-cols-5">
                 {/* Info panel */}
-                <div className="relative flex flex-col justify-between gap-5 p-5 sm:p-6 bg-[#FFE68C] border-b-2 lg:border-b-0 lg:border-r-2 border-[#2D1F1D] lg:col-span-2">
+                <div className="relative flex flex-col justify-between gap-5 p-5 sm:p-6 bg-[#FFE68C] border-b lg:border-b-0 lg:border-r border-[#2D1F1D]/20 lg:col-span-2">
+
                   <div>
                     <div className="flex items-center gap-2">
                       <Sparkles className="size-4.5 text-[#FF7D6B] fill-[#FF7D6B]" />

@@ -47,7 +47,7 @@ export function Hero() {
             <Reveal delay={80}>
               <h1 className="mt-4 font-sans text-3xl font-black leading-[1.12] tracking-tight text-[#2D1F1D] sm:text-5xl lg:text-[3.35rem] xl:text-[3.65rem] text-balance">
                 <SplitReveal text={`${hero.titlePrefix} `} as="span" delay={0} stagger={35} />
-                <span className="relative inline-block rounded-2xl bg-[#FFE68C] px-3 py-1 text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] -rotate-1 transition-transform duration-200 hover:rotate-1 animate-pop-in">
+                <span className="relative inline-block rounded-2xl bg-[#FFE68C] px-3 py-1 text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.5)] -rotate-1 transition-transform duration-200 hover:rotate-1 animate-pop-in">
                   {hero.highlightWord}
                 </span>{' '}
                 <span className="text-[#FF7D6B]">
@@ -103,7 +103,7 @@ export function Hero() {
                   return (
                     <div
                       key={s.id || s.label}
-                      className={`flex flex-col items-center justify-center rounded-2xl border-2 border-[#2D1F1D] p-3 text-center shadow-[3px_3px_0px_#2D1F1D] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[5px_5px_0px_#2D1F1D] ${bgColors[idx % bgColors.length]
+                      className={`flex flex-col items-center justify-center rounded-2xl border-[1.5px] border-[#2D1F1D]/40 p-3 text-center shadow-[0_4px_12px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.5)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(45,31,29,0.08),3px_3px_0px_rgba(45,31,29,0.6)] ${bgColors[idx % bgColors.length]
                         }`}
                     >
                       <dt className="font-sans text-2xl font-black text-[#2D1F1D] sm:text-3xl">
@@ -128,7 +128,7 @@ export function Hero() {
               <WashiTape color="#A7F3D0" className="right-12 -bottom-4 w-24 left-auto rotate-3" pattern="dots" />
 
               {/* Framed Hero Image */}
-              <div className="relative aspect-[4/4.5] w-full overflow-hidden rounded-[2.5rem] border-3 border-[#2D1F1D] bg-white shadow-[8px_8px_0px_#2D1F1D] transition-transform duration-300 hover:rotate-1">
+              <div className="relative aspect-[4/4.5] w-full overflow-hidden rounded-[2.5rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_16px_36px_rgba(45,31,29,0.1),4px_4px_0px_rgba(45,31,29,0.65)] transition-transform duration-300 hover:rotate-1">
                 <Image
                   src={hero.image || '/images/hero-classroom.png'}
                   alt="Farah teaching in a bright, engaging English classroom in Sfax"
@@ -139,9 +139,9 @@ export function Hero() {
                 />
 
                 {/* Floating sticker pill on the image */}
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl border-2 border-[#2D1F1D] bg-white/95 p-3 shadow-[3px_3px_0px_#2D1F1D] backdrop-blur-md">
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl border border-[#2D1F1D]/30 bg-white/95 p-3 shadow-[2px_2px_0px_rgba(45,31,29,0.35)] backdrop-blur-md">
                   <div className="flex items-center gap-2">
-                    <span className="flex size-8 items-center justify-center rounded-xl border border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D]">
+                    <span className="flex size-8 items-center justify-center rounded-xl border border-[#2D1F1D]/30 bg-[#FFC837] text-[#2D1F1D]">
                       <Palette className="size-4" />
                     </span>
                     <div>
@@ -151,13 +151,14 @@ export function Hero() {
                       </p>
                     </div>
                   </div>
-                  <span className="rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-0.5 text-[0.68rem] font-black text-[#2D1F1D]">
+                  <span className="rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-2.5 py-0.5 text-[0.68rem] font-black text-[#2D1F1D]">
                     Sfax, TN 📍
                   </span>
                 </div>
               </div>
             </div>
           </Reveal>
+
         </div>
       </div>
 

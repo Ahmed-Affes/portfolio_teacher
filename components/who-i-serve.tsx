@@ -54,7 +54,7 @@ export function WhoIServe() {
 
         {/* Tab Buttons */}
         <Reveal delay={60}>
-          <div className="mx-auto flex w-full max-w-xl flex-wrap items-center justify-center gap-2.5 rounded-3xl border-3 border-[#2D1F1D] bg-white p-2 shadow-[4px_4px_0px_#2D1F1D]">
+          <div className="mx-auto flex w-full max-w-xl flex-wrap items-center justify-center gap-2.5 rounded-3xl border-[1.5px] border-[#3E251E]/40 bg-white p-2 shadow-[0_8px_20px_rgba(45,31,29,0.06),2.5px_2.5px_0px_rgba(45,31,29,0.6)]">
             {activeAudiences.map((a) => {
               const TabIcon = ICONS[a.id as keyof typeof ICONS] || GraduationCap
               const isSelected = active === a.id
@@ -64,9 +64,9 @@ export function WhoIServe() {
                   type="button"
                   onClick={() => setActive(a.id)}
                   className={cn(
-                    'flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-transparent px-4 py-2.5 text-xs font-black whitespace-nowrap transition-all duration-200 cursor-pointer sm:px-5 sm:text-sm',
+                    'flex flex-1 items-center justify-center gap-2 rounded-2xl border-[1.5px] border-transparent px-4 py-2.5 text-xs font-black whitespace-nowrap transition-all duration-200 cursor-pointer sm:px-5 sm:text-sm',
                     isSelected
-                      ? 'border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] -translate-y-0.5'
+                      ? 'border-[#2D1F1D]/50 bg-[#FFC837] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)] -translate-y-0.5'
                       : 'text-[#6B5550] hover:text-[#2D1F1D] hover:bg-[#FFE68C]/30',
                   )}
                 >
@@ -84,12 +84,12 @@ export function WhoIServe() {
             {/* 3D PushPin on unclipped outer container */}
             <PushPin color="yellow" className="left-1/2 -top-1" />
 
-            <div className="relative overflow-hidden rounded-[2.8rem_1.6rem_2.6rem_1.8rem] border-3 border-[#2D1F1D] bg-white shadow-[8px_8px_0px_#2D1F1D] animate-pop-in">
+            <div className="relative overflow-hidden rounded-[2.8rem_1.6rem_2.6rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_14px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)] animate-pop-in">
               <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
                 {/* Left Column: Playful Pastel Panel */}
-                <div className={`relative flex flex-col justify-between gap-5 p-5 sm:p-7 ${theme.bg} border-b-2 lg:border-b-0 lg:border-r-2 border-[#2D1F1D]`}>
+                <div className={`relative flex flex-col justify-between gap-5 p-5 sm:p-7 ${theme.bg} border-b lg:border-b-0 lg:border-r border-[#2D1F1D]/20`}>
                   <div>
-                    <div className="flex size-12 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-white text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D]">
+                    <div className="flex size-12 items-center justify-center rounded-2xl border-[1.5px] border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.4)]">
                       <Icon className="size-6" />
                     </div>
                     <h3 className="mt-4 font-sans text-xl font-black text-[#2D1F1D] sm:text-2xl">
@@ -100,7 +100,7 @@ export function WhoIServe() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs font-black text-[#2D1F1D] bg-white/80 rounded-xl border border-[#2D1F1D] px-3 py-1.5 shadow-xs">
+                  <div className="flex items-center gap-2 text-xs font-black text-[#2D1F1D] bg-white/80 rounded-xl border border-[#2D1F1D]/30 px-3 py-1.5 shadow-xs">
                     <Sparkles className="size-3.5 text-[#FF7D6B] fill-[#FF7D6B]" />
                     <span>Personalized &amp; Structured Hands-on Crafting</span>
                   </div>
@@ -108,6 +108,7 @@ export function WhoIServe() {
 
                 {/* Right Column: Key Offerings & CTA */}
                 <div className="flex flex-col justify-between gap-5 p-5 sm:p-7 bg-white">
+
                   <div>
                     <h4 className="text-xs font-black uppercase tracking-wider text-[#2D1F1D] flex items-center gap-2">
                       <span>What You Receive</span>

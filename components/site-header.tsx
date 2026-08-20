@@ -70,10 +70,10 @@ export function SiteHeader() {
     <header className="fixed inset-x-0 top-0 z-50 transition-all duration-300 px-3 pt-3 sm:px-6 sm:pt-4">
       <nav
         className={cn(
-          'mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 rounded-full border-2 border-[#2D1F1D] px-4 py-2 transition-all duration-300 sm:h-16 sm:px-6',
+          'mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 rounded-full border-[1.5px] border-[#2D1F1D]/35 px-4 py-2 transition-all duration-300 sm:h-16 sm:px-6',
           scrolled || menuOpen
-            ? 'bg-white/95 shadow-[4px_4px_0px_#2D1F1D] backdrop-blur-md'
-            : 'bg-white/85 shadow-[3px_3px_0px_#2D1F1D] backdrop-blur-sm',
+            ? 'bg-white/95 shadow-[0_10px_25px_rgba(45,31,29,0.08),2.5px_2.5px_0px_rgba(45,31,29,0.5)] backdrop-blur-md'
+            : 'bg-white/85 shadow-[0_4px_16px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.4)] backdrop-blur-sm',
         )}
       >
         <a
@@ -81,7 +81,7 @@ export function SiteHeader() {
           onClick={(e) => handleNav('home', e)}
           className="group flex min-w-0 items-center gap-2.5 transition-transform hover:scale-105 active:scale-95"
         >
-          <div className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] transition-transform group-hover:rotate-6 sm:size-10">
+          <div className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FFC837] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-transform group-hover:rotate-6 sm:size-10">
             {profile.avatarImage && profile.avatarType !== 'icon' ? (
               <Image
                 src={profile.avatarImage}
@@ -105,7 +105,7 @@ export function SiteHeader() {
         </a>
 
         {/* Desktop Navigation Links */}
-        <ul className="hidden items-center gap-1 rounded-full border-2 border-[#2D1F1D]/15 bg-[#FAF5EC] p-1 xl:flex">
+        <ul className="hidden items-center gap-1 rounded-full border border-[#2D1F1D]/15 bg-[#FAF5EC] p-1 xl:flex">
           {NAV_ITEMS.map((item) => {
             const isActive = active === item.id
             return (
@@ -116,7 +116,7 @@ export function SiteHeader() {
                   className={cn(
                     'relative whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold transition-all duration-150',
                     isActive
-                      ? 'bg-[#FFC837] text-[#2D1F1D] border-2 border-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
+                      ? 'bg-[#FFC837] text-[#2D1F1D] border border-[#2D1F1D]/40 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)]'
                       : 'text-[#6B5550] hover:text-[#2D1F1D] hover:bg-[#FFE68C]/40',
                   )}
                 >
@@ -135,11 +135,11 @@ export function SiteHeader() {
             type="button"
             onClick={openCart}
             aria-label={`Open cart, ${count} items`}
-            className="relative flex size-9 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#A7F3D0] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:scale-105 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all sm:size-10 cursor-pointer"
+            className="relative flex size-9 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#A7F3D0] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:scale-105 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all sm:size-10 cursor-pointer"
           >
             <ShoppingBag className="size-4" />
             {count > 0 && (
-              <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FF7D6B] px-1 py-0.5 text-[0.65rem] font-black text-white shadow-xs animate-bounce">
+              <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-[#FF7D6B] px-1 py-0.5 text-[0.65rem] font-black text-white shadow-xs animate-bounce">
                 {count}
               </span>
             )}
@@ -148,7 +148,7 @@ export function SiteHeader() {
           <a
             href="#contact"
             onClick={(e) => handleNav('contact', e)}
-            className="hidden rounded-full border-2 border-[#2D1F1D] bg-[#FF7D6B] px-4 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FF6B6B] hover:scale-105 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all sm:inline-flex sm:text-sm"
+            className="hidden rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FF7D6B] px-4 py-1.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FF6B6B] hover:scale-105 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all sm:inline-flex sm:text-sm"
           >
             Say Hello! 🌸
           </a>
@@ -158,7 +158,7 @@ export function SiteHeader() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex size-9 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] xl:hidden sm:size-10 cursor-pointer"
+            className="flex size-9 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] xl:hidden sm:size-10 cursor-pointer"
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -167,7 +167,7 @@ export function SiteHeader() {
 
       {/* Mobile Menu Drawer */}
       {menuOpen && (
-        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-2 border-[#2D1F1D] bg-white p-4 shadow-[6px_6px_0px_#2D1F1D] xl:hidden">
+        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-[1.5px] border-[#2D1F1D]/40 bg-white p-4 shadow-[0_16px_36px_rgba(45,31,29,0.12),3px_3px_0px_rgba(45,31,29,0.5)] xl:hidden">
           <ul className="grid grid-cols-2 gap-2">
             {NAV_ITEMS.map((item) => (
               <li key={item.id}>
@@ -175,10 +175,10 @@ export function SiteHeader() {
                   href={`#${item.id}`}
                   onClick={(e) => handleNav(item.id, e)}
                   className={cn(
-                    'block rounded-2xl border-2 border-[#2D1F1D] px-3 py-2.5 text-center text-xs font-bold transition-all shadow-[2px_2px_0px_#2D1F1D] active:shadow-none active:translate-y-[2px]',
+                    'block rounded-2xl border border-[#2D1F1D]/30 px-3 py-2.5 text-center text-xs font-bold transition-all shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] active:shadow-none active:translate-y-[1px]',
                     active === item.id
                       ? 'bg-[#FFC837] text-[#2D1F1D]'
-                      : 'bg-[#FAF5EC] text-[#2D1F1D] hover:bg-[#FFE68C]',
+                      : 'bg-[#FAF5EC] text-[#6B5550]',
                   )}
                 >
                   {item.label}

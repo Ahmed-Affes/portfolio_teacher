@@ -36,11 +36,11 @@ export function Faq() {
                 {/* 3D PushPin on unclipped outer wrapper */}
                 <PushPin color="coral" className="left-8 -top-1" />
 
-                <div className="relative w-full overflow-hidden rounded-[2.6rem_1.6rem_2.8rem_1.8rem] border-3 border-[#2D1F1D] bg-[#FFE68C] p-5 sm:p-6 text-[#2D1F1D] shadow-[6px_6px_0px_#2D1F1D] rotate-[-0.5deg]">
+                <div className="relative w-full overflow-hidden rounded-[2.6rem_1.6rem_2.8rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-[#FFE68C] p-5 sm:p-6 text-[#2D1F1D] shadow-[0_12px_28px_rgba(45,31,29,0.08),3px_3px_0px_rgba(45,31,29,0.6)] rotate-[-0.5deg]">
                   {/* Card Header & Fast Response Pill */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex size-11 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-white text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]">
+                      <span className="flex size-11 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)]">
                         <HelpCircle className="size-5.5 text-[#FF7D6B]" />
                       </span>
                       <div>
@@ -51,13 +51,13 @@ export function Faq() {
                       </div>
                     </div>
 
-                    <span className="rounded-full border border-[#2D1F1D] bg-white px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#10B981] shadow-2xs">
+                    <span className="rounded-full border border-[#2D1F1D]/30 bg-white px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#10B981] shadow-2xs">
                       ⚡ &lt; 2h reply
                     </span>
                   </div>
 
                   {/* Highlights checklist */}
-                  <div className="mt-4 space-y-2 border-t-2 border-[#2D1F1D]/15 pt-3.5 text-xs font-bold text-[#2D1F1D]">
+                  <div className="mt-4 space-y-2 border-t border-[#2D1F1D]/15 pt-3.5 text-xs font-bold text-[#2D1F1D]">
                     <div className="flex items-start gap-2">
                       <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full bg-[#10B981] text-[0.6rem] text-white">✓</span>
                       <span><strong>100% Handcrafted:</strong> Durable laminated props built for active classrooms.</span>
@@ -73,7 +73,7 @@ export function Faq() {
                   </div>
 
                   {/* Teacher Note Memo */}
-                  <div className="mt-4 rounded-2xl border-2 border-[#2D1F1D] bg-white/90 p-3 shadow-2xs">
+                  <div className="mt-4 rounded-2xl border border-[#2D1F1D]/30 bg-white/90 p-3 shadow-2xs">
                     <p className="text-xs font-bold leading-relaxed text-[#6B5550]">
                       <span className="text-[#FF7D6B] font-black">Teacher Farah's Note:</span> Have a special classroom theme or school play coming up? Drop me a message and we'll craft the perfect learning aids together!
                     </p>
@@ -112,12 +112,13 @@ export function Faq() {
                 <Reveal key={faq.id || faq.q || i} delay={i * 40}>
                   <li
                     className={cn(
-                      'overflow-hidden rounded-[1.8rem_1.2rem_2rem_1.4rem] border-3 border-[#2D1F1D] bg-white transition-all duration-300',
+                      'overflow-hidden rounded-[1.8rem_1.2rem_2rem_1.4rem] border-[1.5px] border-[#3E251E]/40 bg-white transition-all duration-300',
                       isOpen
-                        ? 'shadow-[5px_5px_0px_#2D1F1D] -translate-y-0.5 scale-[1.01]'
-                        : 'shadow-[3px_3px_0px_#2D1F1D] hover:shadow-[5px_5px_0px_#2D1F1D]',
+                        ? 'shadow-[0_10px_25px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.6)] -translate-y-0.5 scale-[1.01]'
+                        : 'shadow-[0_4px_12px_rgba(45,31,29,0.04),2px_2px_0px_rgba(45,31,29,0.4)] hover:shadow-[0_8px_20px_rgba(45,31,29,0.08),3px_3px_0px_rgba(45,31,29,0.6)]',
                     )}
                   >
+
                     <button
                       type="button"
                       aria-expanded={isOpen}

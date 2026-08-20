@@ -43,6 +43,7 @@ const FILTERS: { id: WorkCategory; label: string; color: string }[] = [
 
 const INITIAL_VISIBLE_COUNT = 6
 const LOAD_MORE_STEP = 6
+const PIN_COLORS = ['red', 'mint', 'yellow', 'purple', 'coral'] as const
 
 export function WorkShowcase() {
   const { state } = usePortfolio()
@@ -156,7 +157,7 @@ export function WorkShowcase() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search crafts, phonics..."
-                  className="w-full rounded-full border-2 border-[#2D1F1D] bg-white py-2 pl-9 pr-8 text-xs font-bold text-[#2D1F1D] placeholder:text-[#6B5550] shadow-[2px_2px_0px_#2D1F1D] focus:outline-none focus:ring-2 focus:ring-[#FFC837]"
+                  className="w-full rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-white py-2 pl-9 pr-8 text-xs font-bold text-[#2D1F1D] placeholder:text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] focus:outline-none focus:ring-2 focus:ring-[#FFC837]"
                 />
                 {searchQuery && (
                   <button
@@ -171,7 +172,7 @@ export function WorkShowcase() {
               </div>
 
               {/* Layout Switcher */}
-              <div className="flex items-center rounded-full border-2 border-[#2D1F1D] bg-white p-0.5 shadow-[2px_2px_0px_#2D1F1D]">
+              <div className="flex items-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-white p-0.5 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)]">
                 <button
                   type="button"
                   onClick={() => setViewMode('grid')}
@@ -211,16 +212,16 @@ export function WorkShowcase() {
                   type="button"
                   onClick={() => setFilter(f.id)}
                   className={cn(
-                    'group inline-flex shrink-0 items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] px-4 py-2 text-xs font-black transition-all duration-150 cursor-pointer',
+                    'group inline-flex shrink-0 items-center gap-2 rounded-2xl border-[1.5px] border-[#2D1F1D]/50 px-4 py-2 text-xs font-black transition-all duration-150 cursor-pointer',
                     isSelected
-                      ? `${f.color} text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] -translate-y-0.5`
-                      : 'bg-white text-[#6B5550] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
+                      ? `${f.color} text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] -translate-y-0.5`
+                      : 'bg-white text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
                   )}
                 >
                   <span>{f.label}</span>
                   <span
                     className={cn(
-                      'rounded-full border border-[#2D1F1D] px-1.5 py-0.2 text-[0.65rem] font-black',
+                      'rounded-full border border-[#2D1F1D]/40 px-1.5 py-0.2 text-[0.65rem] font-black',
                       isSelected ? 'bg-white text-[#2D1F1D]' : 'bg-[#FAF5EC] text-[#2D1F1D]',
                     )}
                   >
@@ -232,40 +233,39 @@ export function WorkShowcase() {
           </div>
         </Reveal>
 
-        {/* Works Gallery Grid / Bento */}
+        {/* Showcase Items Grid/Bento Container */}
         {filteredItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#2D1F1D] bg-white p-12 text-center shadow-[4px_4px_0px_#2D1F1D]">
-            <SlidersHorizontal className="size-10 text-[#6B5550]" />
-            <h3 className="mt-3 font-sans text-lg font-black text-[#2D1F1D]">
-              No matching materials found
-            </h3>
-            <p className="mt-1 max-w-sm text-xs font-bold text-[#6B5550]">
-              Try adjusting your search query or switching to another category.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setFilter('all')
-                setSearchQuery('')
-              }}
-              className="cute-btn mt-4 bg-[#FFC837] px-5 py-2 text-xs font-black text-[#2D1F1D]"
-            >
-              Reset filters
-            </button>
-          </div>
+          <Reveal>
+            <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#2D1F1D]/30 bg-white p-12 text-center shadow-[0_10px_25px_rgba(45,31,29,0.05),3px_3px_0px_rgba(45,31,29,0.5)]">
+              <span className="text-4xl">🔍</span>
+              <p className="mt-3 font-sans text-base font-bold text-[#2D1F1D]">
+                No craft items found matching your filters.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter('all')
+                  setSearchQuery('')
+                }}
+                className="cute-btn mt-4 bg-[#FFE68C] px-5 py-2 text-xs font-black text-[#2D1F1D]"
+              >
+                Reset all filters
+              </button>
+            </div>
+          </Reveal>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={cn(
+              'grid gap-6',
+              viewMode === 'grid'
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[auto]',
+            )}
+          >
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
-              const isFeature = viewMode === 'bento' && (i % 4 === 0 || i % 4 === 3)
-              const pinColors: ('red' | 'purple' | 'yellow' | 'mint' | 'coral')[] = [
-                'yellow',
-                'mint',
-                'coral',
-                'purple',
-                'red',
-              ]
-              const pinColor = pinColors[i % pinColors.length]
+              const isFeature = viewMode === 'bento' && (i === 0 || i === 3)
+              const pinColor = PIN_COLORS[i % PIN_COLORS.length]
 
               return (
                 <Reveal
@@ -284,7 +284,7 @@ export function WorkShowcase() {
                       type="button"
                       onClick={() => setActiveItemIndex(actualIndex)}
                       className={cn(
-                        'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-3 border-[#2D1F1D] bg-white text-left shadow-[5px_5px_0px_#2D1F1D] transition-all duration-200 hover:-translate-y-1 hover:shadow-[8px_8px_0px_#2D1F1D] cursor-pointer',
+                        'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
                         isFeature ? 'rounded-[2.8rem_1.6rem_2.6rem_1.8rem] md:grid md:grid-cols-[1.15fr_0.85fr]' : (i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]'),
                       )}
                     >
@@ -305,11 +305,11 @@ export function WorkShowcase() {
 
                         {/* Tag pill */}
                         <div className="absolute left-3 top-3 flex items-center gap-1.5">
-                          <span className="rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-[0.7rem] font-black uppercase text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]">
+                          <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-3 py-1 text-[0.7rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
                             {item.tag}
                           </span>
                           {isFeature && (
-                            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border-2 border-[#2D1F1D] bg-[#A7F3D0] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-[#2D1F1D]/40 bg-[#A7F3D0] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                               <Sparkles className="size-3 text-[#10B981]" />
                               <span>Featured</span>
                             </span>
@@ -317,7 +317,7 @@ export function WorkShowcase() {
                         </div>
 
                         {/* Maximize Icon */}
-                        <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-white text-[#2D1F1D] opacity-0 shadow-[2px_2px_0px_#2D1F1D] transition-all duration-200 group-hover:opacity-100 group-hover:scale-110">
+                        <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] opacity-0 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-all duration-200 group-hover:opacity-100 group-hover:scale-110">
                           <Maximize2 className="size-4" />
                         </span>
                       </div>
@@ -388,12 +388,12 @@ export function WorkShowcase() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2.5rem] border-3 border-[#2D1F1D] bg-white shadow-[12px_12px_0px_#2D1F1D]"
+            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2.5rem] border-[1.5px] border-[#3E251E]/50 bg-white shadow-[0_24px_50px_rgba(45,31,29,0.25),5px_5px_0px_rgba(45,31,29,0.5)]"
           >
             {/* Header with Title & Close button */}
-            <div className="flex items-center justify-between border-b-2 border-[#2D1F1D] bg-[#FFE68C] px-6 py-4">
+            <div className="flex items-center justify-between border-b border-[#2D1F1D]/20 bg-[#FFE68C] px-6 py-4">
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-[#2D1F1D] bg-white px-3 py-0.5 text-xs font-black text-[#2D1F1D]">
+                <span className="rounded-full border border-[#2D1F1D]/30 bg-white px-3 py-0.5 text-xs font-black text-[#2D1F1D]">
                   {activeItem.tag}
                 </span>
                 <h3 className="font-sans text-lg font-black text-[#2D1F1D]">
@@ -404,7 +404,7 @@ export function WorkShowcase() {
                 type="button"
                 aria-label="Close modal"
                 onClick={() => setActiveItemIndex(null)}
-                className="flex size-8 items-center justify-center rounded-full border border-[#2D1F1D] bg-white text-[#2D1F1D] transition-colors hover:bg-[#FF7D6B] hover:text-white"
+                className="flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] transition-colors hover:bg-[#FF7D6B] hover:text-white"
               >
                 <X className="size-4" />
               </button>
@@ -412,7 +412,7 @@ export function WorkShowcase() {
 
             {/* Modal Body */}
             <div className="overflow-y-auto p-6 sm:p-8">
-              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border-2 border-[#2D1F1D] bg-[#FFF9E6]">
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border-[1.5px] border-[#2D1F1D]/30 bg-[#FFF9E6]">
                 <Image
                   src={activeItem.image || '/placeholder.svg'}
                   alt={activeItem.title}
@@ -437,7 +437,7 @@ export function WorkShowcase() {
                       {activeItem.highlights.map((h) => (
                         <span
                           key={h}
-                          className="inline-flex items-center gap-1.5 rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-3 py-1 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-[#2D1F1D]/30 bg-[#A7F3D0] px-3 py-1 text-xs font-bold text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)]"
                         >
                           <CheckCircle2 className="size-3.5 stroke-[2.5]" />
                           {h}
@@ -447,23 +447,24 @@ export function WorkShowcase() {
                   </div>
                 )}
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#2D1F1D]/10 pt-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#2D1F1D]/15 pt-4">
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={handlePrev}
-                      className="flex size-9 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFE68C]"
+                      className="flex size-9 items-center justify-center rounded-2xl border border-[#2D1F1D]/40 bg-[#FAF5EC] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]"
                     >
                       <ChevronLeft className="size-5" />
                     </button>
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="flex size-9 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFE68C]"
+                      className="flex size-9 items-center justify-center rounded-2xl border border-[#2D1F1D]/40 bg-[#FAF5EC] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]"
                     >
                       <ChevronRight className="size-5" />
                     </button>
                   </div>
+
 
                   <a
                     href="#contact"

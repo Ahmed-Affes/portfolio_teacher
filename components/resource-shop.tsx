@@ -106,7 +106,7 @@ export function ResourceShop() {
         </Reveal>
 
         {/* The Artisan Market Stall Canopy & Wooden Shelf Frame */}
-        <div className="relative rounded-[2.5rem] border-3 border-[#2D1F1D] bg-[#FAF5EC] p-4 shadow-[8px_8px_0px_#2D1F1D] sm:p-6 lg:p-8">
+        <div className="relative rounded-[2.5rem] border-[1.5px] border-[#3E251E]/40 bg-[#FAF5EC] p-4 shadow-[0_12px_30px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)] sm:p-6 lg:p-8">
           {/* Mediterranean Striped Market Awning Header */}
           <div className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6 sm:mb-8 lg:-mx-8 lg:-mt-8">
             <MarketAwning />
@@ -126,11 +126,11 @@ export function ResourceShop() {
 
                     {/* Product Card Container with organic craft squircle radii & subtle tilt */}
                     <div className={cn(
-                      'relative flex flex-1 flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.2rem_1.6rem] border-3 border-[#2D1F1D] bg-white shadow-[5px_5px_0px_#2D1F1D] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[8px_8px_0px_#2D1F1D]',
+                      'relative flex flex-1 flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.2rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)]',
                       i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]',
                     )}>
                       {/* Product Image Preview */}
-                      <div className="relative aspect-[4/3.2] w-full overflow-hidden bg-[#FFF9E6] border-b-2 border-[#2D1F1D]">
+                      <div className="relative aspect-[4/3.2] w-full overflow-hidden bg-[#FFF9E6] border-b border-[#2D1F1D]/20">
                         <Image
                           src={product.image || '/placeholder.svg'}
                           alt={product.name}
@@ -138,10 +138,11 @@ export function ResourceShop() {
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <span className="absolute left-2.5 top-2.5 rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                        <span className="absolute left-2.5 top-2.5 rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                           {product.category}
                         </span>
                       </div>
+
 
                       {/* Product Details */}
                       <div className="flex flex-1 flex-col p-4 bg-white justify-between">

@@ -124,13 +124,13 @@ export function Testimonials() {
                     <WoodenPeg color={pegColor} size={36} className="left-1/2 -top-4.5" />
 
                     <figure
-                      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-[2.4rem_1.6rem_2.2rem_1.8rem] border-3 border-[#2D1F1D] p-5 shadow-[5px_5px_0px_#2D1F1D] transition-all duration-300 group-hover:shadow-[9px_9px_0px_#2D1F1D] ${cardBgs[i % cardBgs.length]} sm:p-6`}
+                      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-[2.4rem_1.6rem_2.2rem_1.8rem] border-[1.5px] border-[#3E251E]/40 p-5 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 group-hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] ${cardBgs[i % cardBgs.length]} sm:p-6`}
                     >
                       {/* Inner dashed craft stitch border */}
-                      <div className="pointer-events-none absolute inset-2 rounded-[2rem_1.2rem_1.8rem_1.4rem] border-2 border-dashed border-[#2D1F1D]/20" />
+                      <div className="pointer-events-none absolute inset-2 rounded-[2rem_1.2rem_1.8rem_1.4rem] border border-dashed border-[#2D1F1D]/15" />
 
                       {/* Top clothesline grip notch line */}
-                      <div className="absolute left-1/2 -translate-x-1/2 top-0 h-1.5 w-12 rounded-b-md bg-[#2D1F1D]/20 z-10" />
+                      <div className="absolute left-1/2 -translate-x-1/2 top-0 h-1.5 w-12 rounded-b-md bg-[#2D1F1D]/15 z-10" />
 
                       <div>
                         <div className="flex items-center justify-between">
@@ -141,7 +141,7 @@ export function Testimonials() {
                               ))}
                             </div>
                           ) : (
-                            <span className="rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2.5 py-0.5 text-[0.68rem] font-black uppercase tracking-wider text-[#2D1F1D]">
+                            <span className="rounded-full border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2.5 py-0.5 text-[0.68rem] font-black uppercase tracking-wider text-[#2D1F1D]">
                               Verified Review ✨
                             </span>
                           )}
@@ -153,8 +153,8 @@ export function Testimonials() {
                         </blockquote>
                       </div>
 
-                      <figcaption className="mt-6 flex items-center gap-3 border-t-2 border-[#2D1F1D]/10 pt-4">
-                        <div className="flex size-10 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FFE68C] text-xs font-black text-[#2D1F1D] shadow-xs">
+                      <figcaption className="mt-6 flex items-center gap-3 border-t border-[#2D1F1D]/10 pt-4">
+                        <div className="flex size-10 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-[#FFE68C] text-xs font-black text-[#2D1F1D] shadow-xs">
                           {t.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
@@ -174,14 +174,15 @@ export function Testimonials() {
       {/* Review Submission Modal */}
       {isReviewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D1F1D]/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-[2.5rem] border-3 border-[#2D1F1D] bg-white p-6 shadow-[10px_10px_0px_#2D1F1D] sm:p-8">
-            <div className="flex items-center justify-between border-b-2 border-[#2D1F1D] pb-4">
+          <div className="w-full max-w-lg rounded-[2.5rem] border-[1.5px] border-[#3E251E]/50 bg-white p-6 shadow-[0_24px_50px_rgba(45,31,29,0.25),5px_5px_0px_rgba(45,31,29,0.5)] sm:p-8">
+            <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-4">
               <div className="flex items-center gap-2">
-                <span className="flex size-9 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D]">
+                <span className="flex size-9 items-center justify-center rounded-2xl border border-[#2D1F1D]/40 bg-[#FFC837] text-[#2D1F1D]">
                   <Heart className="size-4.5 fill-[#FF7D6B] text-[#2D1F1D]" />
                 </span>
                 <h3 className="font-sans text-xl font-black text-[#2D1F1D]">Leave an Endorsement</h3>
               </div>
+
               <button
                 type="button"
                 onClick={() => setIsReviewModalOpen(false)}

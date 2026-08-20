@@ -13,12 +13,12 @@ export function SiteFooter() {
   const whatsappRaw = contact.whatsappRaw || contact.whatsapp.replace(/[^0-9]/g, '')
 
   return (
-    <footer className="relative overflow-hidden bg-[#FAF5EC] text-[#2D1F1D] border-t-3 border-[#2D1F1D]">
+    <footer className="relative overflow-hidden bg-[#FAF5EC] text-[#2D1F1D] border-t-[1.5px] border-[#2D1F1D]/25">
       <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-18">
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
           <div>
             <a href="#home" className="group flex items-center gap-3">
-              <span className="flex size-11 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] transition-transform duration-200 group-hover:rotate-12">
+              <span className="flex size-11 items-center justify-center rounded-2xl border border-[#2D1F1D]/40 bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.3)] transition-transform duration-200 group-hover:rotate-12">
                 <Sparkles className="size-5 fill-[#FF7D6B] text-[#2D1F1D]" />
               </span>
               <div>
@@ -54,13 +54,14 @@ export function SiteFooter() {
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className={`flex size-10 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] ${s.bg} text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_#2D1F1D] active:translate-y-0 active:shadow-none`}
+                  className={`flex size-10 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 ${s.bg} text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-all hover:-translate-y-1 hover:shadow-[2.5px_2.5px_0px_rgba(45,31,29,0.5)] active:translate-y-0 active:shadow-none`}
                 >
                   <s.icon className="size-4.5 stroke-[2.5]" />
                 </a>
               ))}
             </div>
           </div>
+
 
           <div>
             <h3 className="text-xs font-black uppercase tracking-wider text-[#2D1F1D]">

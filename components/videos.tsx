@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import {
   CheckCircle2,
+  ChevronRight,
   Clock,
   Play,
   Sparkles,
@@ -106,16 +107,16 @@ export function Videos() {
                   type="button"
                   onClick={() => setActiveCategory(f.id)}
                   className={cn(
-                    'group inline-flex shrink-0 items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] px-4 py-2 text-xs font-black transition-all duration-150 cursor-pointer',
+                    'group inline-flex shrink-0 items-center gap-2 rounded-2xl border-[1.5px] border-[#2D1F1D]/50 px-4 py-2 text-xs font-black transition-all duration-150 cursor-pointer',
                     isSelected
-                      ? `${f.color} text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] -translate-y-0.5`
-                      : 'bg-white text-[#6B5550] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
+                      ? `${f.color} text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] -translate-y-0.5`
+                      : 'bg-white text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
                   )}
                 >
                   <span>{f.label}</span>
                   <span
                     className={cn(
-                      'rounded-full border border-[#2D1F1D] px-1.5 py-0.2 text-[0.65rem] font-black',
+                      'rounded-full border border-[#2D1F1D]/40 px-1.5 py-0.2 text-[0.65rem] font-black',
                       isSelected ? 'bg-white text-[#2D1F1D]' : 'bg-[#FAF5EC] text-[#2D1F1D]',
                     )}
                   >
@@ -150,14 +151,14 @@ export function Videos() {
                     type="button"
                     onClick={() => setActiveVideo(video)}
                     className={cn(
-                      'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-3 border-[#2D1F1D] bg-white text-left shadow-[5px_5px_0px_#2D1F1D] transition-all duration-200 hover:-translate-y-1 hover:shadow-[8px_8px_0px_#2D1F1D] cursor-pointer',
+                      'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
                       isFeatured ? 'rounded-[2.8rem_1.6rem_2.6rem_1.8rem] lg:grid lg:grid-cols-[1.2fr_0.8fr] lg:items-stretch' : (i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]'),
                     )}
                   >
                     {/* Video Thumbnail Screen */}
                     <div className={cn(
-                      'relative aspect-video w-full overflow-hidden bg-[#2D1F1D] border-b-2 border-[#2D1F1D]',
-                      isFeatured && 'lg:border-b-0 lg:border-r-2 lg:aspect-auto lg:min-h-[280px]',
+                      'relative aspect-video w-full overflow-hidden bg-[#2D1F1D] border-b border-[#2D1F1D]/20',
+                      isFeatured && 'lg:border-b-0 lg:border-r lg:aspect-auto lg:min-h-[280px]',
                     )}>
                       <Image
                         src={video.thumbnail || '/placeholder.svg'}
@@ -170,20 +171,20 @@ export function Videos() {
 
                       {/* Pulsing Play Button */}
                       <span
-                        className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] transition-transform duration-200 group-hover:scale-110"
+                        className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] transition-transform duration-200 group-hover:scale-110"
                         aria-hidden="true"
                       >
                         <Play className="ml-1 size-6 fill-[#2D1F1D]" />
                       </span>
 
                       {/* Duration Badge */}
-                      <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full border border-[#2D1F1D] bg-white/95 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D] shadow-xs">
+                      <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D] shadow-xs">
                         <Clock className="size-3 text-[#FF7D6B]" />
                         {video.duration}
                       </span>
 
                       {/* Level pill */}
-                      <span className="absolute left-3 top-3 rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                      <span className="absolute left-3 top-3 rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                         {video.level}
                       </span>
                     </div>
@@ -191,7 +192,7 @@ export function Videos() {
                     {/* Video Info Content */}
                     <div className={cn('flex flex-1 flex-col p-5', isFeatured && 'lg:justify-center lg:p-8')}>
                       {isFeatured && (
-                        <span className="mb-2 inline-flex w-fit items-center rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] animate-wiggle-in">
+                        <span className="mb-2 inline-flex w-fit items-center rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-3 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)] animate-wiggle-in">
                           Featured Lesson 🌟
                         </span>
                       )}
@@ -202,18 +203,18 @@ export function Videos() {
                         {video.title}
                       </h3>
 
-                      {video.takeaways && video.takeaways.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-1.5 border-t-2 border-[#2D1F1D]/10 pt-3">
-                          {video.takeaways.slice(0, 2).map((takeaway: string) => (
-                            <span
-                              key={takeaway}
-                              className="rounded-xl border border-[#2D1F1D] bg-[#FAF5EC] px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D]"
-                            >
-                              {takeaway}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <p className="mt-2 text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-3">
+                        {video.description}
+                      </p>
+
+                      <div className="mt-4 flex items-center justify-between border-t border-[#2D1F1D]/10 pt-3">
+                        <span className="text-[0.7rem] font-bold text-[#6B5550]">
+                          Target: {video.ageGroup}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-xs font-black text-[#FF7D6B] group-hover:underline">
+                          Watch Video <ChevronRight className="size-3.5" />
+                        </span>
+                      </div>
                     </div>
                   </button>
                 </div>
@@ -234,12 +235,12 @@ export function Videos() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2.5rem] border-3 border-[#2D1F1D] bg-white shadow-[12px_12px_0px_#2D1F1D]"
+            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2.5rem] border-[1.5px] border-[#3E251E]/50 bg-white shadow-[0_24px_50px_rgba(45,31,29,0.25),5px_5px_0px_rgba(45,31,29,0.5)]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b-2 border-[#2D1F1D] bg-[#FFE68C] px-6 py-4">
+            <div className="flex items-center justify-between border-b border-[#2D1F1D]/20 bg-[#FFE68C] px-6 py-4">
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-[#2D1F1D] bg-white px-3 py-0.5 text-xs font-black text-[#2D1F1D]">
+                <span className="rounded-full border border-[#2D1F1D]/30 bg-white px-3 py-0.5 text-xs font-black text-[#2D1F1D]">
                   {activeVideo.category}
                 </span>
                 <h3 className="font-sans text-base font-black text-[#2D1F1D] sm:text-lg">
@@ -250,7 +251,7 @@ export function Videos() {
                 type="button"
                 aria-label="Close video"
                 onClick={() => setActiveVideo(null)}
-                className="flex size-8 items-center justify-center rounded-full border border-[#2D1F1D] bg-white text-[#2D1F1D] transition-colors hover:bg-[#FF7D6B] hover:text-white"
+                className="flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] transition-colors hover:bg-[#FF7D6B] hover:text-white"
               >
                 <X className="size-4" />
               </button>
@@ -258,7 +259,7 @@ export function Videos() {
 
             {/* Video Container */}
             <div className="overflow-y-auto p-6 sm:p-8">
-              <div className="relative aspect-video w-full overflow-hidden rounded-2xl border-2 border-[#2D1F1D] bg-black">
+              <div className="relative aspect-video w-full overflow-hidden rounded-2xl border-[1.5px] border-[#2D1F1D]/30 bg-black">
                 {activeVideo.src ? (
                   <video
                     src={activeVideo.src}
@@ -286,7 +287,7 @@ export function Videos() {
                     {activeVideo.takeaways.map((takeaway: string) => (
                       <span
                         key={takeaway}
-                        className="inline-flex items-center gap-1.5 rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-3 py-1 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-[#2D1F1D]/30 bg-[#A7F3D0] px-3 py-1 text-xs font-bold text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)]"
                       >
                         <CheckCircle2 className="size-3.5 stroke-[2.5]" />
                         {takeaway}
