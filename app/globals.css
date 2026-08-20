@@ -271,6 +271,7 @@
   100% { transform: rotate(0deg) scale(1); opacity: 1; }
 }
 
+
 @keyframes scroll-hint {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(6px); }
@@ -481,6 +482,7 @@
   animation: clothesline-peg-bob 4.2s ease-in-out infinite;
   transform-origin: bottom center;
 }
+
 
 @utility scrollbar-hide {
   -ms-overflow-style: none;

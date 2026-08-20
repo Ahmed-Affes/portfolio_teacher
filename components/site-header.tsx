@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Menu, ShoppingBag, Sparkles, X, Heart } from 'lucide-react'
 import { NAV_ITEMS } from '@/lib/data'
 import { useCart } from '@/components/cart-provider'
 import { HeaderMusicButton } from '@/components/ambient-music'
+import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
 
 export function SiteHeader() {
@@ -12,6 +14,15 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const { count, openCart } = useCart()
+  const { state } = usePortfolio()
+
+  const profile = state.profile || {
+    name: 'Farah Affes',
+    tagline: 'Teacher Studio',
+    avatarImage: '/images/farah-portrait.png',
+    avatarType: 'image',
+    badgeEmoji: '✨',
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -70,15 +81,24 @@ export function SiteHeader() {
           onClick={(e) => handleNav('home', e)}
           className="group flex min-w-0 items-center gap-2.5 transition-transform hover:scale-105 active:scale-95"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] group-hover:rotate-12 transition-transform sm:size-10">
-            <Sparkles className="size-4 text-[#2D1F1D] fill-[#FFC837]" />
-          </span>
+          <div className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] transition-transform group-hover:rotate-6 sm:size-10">
+            {profile.avatarImage && profile.avatarType !== 'icon' ? (
+              <Image
+                src={profile.avatarImage}
+                alt={profile.name || 'Farah Affes'}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <Sparkles className="size-4 text-[#2D1F1D] fill-[#FFC837]" />
+            )}
+          </div>
           <div className="flex flex-col">
             <span className="truncate font-sans text-base font-bold leading-none text-[#2D1F1D] sm:text-lg">
-              Farah Affes
+              {profile.name || 'Farah Affes'}
             </span>
             <span className="text-[0.65rem] font-bold text-[#FF7D6B] leading-tight flex items-center gap-1">
-              <span>Teacher Studio</span>
+              <span>{profile.tagline || 'Teacher Studio'}</span>
               <Heart className="size-2.5 fill-[#FF7D6B]" />
             </span>
           </div>

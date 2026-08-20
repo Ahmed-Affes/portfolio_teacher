@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 
 const palette = {
   ink: '#2D1F1D',
@@ -64,13 +65,13 @@ function bird(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number
   ctx.save()
   ctx.translate(x, y)
   ctx.strokeStyle = palette.ink
-  ctx.lineWidth = 2.8 * scale
+  ctx.lineWidth = 2.4 * scale
   ctx.lineCap = 'round'
-  const wing = Math.sin(flap) * 7 * scale
+  const wing = Math.sin(flap) * 6 * scale
   ctx.beginPath()
-  ctx.moveTo(-19 * scale, wing)
-  ctx.quadraticCurveTo(-9 * scale, -12 * scale - wing, 0, 0)
-  ctx.quadraticCurveTo(9 * scale, -12 * scale - wing, 19 * scale, wing)
+  ctx.moveTo(-16 * scale, wing)
+  ctx.quadraticCurveTo(-8 * scale, -10 * scale - wing, 0, 0)
+  ctx.quadraticCurveTo(8 * scale, -10 * scale - wing, 16 * scale, wing)
   ctx.stroke()
   ctx.restore()
 }
@@ -80,11 +81,11 @@ function star(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number
   ctx.globalAlpha = alpha
   ctx.fillStyle = color
   ctx.strokeStyle = palette.ink
-  ctx.lineWidth = 1.4
+  ctx.lineWidth = 1.2
   ctx.beginPath()
   for (let i = 0; i < 10; i++) {
     const angle = -Math.PI / 2 + (i * Math.PI) / 5
-    const radius = (i % 2 ? 0.42 : 1) * 8 * scale
+    const radius = (i % 2 ? 0.42 : 1) * 7 * scale
     const px = x + Math.cos(angle) * radius
     const py = y + Math.sin(angle) * radius
     if (i === 0) ctx.moveTo(px, py)
@@ -152,12 +153,14 @@ function plane(ctx: CanvasRenderingContext2D, x: number, y: number, scale: numbe
 }
 
 export function SideStoryCanvas() {
+  const pathname = usePathname()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const targetProgress = useRef(0)
   const smoothProgress = useRef(0)
   const particles = useRef<Particle[]>([])
 
   useEffect(() => {
+    if (pathname?.startsWith('/admin')) return
     if (window.innerWidth < 900) return
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
@@ -248,7 +251,11 @@ export function SideStoryCanvas() {
       window.removeEventListener('resize', resize)
       window.removeEventListener('scroll', updateScroll)
     }
-  }, [])
+  }, [pathname])
+
+  if (pathname?.startsWith('/admin')) {
+    return null
+  }
 
   return <canvas ref={canvasRef} aria-hidden="true" className="side-story-canvas" />
 }

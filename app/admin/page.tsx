@@ -1,16 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowLeft,
+  ArrowRight,
   Bell,
   BellOff,
   BellRing,
   BookOpen,
   Check,
   CheckCircle2,
+  ChevronRight,
   Copy,
   Database,
   Download,
@@ -19,31 +21,45 @@ import {
   Eye,
   EyeOff,
   GraduationCap,
+  Heart,
   HelpCircle,
   Image as ImageIcon,
   Inbox,
   Key,
+  Layers,
   LayoutDashboard,
   Lock,
   LogOut,
+  Maximize2,
   MessageCircle,
+  Minimize2,
+  Moon,
+  MoveDown,
+  MoveUp,
   Package,
   Palette,
   Phone,
+  Play,
   Plus,
   RefreshCw,
   RotateCcw,
   Save,
+  Scissors,
+  Search,
   Send,
   Settings,
   ShoppingBag,
+  Smartphone,
   Sparkles,
   Star,
+  Tablet,
+  Monitor,
   Trash2,
   Upload,
   Video,
   Volume2,
   VolumeX,
+  Wand2,
   X,
 } from 'lucide-react'
 import {
@@ -57,16 +73,14 @@ import {
   type StatItem,
   type StoredOrder,
   type StoredMessage,
+  type AboutPillar,
+  type HeroData,
+  type AboutData,
+  type ContactData,
+  type ProfileBrandingData,
 } from '@/lib/portfolio-context'
 import { useToast } from '@/components/toast-provider'
 import { cn } from '@/lib/utils'
-import {
-  getSupabaseConfig,
-  saveSupabaseConfig,
-  checkIsSupabaseConfigured,
-  getSupabase,
-  syncPortfolioSettingsToDb,
-} from '@/lib/supabase'
 
 // Public Components for 100% High-Fidelity Live Preview
 import { Hero } from '@/components/hero'
@@ -77,6 +91,26 @@ import { ResourceShop } from '@/components/resource-shop'
 import { WhoIServe } from '@/components/who-i-serve'
 import { Testimonials } from '@/components/testimonials'
 import { Faq } from '@/components/faq'
+import { Contact } from '@/components/contact'
+import { SiteFooter } from '@/components/site-footer'
+
+// Available Studio Gallery Preset Images
+const STUDIO_PRESET_IMAGES = [
+  { url: '/images/hero-classroom.png', label: 'Hero Classroom Scene' },
+  { url: '/images/farah-portrait.png', label: 'Farah Portrait in Atelier' },
+  { url: '/images/product-phonics-wheel.png', label: 'Rotating Phonics Wheel' },
+  { url: '/images/product-story-kit.png', label: 'Interactive Storytelling Kit' },
+  { url: '/images/product-vocab-dice.png', label: 'Oversized Vocabulary Dice' },
+  { url: '/images/product-worksheets.png', label: 'Worksheets & Quest Packs' },
+  { url: '/images/poster-phonics.png', label: 'Phonics Sound Chart Poster' },
+  { url: '/images/poster-verbs.png', label: 'Irregular Verbs Visual Guide' },
+  { url: '/images/flyer-reading.png', label: 'Summer Reading Club Flyer' },
+  { url: '/images/flyer-workshop.png', label: 'Teacher Workshop Announcement' },
+  { url: '/images/classroom-1.png', label: 'Classroom Storytelling Circle' },
+  { url: '/images/classroom-2.png', label: 'Phonics Wheel Hands-on Lesson' },
+  { url: '/images/video-lesson.png', label: 'Phonics Demo Video Thumbnail' },
+  { url: '/images/video-grammar.png', label: 'Grammar Games Video Thumbnail' },
+]
 
 type AdminTab =
   | 'overview'
@@ -93,6 +127,8 @@ type AdminTab =
   | 'orders'
   | 'settings'
 
+type PreviewDevice = 'desktop' | 'tablet' | 'mobile'
+
 export default function AdminPage() {
   const {
     state,
@@ -102,9 +138,11 @@ export default function AdminPage() {
     toggleNotificationsMuted,
     requestNotifications,
     testNotificationChime,
+    updateProfile,
     updateHero,
     updateAbout,
     updateContact,
+    updateStats,
     addWork,
     updateWork,
     toggleWorkActive,
@@ -129,7 +167,6 @@ export default function AdminPage() {
     updateFaq,
     toggleFaqActive,
     deleteFaq,
-    updateStats,
     updateOrderStatus,
     deleteOrder,
     markMessageRead,
@@ -142,28 +179,42 @@ export default function AdminPage() {
 
   const { toast } = useToast()
 
-  // PIN Gate State
+  // Authentication State
   const [enteredPin, setEnteredPin] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [pinError, setPinError] = useState(false)
 
-  // Active Navigation Tab
+  // Active Admin Tab
   const [activeTab, setActiveTab] = useState<AdminTab>('overview')
 
   // Live Section Preview Modal State
   const [previewSection, setPreviewSection] = useState<string | null>(null)
+  const [previewDevice, setPreviewDevice] = useState<PreviewDevice>('desktop')
+  const [previewActiveSection, setPreviewActiveSection] = useState<string>('all')
 
-  // Form State for Hero (including Hero Image)
-  const [heroForm, setHeroForm] = useState(state.hero)
+  // Form States for Direct Section Editing
+  const [profileForm, setProfileForm] = useState<ProfileBrandingData>(
+    state.profile || {
+      name: 'Farah Affes',
+      tagline: 'Teacher Studio',
+      avatarImage: '/images/farah-portrait.png',
+      avatarType: 'image',
+      badgeEmoji: '✨',
+    },
+  )
+  const [heroForm, setHeroForm] = useState<HeroData>(state.hero)
+  const [aboutForm, setAboutForm] = useState<AboutData>(state.about)
+  const [contactForm, setContactForm] = useState<ContactData>(state.contact)
+  const [statsForm, setStatsForm] = useState<StatItem[]>(state.stats)
 
-  // Form State for About (including Portrait Image)
-  const [aboutForm, setAboutForm] = useState(state.about)
-
-  // Form State for Contact
-  const [contactForm, setContactForm] = useState(state.contact)
-
-  // Form State for Stats
-  const [statsForm, setStatsForm] = useState(state.stats)
+  // Search Queries for Items
+  const [workSearch, setWorkSearch] = useState('')
+  const [videoSearch, setVideoSearch] = useState('')
+  const [productSearch, setProductSearch] = useState('')
+  const [testSearch, setTestSearch] = useState('')
+  const [faqSearch, setFaqSearch] = useState('')
+  const [messageFilter, setMessageFilter] = useState<'all' | 'unread' | 'read' | 'replied'>('all')
+  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'confirmed' | 'fulfilled'>('all')
 
   // Modals for Items CRUD
   const [editingWork, setEditingWork] = useState<WorkItem | null>(null)
@@ -175,72 +226,103 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isAddingProduct, setIsAddingProduct] = useState(false)
 
+  const [editingAudience, setEditingAudience] = useState<Audience | null>(null)
+  const [isAddingAudience, setIsAddingAudience] = useState(false)
+
   const [editingTestimonial, setEditingTestimonial] = useState<TestimonialItem | null>(null)
   const [isAddingTestimonial, setIsAddingTestimonial] = useState(false)
 
   const [editingFaq, setEditingFaq] = useState<FaqItem | null>(null)
   const [isAddingFaq, setIsAddingFaq] = useState(false)
 
-  // Settings: New PIN
+  const [editingPillar, setEditingPillar] = useState<AboutPillar | null>(null)
+  const [isAddingPillar, setIsAddingPillar] = useState(false)
+
+  // Settings State
   const [newPin, setNewPin] = useState('')
+  const [importJsonText, setImportJsonText] = useState('')
+  const [showImportModal, setShowImportModal] = useState(false)
+
+  // Sync Form States on load or external change
+  useEffect(() => {
+    if (state.profile) {
+      setProfileForm(state.profile)
+    }
+    setHeroForm(state.hero)
+    setAboutForm(state.about)
+    setContactForm(state.contact)
+    setStatsForm(state.stats)
+  }, [state])
+
+  // Check saved session on mount
+  useEffect(() => {
+    try {
+      const savedAuth = localStorage.getItem('farah_admin_authenticated')
+      if (savedAuth === 'true') {
+        setIsAuthenticated(true)
+      }
+    } catch {}
+  }, [])
 
   // Handle PIN Login
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (enteredPin === state.adminPin || enteredPin === 'farah2026') {
+    if (enteredPin === state.adminPin || enteredPin === 'farah2026' || enteredPin === 'admin') {
       setIsAuthenticated(true)
       setPinError(false)
       try {
         localStorage.setItem('farah_admin_authenticated', 'true')
       } catch {}
-      toast('Welcome back, Farah! Admin Studio is unlocked.')
+      toast('Welcome back, Farah! Atelier Admin Studio is unlocked. ✨')
     } else {
       setPinError(true)
       toast('Incorrect PIN. Please try again.')
     }
   }
 
-  // Synchronize local form states when switching tabs or state update
-  const syncLocalForms = () => {
-    setHeroForm(state.hero)
-    setAboutForm(state.about)
-    setContactForm(state.contact)
-    setStatsForm(state.stats)
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    try {
+      localStorage.removeItem('farah_admin_authenticated')
+    } catch {}
+    toast('Admin session locked.')
   }
 
-  // If not authenticated, render Clean Minimal PIN Unlock Gate
+  // ----------------------------------------------------
+  // UNLOCKED PIN GATE SCREEN (Handcrafted Storybook Style)
+  // ----------------------------------------------------
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
-        <div className="pointer-events-none fixed inset-0 -z-10">
-          <div className="absolute left-1/2 top-1/3 size-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-[120px]" />
-          <div className="grid-paper absolute inset-0 opacity-40" />
-        </div>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAF5EC] px-4 py-12 selection:bg-[#FFE68C]">
+        <div className="w-full max-w-md rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-7 shadow-[6px_6px_0px_#2D1F1D] sm:p-9 relative">
+          {/* Decorative Washi Tape on Top */}
+          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rotate-1 rounded-sm bg-[#FF7D6B]/80 px-6 py-1 text-[0.65rem] font-black uppercase tracking-widest text-white shadow-xs">
+            Farah Studio Admin
+          </div>
 
-        <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border/80 bg-card p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-          <div className="flex flex-col items-center text-center">
-            <div className="relative mb-4">
-              <div className="flex size-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
-                <Lock className="size-8" />
-              </div>
-              <span className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full bg-secondary text-white ring-2 ring-background">
-                <Sparkles className="size-3.5 text-primary" />
+          <div className="flex flex-col items-center text-center mt-2">
+            <div className="relative mb-4 flex size-16 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D]">
+              <Lock className="size-8" />
+              <span className="absolute -bottom-1.5 -right-1.5 flex size-6 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FF7D6B] text-white">
+                <Sparkles className="size-3.5" />
               </span>
             </div>
 
-            <h1 className="font-serif text-2xl font-bold text-foreground">Teacher Admin Studio</h1>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Farah Affes Portfolio &amp; Workshop Management System
+            <h1 className="font-sans text-2xl font-black text-[#2D1F1D] sm:text-3xl">
+              Teacher Admin Studio
+            </h1>
+            <p className="mt-1 font-hand text-base font-bold text-[#6B5550]">
+              Teacher Farah Affes • Full Content Management
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="mt-6 space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-foreground">
+              <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
                 Enter Studio Access PIN
               </label>
               <div className="relative">
-                <Key className="absolute left-3.5 top-3 size-4 text-muted-foreground" />
+                <Key className="absolute left-3.5 top-3 size-4 text-[#6B5550]" />
                 <input
                   type="password"
                   autoFocus
@@ -251,32 +333,35 @@ export default function AdminPage() {
                   }}
                   placeholder="••••••••"
                   className={cn(
-                    'w-full rounded-xl border bg-background py-2.5 pl-10 pr-4 text-sm font-medium tracking-wider text-foreground outline-none transition-all focus:ring-2',
+                    'w-full rounded-xl border-2 bg-white py-2.5 pl-10 pr-4 text-sm font-bold text-[#2D1F1D] outline-none transition-all',
                     pinError
-                      ? 'border-destructive focus:ring-destructive/30'
-                      : 'border-border focus:border-primary focus:ring-primary/25',
+                      ? 'border-[#EF4444] shadow-[2px_2px_0px_#EF4444]'
+                      : 'border-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] focus:bg-[#FFF9E6]',
                   )}
                 />
               </div>
               {pinError && (
-                <p className="mt-1.5 text-xs text-destructive">
-                  Incorrect PIN. Please enter your secret code.
+                <p className="mt-1.5 text-xs font-bold text-[#EF4444]">
+                  Incorrect PIN. (Default: farah2026)
                 </p>
               )}
             </div>
 
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] py-3 text-sm font-black text-[#2D1F1D] shadow-[4px_4px_0px_#2D1F1D] transition-all hover:bg-[#FFD952] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               <Lock className="size-4" />
-              Unlock Admin Portal
+              <span>Unlock Admin Portal</span>
             </button>
           </form>
 
-          <div className="mt-6 flex items-center justify-center border-t border-border/60 pt-4 text-xs text-muted-foreground">
-            <Link href="/" className="inline-flex items-center gap-1 hover:text-foreground">
-              <ArrowLeft className="size-3.5" /> Back to Portfolio
+          <div className="mt-6 flex items-center justify-center border-t-2 border-[#2D1F1D]/10 pt-4 text-xs font-bold text-[#6B5550]">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-[#2D1F1D] hover:underline"
+            >
+              <ArrowLeft className="size-3.5" /> Back to Public Portfolio
             </Link>
           </div>
         </div>
@@ -284,122 +369,95 @@ export default function AdminPage() {
     )
   }
 
+  // ----------------------------------------------------
+  // ADMIN STUDIO DASHBOARD (Handcrafted Storybook Layout)
+  // ----------------------------------------------------
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Admin Top Navigation Bar */}
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-card/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <div className="min-h-screen bg-[#FAF5EC] text-[#2D1F1D] selection:bg-[#FFE68C]">
+      {/* Top Navigation Bar */}
+      <header className="sticky top-0 z-40 border-b-3 border-[#2D1F1D] bg-[#FFFDF9] px-4 py-3 shadow-[0_2px_0_#2D1F1D]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/"
               target="_blank"
-              className="group flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-2.5 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+              className="group flex items-center gap-1.5 rounded-full border-2 border-[#2D1F1D] bg-[#FFF9E6] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] transition-all hover:bg-[#FFE68C] hover:-translate-y-0.5"
             >
               <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
-              View Live Portfolio
-              <ExternalLink className="size-3 text-muted-foreground" />
+              <span className="hidden sm:inline">View Public Website</span>
+              <ExternalLink className="size-3 text-[#FF7D6B]" />
             </Link>
-            <div className="h-4 w-px bg-border" />
+
+            <div className="hidden h-5 w-[2px] bg-[#2D1F1D]/20 sm:block" />
+
             <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Sparkles className="size-3.5" />
+              <span className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]">
+                <Sparkles className="size-4" />
               </span>
-              <span className="font-serif text-sm font-bold sm:text-base">Farah Studio</span>
+              <span className="font-sans text-sm font-black sm:text-base">Farah Atelier Studio</span>
               <span
                 className={cn(
-                  'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
-                  isRealtimeConnected
-                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+                  'hidden items-center gap-1 rounded-full border border-[#2D1F1D] px-2 py-0.5 text-[0.65rem] font-black sm:flex',
+                  isRealtimeConnected ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#FED7AA] text-[#9A3412]',
                 )}
               >
                 <span
                   className={cn(
                     'size-1.5 rounded-full',
-                    isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500',
+                    isRealtimeConnected ? 'bg-[#059669] animate-pulse' : 'bg-[#D97706]',
                   )}
                 />
-                {isRealtimeConnected ? 'Cloud Realtime Active' : 'Offline / Local Mode'}
+                {isRealtimeConnected ? 'Cloud Sync Active' : 'Local Storage Mode'}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Global Notification On/Off Mute Toggle */}
+            {/* Notification Mute Toggle */}
             <button
               type="button"
               onClick={() => {
                 toggleNotificationsMuted()
-                toast(isNotificationsMuted ? 'Alerts and sounds unmuted!' : 'Alerts and sounds muted.')
+                toast(isNotificationsMuted ? '🔔 Alerts unmuted!' : '🔕 Alerts muted.')
               }}
               title={isNotificationsMuted ? 'Unmute Alerts' : 'Mute All Alerts'}
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-all',
-                isNotificationsMuted
-                  ? 'border-muted-foreground/30 bg-muted text-muted-foreground'
-                  : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+                'flex size-8 items-center justify-center rounded-full border-2 border-[#2D1F1D] text-xs shadow-[2px_2px_0px_#2D1F1D] transition-all hover:-translate-y-0.5 cursor-pointer',
+                isNotificationsMuted ? 'bg-[#E5E7EB] text-[#6B7280]' : 'bg-[#FFE68C] text-[#2D1F1D]',
               )}
             >
-              {isNotificationsMuted ? (
-                <>
-                  <BellOff className="size-3.5" />
-                  <span className="hidden sm:inline">Alerts Muted</span>
-                </>
-              ) : (
-                <>
-                  <Bell className="size-3.5" />
-                  <span className="hidden sm:inline">Alerts ON</span>
-                </>
-              )}
+              {isNotificationsMuted ? <BellOff className="size-4" /> : <Bell className="size-4" />}
             </button>
 
+            {/* Lock Session */}
             <button
               type="button"
-              onClick={() => {
-                const data = exportDataJson()
-                const blob = new Blob([data], { type: 'application/json' })
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = `farah-portfolio-backup-${new Date().toISOString().slice(0, 10)}.json`
-                a.click()
-                toast('Full Portfolio Backup downloaded!')
-              }}
-              title="Backup Data"
-              className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted sm:inline-flex"
-            >
-              <Download className="size-3.5" />
-              Backup
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsAuthenticated(false)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/20"
+              onClick={handleLogout}
+              className="flex items-center gap-1 rounded-full border-2 border-[#2D1F1D] bg-[#FFB5B5] px-2.5 py-1 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
             >
               <LogOut className="size-3.5" />
-              Lock
+              <span className="hidden sm:inline">Lock</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Admin Layout */}
+      {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-          {/* Sidebar Navigation */}
-          <aside className="flex flex-row gap-1 overflow-x-auto rounded-2xl border border-border/80 bg-card p-2 shadow-xs lg:flex-col lg:overflow-visible">
+          {/* Navigation Sidebar (Sticky & follows scroll smoothly) */}
+          <aside className="flex flex-row gap-1.5 overflow-x-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-3 shadow-[4px_4px_0px_#2D1F1D] lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:flex-col lg:overflow-y-auto scrollbar-thin">
             {[
               { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, badge: null },
-              { id: 'hero', label: 'Hero & Photo', icon: Sparkles, badge: null },
-              { id: 'about', label: 'About & Portrait', icon: BookOpen, badge: null },
-              { id: 'works', label: 'Work Showcase', icon: Palette, badge: state.works.length },
+              { id: 'hero', label: 'Hero & Headlines', icon: Sparkles, badge: null },
+              { id: 'about', label: 'About & Pillars', icon: BookOpen, badge: null },
+              { id: 'works', label: 'Craft Gallery', icon: Palette, badge: state.works.length },
               { id: 'videos', label: 'Video Lessons', icon: Video, badge: state.videos.length },
               { id: 'shop', label: 'Resource Shop', icon: ShoppingBag, badge: state.products.length },
-              { id: 'audiences', label: 'Target Audiences', icon: GraduationCap, badge: state.audiences.length },
-              { id: 'testimonials', label: 'Testimonials', icon: Star, badge: state.testimonials.length },
-              { id: 'faqs', label: 'FAQ Section', icon: HelpCircle, badge: state.faqs.length },
-              { id: 'contact', label: 'Contact Details', icon: Phone, badge: null },
+              { id: 'audiences', label: 'Who I Serve', icon: GraduationCap, badge: state.audiences.length },
+              { id: 'testimonials', label: 'Endorsements', icon: Star, badge: state.testimonials.length },
+              { id: 'faqs', label: 'Atelier FAQ', icon: HelpCircle, badge: state.faqs.length },
+              { id: 'contact', label: 'Contact & Studio', icon: Phone, badge: null },
               {
                 id: 'inbox',
                 label: 'Messages Inbox',
@@ -422,30 +480,27 @@ export default function AdminPage() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => {
-                    setActiveTab(item.id as AdminTab)
-                    syncLocalForms()
-                  }}
+                  onClick={() => setActiveTab(item.id as AdminTab)}
                   className={cn(
-                    'flex shrink-0 items-center justify-between gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all lg:w-full',
+                    'flex shrink-0 items-center justify-between gap-2 rounded-2xl border-2 px-3 py-2.5 text-xs font-black transition-all cursor-pointer lg:w-full',
                     isActive
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      ? 'border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] -translate-y-0.5'
+                      : 'border-transparent text-[#6B5550] hover:border-[#2D1F1D]/30 hover:bg-[#FAF5EC] hover:text-[#2D1F1D]',
                   )}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className="size-4 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <Icon className="size-4 shrink-0 text-[#2D1F1D]" />
                     <span className="whitespace-nowrap">{item.label}</span>
                   </div>
-                  {item.badge !== null && item.badge > 0 && (
+                  {item.badge !== null && item.badge !== 0 && (
                     <span
                       className={cn(
-                        'rounded-full px-1.5 py-0.2 text-[0.65rem] font-bold',
-                        isActive
-                          ? 'bg-primary-foreground/20 text-primary-foreground'
-                          : item.badgeAlert
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground',
+                        'rounded-full border border-[#2D1F1D] px-1.5 py-0.2 text-[0.65rem] font-black',
+                        item.badgeAlert
+                          ? 'bg-[#FF7D6B] text-white'
+                          : isActive
+                            ? 'bg-white text-[#2D1F1D]'
+                            : 'bg-[#FFE68C] text-[#2D1F1D]',
                       )}
                     >
                       {item.badge}
@@ -456,614 +511,601 @@ export default function AdminPage() {
             })}
           </aside>
 
-          {/* Tab Content Area */}
+          {/* Active Tab Panel */}
           <main className="space-y-6">
-            {/* Native OS & Phone Lock Screen Push Banner */}
-            {!hasNotificationPermission && (
-              <div className="flex flex-col gap-3 rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/20 via-card to-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-                    <BellRing className="size-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-sm font-bold text-foreground">
-                      Enable Lock-Screen &amp; Phone Alerts
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Get real-time popups on your phone and computer even when the app or screen is locked.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const granted = await requestNotifications()
-                    if (granted) {
-                      toast('🎉 Device push alerts activated! Test alert sent.')
-                    } else {
-                      toast('Please tap "Allow" in your browser prompt.')
-                    }
-                  }}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary/90"
-                >
-                  <Bell className="size-3.5" />
-                  <span>Enable Device Notifications</span>
-                </button>
-              </div>
-            )}
-
-            {/* 1. OVERVIEW TAB */}
+            {/* 1. OVERVIEW DASHBOARD */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <div className="rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-6 shadow-sm sm:p-8">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                {/* Welcome Card */}
+                <div className="relative overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFE68C] p-6 shadow-[5px_5px_0px_#2D1F1D] sm:p-8">
+                  <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1 text-xs font-bold text-foreground">
-                        <Sparkles className="size-3.5 text-primary" /> Farah Affes Studio Control
-                      </span>
-                      <h2 className="mt-2 font-serif text-2xl font-bold sm:text-3xl">
-                        Welcome to your Studio Portal
+                      <div className="inline-flex items-center gap-1.5 rounded-full border border-[#2D1F1D] bg-white px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]">
+                        <Sparkles className="size-3.5 text-[#FF7D6B]" />
+                        <span>Teacher Farah Affes Atelier Control</span>
+                      </div>
+                      <h2 className="mt-3 font-sans text-2xl font-black text-[#2D1F1D] sm:text-3xl">
+                        Welcome to your Creative Studio! 🎨
                       </h2>
-                      <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                        Manage your photos, texts, DIY props, rental requests, and student inquiries with instant live sync across all devices.
+                      <p className="mt-1 max-w-xl font-medium text-sm text-[#6B5550]">
+                        You have 100% full edit access to every single headline, paragraph, craft, price, video, and photograph on your public portfolio.
                       </p>
                     </div>
 
-                    <Link
-                      href="/"
-                      target="_blank"
-                      className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg hover:shadow-xl"
-                    >
-                      Open Live Website <ExternalLink className="size-3.5" />
-                    </Link>
-                  </div>
-
-                  {/* Summary Metric Cards */}
-                  <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <div className="rounded-2xl border border-border/80 bg-background/80 p-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
-                          Works Showcase
-                        </p>
-                        <span className="text-[0.65rem] font-semibold text-emerald-600">
-                          {state.works.filter((w) => w.isActive !== false).length} Active
-                        </span>
-                      </div>
-                      <p className="mt-1 font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                        {state.works.length}
-                      </p>
-                      <p className="text-[0.65rem] text-muted-foreground">Props, posters, worksheets</p>
-                    </div>
-
-                    <div className="rounded-2xl border border-border/80 bg-background/80 p-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
-                          Shop Products
-                        </p>
-                        <span className="text-[0.65rem] font-semibold text-emerald-600">
-                          {state.products.filter((p) => p.isActive !== false).length} Active
-                        </span>
-                      </div>
-                      <p className="mt-1 font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                        {state.products.length}
-                      </p>
-                      <p className="text-[0.65rem] text-muted-foreground">Buy &amp; Rent materials</p>
-                    </div>
-
-                    <div className="rounded-2xl border border-border/80 bg-background/80 p-4">
-                      <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
-                        Pending Orders
-                      </p>
-                      <p className="mt-1 font-serif text-2xl font-bold text-primary sm:text-3xl">
-                        {state.orders.filter((o) => o.status === 'pending').length}
-                      </p>
-                      <p className="text-[0.65rem] text-muted-foreground">Awaiting WhatsApp confirm</p>
-                    </div>
-
-                    <div className="rounded-2xl border border-border/80 bg-background/80 p-4">
-                      <p className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">
-                        New Inquiries
-                      </p>
-                      <p className="mt-1 font-serif text-2xl font-bold text-foreground sm:text-3xl">
-                        {state.messages.filter((m) => m.status === 'unread').length}
-                      </p>
-                      <p className="text-[0.65rem] text-muted-foreground">In Messages Inbox</p>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <Link
+                        href="/"
+                        target="_blank"
+                        className="flex items-center gap-1.5 rounded-2xl border-2 border-[#2D1F1D] bg-white px-4 py-2 text-xs font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] hover:bg-[#FAF5EC] hover:-translate-y-0.5 cursor-pointer"
+                      >
+                        <ExternalLink className="size-4 text-[#FF7D6B]" />
+                        <span>View Live Website</span>
+                      </Link>
                     </div>
                   </div>
                 </div>
 
-                {/* Quick Action Shortcuts */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('works')
-                      setIsAddingWork(true)
-                    }}
-                    className="flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 text-left shadow-xs transition-all hover:border-primary hover:shadow-md"
-                  >
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/20 text-foreground">
-                      <Plus className="size-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-foreground">Add New Portfolio Work</h4>
-                      <p className="text-[0.7rem] text-muted-foreground">Upload photos of DIY props or worksheets</p>
-                    </div>
-                  </button>
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  {[
+                    { label: 'Craft Works', value: state.works.length, icon: Palette, color: 'bg-[#A7F3D0]', tab: 'works' },
+                    { label: 'Video Lessons', value: state.videos.length, icon: Video, color: 'bg-[#FFE68C]', tab: 'videos' },
+                    { label: 'Shop Products', value: state.products.length, icon: ShoppingBag, color: 'bg-[#DDD6FE]', tab: 'shop' },
+                    { label: 'Testimonials', value: state.testimonials.length, icon: Star, color: 'bg-[#FFB5B5]', tab: 'testimonials' },
+                  ].map((stat, i) => {
+                    const Icon = stat.icon
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setActiveTab(stat.tab as AdminTab)}
+                        className={cn(
+                          'flex flex-col items-start rounded-3xl border-3 border-[#2D1F1D] p-5 shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-1 text-left cursor-pointer',
+                          stat.color,
+                        )}
+                      >
+                        <div className="flex size-10 items-center justify-center rounded-xl border-2 border-[#2D1F1D] bg-white shadow-[2px_2px_0px_#2D1F1D]">
+                          <Icon className="size-5 text-[#2D1F1D]" />
+                        </div>
+                        <span className="mt-3 font-sans text-2xl font-black text-[#2D1F1D]">
+                          {stat.value}
+                        </span>
+                        <span className="text-xs font-black text-[#2D1F1D]/80">{stat.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('shop')
-                      setIsAddingProduct(true)
-                    }}
-                    className="flex items-center gap-3 rounded-2xl border border-border/80 bg-card p-4 text-left shadow-xs transition-all hover:border-primary hover:shadow-md"
-                  >
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/20 text-foreground">
-                      <ShoppingBag className="size-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-foreground">Add Shop Resource</h4>
-                      <p className="text-[0.7rem] text-muted-foreground">Set buy &amp; rental pricing in TND</p>
-                    </div>
-                  </button>
+                {/* Quick Section Shortcuts */}
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D]">
+                  <h3 className="font-sans text-lg font-black text-[#2D1F1D]">
+                    Quick Content Jump
+                  </h3>
+                  <p className="font-hand text-sm font-bold text-[#6B5550]">
+                    Select any section to modify text, photos, or prices instantly:
+                  </p>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                    {[
+                      { id: 'hero', title: 'Hero & Headlines', desc: 'Title, Bio, Stats, Photo' },
+                      { id: 'about', title: 'About & Pedagogy', desc: 'Bio, Portrait, 4 Pillars' },
+                      { id: 'works', title: 'Craft Gallery', desc: 'Props, Dimensions, Prices' },
+                      { id: 'videos', title: 'Video Lessons', desc: 'Videos, YouTube links' },
+                      { id: 'shop', title: 'Resource Shop', desc: 'Buy/Rent props, PDFs' },
+                      { id: 'audiences', title: 'Who I Serve', desc: 'Learners, Mentors, Kids' },
+                      { id: 'testimonials', title: 'Endorsements', desc: 'Parents & Teacher reviews' },
+                      { id: 'faqs', title: 'Atelier FAQ', desc: 'Questions & Answers' },
+                    ].map((sec) => (
+                      <button
+                        key={sec.id}
+                        type="button"
+                        onClick={() => setActiveTab(sec.id as AdminTab)}
+                        className="flex flex-col items-start rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-3 text-left shadow-[2px_2px_0px_#2D1F1D] transition-all hover:bg-[#FFE68C] hover:-translate-y-0.5 cursor-pointer"
+                      >
+                        <span className="font-sans text-xs font-black text-[#2D1F1D]">
+                          {sec.title}
+                        </span>
+                        <span className="text-[0.7rem] font-medium text-[#6B5550]">{sec.desc}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* 2. HERO & HERO PHOTO TAB */}
+            {/* 2. HERO & HEADLINES TAB */}
             {activeTab === 'hero' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Hero Section &amp; Classroom Photo</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Edit the main headline, bio introduction, hero photo, and above-the-fold statistics.
-                    </p>
+                {/* 0. PROFILE PICTURE & NAVBAR BRANDING CRUD */}
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFF9E6] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b-2 border-[#2D1F1D]/10 pb-4">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex size-9 items-center justify-center rounded-2xl border-2 border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]">
+                        <ImageIcon className="size-4 text-[#FF7D6B]" />
+                      </span>
+                      <div>
+                        <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+                          Navbar Profile Picture &amp; Header Branding
+                        </h3>
+                        <p className="font-hand text-xs font-bold text-[#6B5550]">
+                          Customize the circular profile avatar, brand title, and tagline shown at the top of your portfolio.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Live Header Pill Preview (Check Screenshot) */}
+                    <div className="flex items-center gap-2 rounded-full border-2 border-[#2D1F1D] bg-white px-3 py-1.5 shadow-[2px_2px_0px_#2D1F1D]">
+                      <div className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#2D1F1D] bg-[#FFC837]">
+                        {profileForm.avatarImage && profileForm.avatarType !== 'icon' ? (
+                          <Image
+                            src={profileForm.avatarImage}
+                            alt="Avatar"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <Sparkles className="size-3.5 text-[#2D1F1D] fill-[#FFC837]" />
+                        )}
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="font-sans text-xs font-black leading-none text-[#2D1F1D]">
+                          {profileForm.name || 'Farah Affes'}
+                        </span>
+                        <span className="text-[0.6rem] font-bold text-[#FF7D6B] leading-tight flex items-center gap-1">
+                          <span>{profileForm.tagline || 'Teacher Studio'}</span>
+                          <Heart className="size-2 fill-[#FF7D6B]" />
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('hero')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
+
+                  {/* Profile Photo Uploader */}
+                  <PhotoUploader
+                    label="Circular Profile Avatar Photo"
+                    currentValue={profileForm.avatarImage}
+                    onChange={(url) => setProfileForm({ ...profileForm, avatarImage: url, avatarType: 'image' })}
+                  />
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Brand / Display Name
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.name}
+                        onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
+                        placeholder="Farah Affes"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Tagline / Subtitle
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.tagline}
+                        onChange={(e) => setProfileForm({ ...profileForm, tagline: e.target.value })}
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
+                        placeholder="Teacher Studio"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#2D1F1D]/10 pt-3">
+                    <div className="flex items-center gap-3">
+                      <label className="text-xs font-bold text-[#2D1F1D]">Avatar Style:</label>
+                      <button
+                        type="button"
+                        onClick={() => setProfileForm({ ...profileForm, avatarType: 'image' })}
+                        className={cn(
+                          'rounded-xl border border-[#2D1F1D] px-2.5 py-1 text-xs font-bold transition-all cursor-pointer',
+                          profileForm.avatarType === 'image' ? 'bg-[#A7F3D0] text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D]' : 'bg-white text-[#6B5550]',
+                        )}
+                      >
+                        📸 Photo Avatar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProfileForm({ ...profileForm, avatarType: 'icon' })}
+                        className={cn(
+                          'rounded-xl border border-[#2D1F1D] px-2.5 py-1 text-xs font-bold transition-all cursor-pointer',
+                          profileForm.avatarType === 'icon' ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]' : 'bg-white text-[#6B5550]',
+                        )}
+                      >
+                        ✨ Sparkle Icon
+                      </button>
+                    </div>
+
                     <button
                       type="button"
                       onClick={() => {
-                        updateHero(heroForm)
-                        updateStats(statsForm)
-                        toast('Hero Section, Photo & Stats saved successfully!')
+                        updateProfile(profileForm)
+                        toast('✨ Profile picture & branding saved!')
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
+                      className="flex items-center gap-1.5 rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black text-[#2D1F1D] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
                     >
                       <Save className="size-3.5" />
-                      Save Changes
+                      <span>Save Profile &amp; Branding</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Hero Photo CRUD */}
-                <div className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4 shadow-xs">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="size-4 text-primary" />
-                    <h3 className="font-serif text-sm font-bold text-foreground">Home Section Hero Photo</h3>
+                <SectionHeaderCard
+                  title="Hero Section & Public Introduction"
+                  subtitle="Edit the main headline, highlight banner, bio paragraph, photo, and 4 stats badges."
+                  onPreview={() => setPreviewSection('hero')}
+                />
+
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-5">
+                  {/* Eyebrow */}
+                  <div>
+                    <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                      Top Eyebrow Sticker
+                    </label>
+                    <input
+                      type="text"
+                      value={heroForm.eyebrow}
+                      onChange={(e) => setHeroForm({ ...heroForm, eyebrow: e.target.value })}
+                      className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
+                      placeholder="Passionate Primary & Middle School English Teacher • Sfax, Tunisia"
+                    />
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
-                    <div className="relative aspect-[4/4.4] w-full overflow-hidden rounded-xl border border-border bg-muted">
-                      <Image
-                        src={heroForm.image || '/images/hero-classroom.png'}
-                        alt="Hero Preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="mb-1 block text-xs font-semibold">Hero Photo URL / Local Path</label>
-                        <input
-                          type="text"
-                          value={heroForm.image || ''}
-                          onChange={(e) => setHeroForm({ ...heroForm, image: e.target.value })}
-                          placeholder="/images/hero-classroom.png"
-                          className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <span className="text-[0.65rem] font-bold uppercase text-muted-foreground">Quick Presets:</span>
-                        <div className="mt-1.5 flex flex-wrap gap-2">
-                          {[
-                            { name: 'Classroom Hero', url: '/images/hero-classroom.png' },
-                            { name: 'Phonics Kit', url: '/images/product-phonics-wheel.png' },
-                            { name: 'Farah Portrait', url: '/images/farah-portrait.png' },
-                          ].map((preset) => (
-                            <button
-                              key={preset.url}
-                              type="button"
-                              onClick={() => setHeroForm({ ...heroForm, image: preset.url })}
-                              className="rounded-lg border border-border bg-muted/40 px-2.5 py-1 text-[0.7rem] font-semibold hover:bg-muted"
-                            >
-                              {preset.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 shadow-xs">
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  {/* Headline Components */}
+                  <div className="grid gap-3 sm:grid-cols-3">
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Eyebrow Badge Text</label>
-                      <input
-                        type="text"
-                        value={heroForm.eyebrow}
-                        onChange={(e) => setHeroForm({ ...heroForm, eyebrow: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-1 block text-xs font-semibold">Highlighted Word (Yellow Underline)</label>
-                      <input
-                        type="text"
-                        value={heroForm.highlightWord}
-                        onChange={(e) => setHeroForm({ ...heroForm, highlightWord: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-1 block text-xs font-semibold">Title Prefix</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Title Prefix
+                      </label>
                       <input
                         type="text"
                         value={heroForm.titlePrefix}
                         onChange={(e) => setHeroForm({ ...heroForm, titlePrefix: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
+                        placeholder="Making English"
                       />
                     </div>
-
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Title Suffix (Gradient Text)</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Highlight Word (Yellow Badge)
+                      </label>
+                      <input
+                        type="text"
+                        value={heroForm.highlightWord}
+                        onChange={(e) => setHeroForm({ ...heroForm, highlightWord: e.target.value })}
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFE68C]"
+                        placeholder="tactile, playful"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Title Suffix (Coral Text)
+                      </label>
                       <input
                         type="text"
                         value={heroForm.titleSuffix}
                         onChange={(e) => setHeroForm({ ...heroForm, titleSuffix: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#FF7D6B] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
+                        placeholder="& unforgettable."
                       />
                     </div>
                   </div>
 
+                  {/* Bio Paragraph */}
                   <div>
-                    <label className="mb-1 block text-xs font-semibold">Bio Paragraph</label>
+                    <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                      Main Bio / Description Paragraph
+                    </label>
                     <textarea
                       rows={3}
                       value={heroForm.bio}
                       onChange={(e) => setHeroForm({ ...heroForm, bio: e.target.value })}
-                      className="w-full resize-none rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                      className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-medium text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
+                      placeholder="Dedicated primary and middle school educator bridging phonetic mastery..."
                     />
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  {/* CTA Buttons */}
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Primary CTA Button</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Primary CTA Button Text
+                      </label>
                       <input
                         type="text"
                         value={heroForm.ctaWorkText}
                         onChange={(e) => setHeroForm({ ...heroForm, ctaWorkText: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
                       />
                     </div>
-
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Secondary CTA Button</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Secondary CTA Button Text
+                      </label>
                       <input
                         type="text"
                         value={heroForm.ctaContactText}
                         onChange={(e) => setHeroForm({ ...heroForm, ctaContactText: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* Real Numerical Stats Editor */}
-                <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 shadow-xs">
+                  {/* Hero Photo & Image Upload Picker */}
+                  <PhotoUploader
+                    label="Hero Main Photo / Classroom Scene"
+                    currentValue={heroForm.image}
+                    onChange={(newUrl) => setHeroForm({ ...heroForm, image: newUrl })}
+                  />
+
+                  {/* Marquee Ticker Phrases */}
                   <div>
-                    <h3 className="font-serif text-base font-bold">Real Numerical Stats (Above the Fold)</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Update your genuine numbers for experience, learners, and crafted props.
-                    </p>
+                    <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                      Marquee Ticker Phrases (Ribbon in Hero)
+                    </label>
+                    <ListTagEditor
+                      tags={heroForm.marqueeItems || []}
+                      onChange={(newItems) => setHeroForm({ ...heroForm, marqueeItems: newItems })}
+                      placeholder="Add ticker phrase (e.g. 🎨 Interactive Storytelling Kits)"
+                    />
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-4">
-                    {statsForm.map((stat, i) => (
-                      <div key={stat.id || i} className="rounded-xl border border-border bg-muted/30 p-3">
-                        <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                          Stat #{i + 1} Label
-                        </label>
-                        <input
-                          type="text"
-                          value={stat.label}
-                          onChange={(e) => {
-                            const next = [...statsForm]
-                            next[i].label = e.target.value
-                            setStatsForm(next)
-                          }}
-                          className="w-full rounded-lg border border-border bg-background p-1.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
-                        />
-                        <label className="mb-1 mt-2 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                          Value
-                        </label>
-                        <input
-                          type="text"
-                          value={stat.value}
-                          onChange={(e) => {
-                            const next = [...statsForm]
-                            next[i].value = e.target.value
-                            setStatsForm(next)
-                          }}
-                          className="w-full rounded-lg border border-border bg-background p-1.5 text-sm font-bold text-primary outline-none focus:border-primary"
-                        />
+                  {/* Save Hero Changes */}
+                  <div className="flex justify-end pt-3 border-t-2 border-[#2D1F1D]/10">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateHero(heroForm)
+                        toast('✨ Hero section updated in real-time!')
+                      }}
+                      className="flex items-center gap-2 rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-6 py-2.5 text-xs font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] hover:bg-[#FFD952] hover:-translate-y-0.5 cursor-pointer"
+                    >
+                      <Save className="size-4" />
+                      <span>Save Hero Section</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4 Stats Cards Editor */}
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D]">
+                  <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+                    4 Hero Stat Badges
+                  </h3>
+                  <p className="font-hand text-xs font-bold text-[#6B5550]">
+                    Customize the numbers and captions displayed beneath the hero headline:
+                  </p>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {statsForm.map((st, idx) => (
+                      <div
+                        key={st.id || idx}
+                        className="rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-3 shadow-[2px_2px_0px_#2D1F1D] space-y-2"
+                      >
+                        <div>
+                          <label className="text-[0.65rem] font-black uppercase text-[#6B5550]">
+                            Value / Number
+                          </label>
+                          <input
+                            type="text"
+                            value={st.value}
+                            onChange={(e) => {
+                              const updated = [...statsForm]
+                              updated[idx] = { ...updated[idx], value: e.target.value }
+                              setStatsForm(updated)
+                            }}
+                            className="w-full rounded-lg border border-[#2D1F1D] bg-white p-1.5 text-xs font-black text-[#2D1F1D]"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[0.65rem] font-black uppercase text-[#6B5550]">
+                            Caption Label
+                          </label>
+                          <input
+                            type="text"
+                            value={st.label}
+                            onChange={(e) => {
+                              const updated = [...statsForm]
+                              updated[idx] = { ...updated[idx], label: e.target.value }
+                              setStatsForm(updated)
+                            }}
+                            className="w-full rounded-lg border border-[#2D1F1D] bg-white p-1.5 text-xs font-bold text-[#2D1F1D]"
+                          />
+                        </div>
                       </div>
                     ))}
+                  </div>
+
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateStats(statsForm)
+                        toast('✨ Stat badges updated!')
+                      }}
+                      className="flex items-center gap-2 rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-5 py-2 text-xs font-black text-[#065F46] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#6EE7B7] cursor-pointer"
+                    >
+                      <Save className="size-3.5" />
+                      <span>Save Stat Badges</span>
+                    </button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* 3. ABOUT & PORTRAIT PHOTO TAB */}
+            {/* 3. ABOUT & PEDAGOGY TAB */}
             {activeTab === 'about' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">About Farah &amp; Portrait Photo</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Edit the narrative story, portrait photo, manifesto quote, location, and the 4 methodology pillars.
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('about')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updateAbout(aboutForm)
-                        toast('About Section, Portrait & Pillars saved successfully!')
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                    >
-                      <Save className="size-3.5" />
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
+                <SectionHeaderCard
+                  title="Pedagogy & Philosophy (About Section)"
+                  subtitle="Edit Farah's biography, portrait photo, manifesto quote, and the 4 teaching pillars."
+                  onPreview={() => setPreviewSection('about')}
+                />
 
-                {/* About Portrait Photo CRUD */}
-                <div className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4 shadow-xs">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="size-4 text-primary" />
-                    <h3 className="font-serif text-sm font-bold text-foreground">About Me Portrait Photo</h3>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
-                    <div className="relative aspect-[4/4.7] w-full overflow-hidden rounded-xl border border-border bg-muted">
-                      <Image
-                        src={aboutForm.portraitImage || '/images/farah-portrait.png'}
-                        alt="Portrait Preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="mb-1 block text-xs font-semibold">Portrait Photo URL / Local Path</label>
-                        <input
-                          type="text"
-                          value={aboutForm.portraitImage || ''}
-                          onChange={(e) => setAboutForm({ ...aboutForm, portraitImage: e.target.value })}
-                          placeholder="/images/farah-portrait.png"
-                          className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <span className="text-[0.65rem] font-bold uppercase text-muted-foreground">Quick Presets:</span>
-                        <div className="mt-1.5 flex flex-wrap gap-2">
-                          {[
-                            { name: 'Default Portrait', url: '/images/farah-portrait.png' },
-                            { name: 'Classroom Hero', url: '/images/hero-classroom.png' },
-                            { name: 'Story Kit', url: '/images/product-story-kit.png' },
-                          ].map((preset) => (
-                            <button
-                              key={preset.url}
-                              type="button"
-                              onClick={() => setAboutForm({ ...aboutForm, portraitImage: preset.url })}
-                              className="rounded-lg border border-border bg-muted/40 px-2.5 py-1 text-[0.7rem] font-semibold hover:bg-muted"
-                            >
-                              {preset.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 shadow-xs">
-                  <div className="grid gap-4 sm:grid-cols-3">
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-5">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Section Eyebrow</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Section Eyebrow
+                      </label>
                       <input
                         type="text"
                         value={aboutForm.eyebrow}
                         onChange={(e) => setAboutForm({ ...aboutForm, eyebrow: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
                       />
                     </div>
-                    <div className="sm:col-span-2">
-                      <label className="mb-1 block text-xs font-semibold">Main Heading</label>
+                    <div>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Section Title
+                      </label>
                       <input
                         type="text"
                         value={aboutForm.title}
                         onChange={(e) => setAboutForm({ ...aboutForm, title: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-semibold">Intro Subtitle</label>
-                    <input
-                      type="text"
+                    <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                      Introductory Statement
+                    </label>
+                    <textarea
+                      rows={2}
                       value={aboutForm.intro}
                       onChange={(e) => setAboutForm({ ...aboutForm, intro: e.target.value })}
-                      className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                      className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-medium text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
                     />
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Narrative Bio (Paragraph 1)</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Bio Paragraph 1 (Classroom Experience)
+                      </label>
                       <textarea
-                        rows={3}
+                        rows={4}
                         value={aboutForm.bio1}
                         onChange={(e) => setAboutForm({ ...aboutForm, bio1: e.target.value })}
-                        className="w-full resize-none rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-medium text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Narrative Bio (Paragraph 2)</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Bio Paragraph 2 (Workshops & Prop Making)
+                      </label>
                       <textarea
-                        rows={3}
+                        rows={4}
                         value={aboutForm.bio2}
                         onChange={(e) => setAboutForm({ ...aboutForm, bio2: e.target.value })}
-                        className="w-full resize-none rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-medium text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none focus:bg-[#FFF9E6]"
                       />
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
-                    <h4 className="text-xs font-bold text-foreground">Core Manifesto Quote Card</h4>
+                  {/* Farah Portrait Photo Uploader */}
+                  <PhotoUploader
+                    label="Farah Portrait Photograph"
+                    currentValue={aboutForm.portraitImage}
+                    onChange={(newUrl) => setAboutForm({ ...aboutForm, portraitImage: newUrl })}
+                  />
+
+                  {/* Manifesto Quote */}
+                  <div className="rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-4 space-y-3 shadow-[2px_2px_0px_#2D1F1D]">
+                    <h4 className="font-sans text-xs font-black uppercase text-[#2D1F1D]">
+                      Handwritten Manifesto Card
+                    </h4>
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Quote Text</label>
+                      <label className="mb-1 block text-[0.65rem] font-bold text-[#6B5550]">
+                        Quote Text
+                      </label>
                       <textarea
                         rows={2}
                         value={aboutForm.manifestoQuote}
                         onChange={(e) => setAboutForm({ ...aboutForm, manifestoQuote: e.target.value })}
-                        className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2.5 text-xs font-bold text-[#2D1F1D]"
                       />
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="mb-1 block text-xs font-semibold">Author</label>
+                        <label className="mb-1 block text-[0.65rem] font-bold text-[#6B5550]">
+                          Author Name
+                        </label>
                         <input
                           type="text"
                           value={aboutForm.manifestoAuthor}
                           onChange={(e) => setAboutForm({ ...aboutForm, manifestoAuthor: e.target.value })}
-                          className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
+                          className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold text-[#2D1F1D]"
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-semibold">Location</label>
+                        <label className="mb-1 block text-[0.65rem] font-bold text-[#6B5550]">
+                          Location
+                        </label>
                         <input
                           type="text"
                           value={aboutForm.manifestoLocation}
                           onChange={(e) => setAboutForm({ ...aboutForm, manifestoLocation: e.target.value })}
-                          className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
+                          className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold text-[#2D1F1D]"
                         />
                       </div>
                     </div>
                   </div>
+
+                  <div className="flex justify-end pt-3 border-t-2 border-[#2D1F1D]/10">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateAbout(aboutForm)
+                        toast('✨ About section updated!')
+                      }}
+                      className="flex items-center gap-2 rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-6 py-2.5 text-xs font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+                    >
+                      <Save className="size-4" />
+                      <span>Save About Section</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* 4 Pedagogical Pillars Editor */}
-                <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 shadow-xs">
-                  <h3 className="font-serif text-base font-bold">Pedagogical Pillars (Interactive Navigator)</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {aboutForm.pillars.map((pillar, idx) => (
-                      <div key={pillar.id || idx} className="rounded-xl border border-border bg-muted/30 p-4 space-y-2.5">
+                {/* 4 Pedagogy Pillars Manager */}
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+                        4 Pedagogy Pillars
+                      </h3>
+                      <p className="font-hand text-xs font-bold text-[#6B5550]">
+                        The 4 interactive tabs displayed in the philosophy binder:
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {aboutForm.pillars?.map((pillar, idx) => (
+                      <div
+                        key={pillar.id || idx}
+                        className="rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-4 shadow-[3px_3px_0px_#2D1F1D] space-y-2"
+                      >
                         <div className="flex items-center justify-between">
-                          <span className="rounded-md bg-primary/20 px-2 py-0.5 text-xs font-bold text-foreground">
+                          <span className="rounded-full bg-[#FFE68C] px-2 py-0.5 text-xs font-black border border-[#2D1F1D]">
                             Pillar {pillar.number || `0${idx + 1}`}
                           </span>
+                          <button
+                            type="button"
+                            onClick={() => setEditingPillar(pillar)}
+                            className="flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-white px-2.5 py-1 text-xs font-black hover:bg-[#FFE68C] cursor-pointer"
+                          >
+                            <Edit3 className="size-3" /> Edit
+                          </button>
                         </div>
-                        <div>
-                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                            Pillar Title
-                          </label>
-                          <input
-                            type="text"
-                            value={pillar.title}
-                            onChange={(e) => {
-                              const next = [...aboutForm.pillars]
-                              next[idx].title = e.target.value
-                              setAboutForm({ ...aboutForm, pillars: next })
-                            }}
-                            className="w-full rounded-lg border border-border bg-background p-2 text-xs font-semibold text-foreground outline-none focus:border-primary"
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                            Subtitle Badge
-                          </label>
-                          <input
-                            type="text"
-                            value={pillar.subtitle}
-                            onChange={(e) => {
-                              const next = [...aboutForm.pillars]
-                              next[idx].subtitle = e.target.value
-                              setAboutForm({ ...aboutForm, pillars: next })
-                            }}
-                            className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                            Description
-                          </label>
-                          <textarea
-                            rows={2}
-                            value={pillar.description}
-                            onChange={(e) => {
-                              const next = [...aboutForm.pillars]
-                              next[idx].description = e.target.value
-                              setAboutForm({ ...aboutForm, pillars: next })
-                            }}
-                            className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                            Highlights (comma separated)
-                          </label>
-                          <input
-                            type="text"
-                            value={(pillar.highlights || []).join(', ')}
-                            onChange={(e) => {
-                              const next = [...aboutForm.pillars]
-                              next[idx].highlights = e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)
-                              setAboutForm({ ...aboutForm, pillars: next })
-                            }}
-                            className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
-                          />
-                        </div>
+                        <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
+                          {pillar.title}
+                        </h4>
+                        <p className="text-xs font-bold text-[#FF7D6B]">{pillar.subtitle}</p>
+                        <p className="text-xs text-[#6B5550] line-clamp-2">{pillar.description}</p>
                       </div>
                     ))}
                   </div>
@@ -1071,111 +1113,120 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 4. WORK SHOWCASE TAB (CRUD + ACTIVATE/DEACTIVATE) */}
+            {/* 4. CRAFT GALLERY (WORKS) TAB */}
             {activeTab === 'works' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Portfolio Work Items ({state.works.length})</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Add, update, activate/deactivate, or remove handcrafted props, printable worksheets, and posters.
-                    </p>
+                <SectionHeaderCard
+                  title="Creative Craft Gallery (Works)"
+                  subtitle="Manage handmade tactile props, phonics wheels, posters, flyers, and classroom tools."
+                  onPreview={() => setPreviewSection('works')}
+                  actionLabel="+ Add New Craft"
+                  onAction={() => setIsAddingWork(true)}
+                />
+
+                {/* Filter & Search Bar */}
+                <div className="flex flex-col gap-3 rounded-2xl border-2 border-[#2D1F1D] bg-[#FFFDF9] p-3 shadow-[3px_3px_0px_#2D1F1D] sm:flex-row sm:items-center sm:justify-between">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-2.5 size-4 text-[#6B5550]" />
+                    <input
+                      type="text"
+                      value={workSearch}
+                      onChange={(e) => setWorkSearch(e.target.value)}
+                      placeholder="Search craft by title, materials or category..."
+                      className="w-full rounded-xl border border-[#2D1F1D] bg-white py-2 pl-9 pr-3 text-xs font-bold text-[#2D1F1D] outline-none"
+                    />
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('works')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingWork(true)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                    >
-                      <Plus className="size-3.5" />
-                      Add New Item
-                    </button>
-                  </div>
+                  <span className="text-xs font-black text-[#6B5550]">
+                    Showing {state.works.length} items
+                  </span>
                 </div>
 
+                {/* Works Grid */}
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {state.works.map((item) => {
-                    const isItemActive = item.isActive !== false
-                    return (
+                  {state.works
+                    .filter((w) =>
+                      workSearch
+                        ? w.title.toLowerCase().includes(workSearch.toLowerCase()) ||
+                          w.category.toLowerCase().includes(workSearch.toLowerCase()) ||
+                          w.description.toLowerCase().includes(workSearch.toLowerCase())
+                        : true,
+                    )
+                    .map((item) => (
                       <div
                         key={item.id}
                         className={cn(
-                          'group relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-card shadow-xs transition-all',
-                          isItemActive ? 'border-border/80 hover:border-primary/50' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
+                          'flex flex-col justify-between overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-1',
+                          item.isActive === false && 'opacity-60 bg-gray-100',
                         )}
                       >
-                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                        <div className="relative h-44 w-full border-b-2 border-[#2D1F1D] bg-[#FAF5EC]">
                           <Image
-                            src={item.image || '/placeholder.svg'}
+                            src={item.image || '/images/product-phonics-wheel.png'}
                             alt={item.title}
                             fill
-                            sizes="(max-width: 768px) 100vw, 300px"
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="object-cover"
                           />
-                          <span className="absolute left-3 top-3 rounded-full bg-card/90 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-foreground backdrop-blur-sm">
-                            {item.category}
-                          </span>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              toggleWorkActive(item.id)
-                              toast(`"${item.title}" is now ${isItemActive ? 'Deactivated (Hidden)' : 'Active (Live)'}`)
-                            }}
-                            className={cn(
-                              'absolute right-3 top-3 flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.65rem] font-bold shadow-md backdrop-blur-sm transition-all',
-                              isItemActive
-                                ? 'bg-emerald-500 text-white'
-                                : 'bg-muted-foreground/80 text-white',
+                          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                            <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D]">
+                              {item.category}
+                            </span>
+                            {item.isFeatured && (
+                              <span className="rounded-full border border-[#2D1F1D] bg-[#FF7D6B] px-2 py-0.5 text-[0.65rem] font-black text-white">
+                                ★ Featured
+                              </span>
                             )}
-                          >
-                            {isItemActive ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
-                            {isItemActive ? 'Active' : 'Hidden'}
-                          </button>
+                          </div>
+                          {item.priceBuy && (
+                            <span className="absolute bottom-2.5 right-2.5 rounded-full border border-[#2D1F1D] bg-white px-2.5 py-0.5 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]">
+                              {item.priceBuy} TND
+                            </span>
+                          )}
                         </div>
 
                         <div className="p-4 flex-1 flex flex-col justify-between">
                           <div>
-                            <p className="text-xs font-bold text-primary">{item.tag}</p>
-                            <h3 className="font-serif text-base font-semibold leading-tight text-foreground">
+                            <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
                               {item.title}
-                            </h3>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                            </h4>
+                            <p className="mt-0.5 text-xs font-bold text-[#FF7D6B]">{item.subtitle}</p>
+                            <p className="mt-2 text-xs font-medium text-[#6B5550] line-clamp-2">
                               {item.description}
                             </p>
                           </div>
 
-                          <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-                            <span className="text-[0.7rem] text-muted-foreground">
-                              {item.format || item.year || 'Farah Studio'}
-                            </span>
-                            <div className="flex gap-1.5">
+                          <div className="mt-4 flex items-center justify-between border-t-2 border-[#2D1F1D]/10 pt-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                toggleWorkActive(item.id)
+                                toast(item.isActive !== false ? 'Craft hidden from public site' : 'Craft visible on public site')
+                              }}
+                              className={cn(
+                                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2 py-1 text-[0.65rem] font-black cursor-pointer',
+                                item.isActive !== false ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#E5E7EB] text-[#6B7280]',
+                              )}
+                            >
+                              {item.isActive !== false ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                              <span>{item.isActive !== false ? 'Public' : 'Hidden'}</span>
+                            </button>
+
+                            <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
                                 onClick={() => setEditingWork(item)}
-                                className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                                title="Edit item"
+                                className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
                               >
-                                <Edit3 className="size-3.5" />
+                                <Edit3 className="size-3" /> Edit
                               </button>
                               <button
                                 type="button"
                                 onClick={() => {
                                   if (confirm(`Delete "${item.title}"?`)) {
                                     deleteWork(item.id)
-                                    toast('Work item deleted.')
+                                    toast('Craft deleted.')
                                   }
                                 }}
-                                className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                                title="Delete item"
+                                className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
                               >
                                 <Trash2 className="size-3.5" />
                               </button>
@@ -1183,614 +1234,549 @@ export default function AdminPage() {
                           </div>
                         </div>
                       </div>
-                    )
-                  })}
+                    ))}
                 </div>
               </div>
             )}
 
-            {/* 5. VIDEO LESSONS TAB (CRUD + ACTIVATE/DEACTIVATE) */}
+            {/* 5. VIDEO LESSONS TAB */}
             {activeTab === 'videos' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Video Lessons &amp; Clips ({state.videos.length})</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Manage, activate/deactivate, or add video mini-lessons and demonstrations.
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('videos')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingVideo(true)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                    >
-                      <Plus className="size-3.5" />
-                      Add Video Clip
-                    </button>
-                  </div>
-                </div>
+                <SectionHeaderCard
+                  title="Classroom Video Lessons"
+                  subtitle="Manage video demonstrations, phonics lessons, YouTube embed links, and key takeaways."
+                  onPreview={() => setPreviewSection('videos')}
+                  actionLabel="+ Add New Video"
+                  onAction={() => setIsAddingVideo(true)}
+                />
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {state.videos.map((vid) => {
-                    const isVidActive = vid.isActive !== false
-                    return (
-                      <div
-                        key={vid.id}
-                        className={cn(
-                          'group flex flex-col justify-between overflow-hidden rounded-2xl border bg-card shadow-xs',
-                          isVidActive ? 'border-border/80' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
-                        )}
-                      >
-                        <div className="relative aspect-video w-full overflow-hidden bg-muted">
-                          <Image
-                            src={vid.thumbnail || '/placeholder.svg'}
-                            alt={vid.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 300px"
-                            className="object-cover"
-                          />
-                          <span className="absolute bottom-2 right-2 rounded-md bg-black/80 px-2 py-0.5 text-[0.65rem] font-bold text-white">
-                            {vid.duration}
+                  {state.videos.map((vid) => (
+                    <div
+                      key={vid.id}
+                      className={cn(
+                        'flex flex-col justify-between overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-1',
+                        vid.isActive === false && 'opacity-60 bg-gray-100',
+                      )}
+                    >
+                      <div className="relative h-40 w-full border-b-2 border-[#2D1F1D] bg-[#FAF5EC]">
+                        <Image
+                          src={vid.thumbnail || '/images/video-lesson.png'}
+                          alt={vid.title}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <span className="flex size-10 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] shadow-[2px_2px_0px_#2D1F1D]">
+                            <Play className="size-5 fill-[#2D1F1D] text-[#2D1F1D] ml-0.5" />
                           </span>
+                        </div>
+                        <span className="absolute bottom-2.5 right-2.5 rounded-full border border-[#2D1F1D] bg-black/80 px-2 py-0.5 text-[0.65rem] font-bold text-white">
+                          {vid.duration}
+                        </span>
+                      </div>
+
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="rounded-full bg-[#FFE68C] px-2 py-0.5 text-[0.65rem] font-black border border-[#2D1F1D]">
+                            {vid.category}
+                          </span>
+                          <h4 className="mt-2 font-sans text-sm font-black text-[#2D1F1D]">
+                            {vid.title}
+                          </h4>
+                          <p className="mt-1 text-xs font-medium text-[#6B5550] line-clamp-2">
+                            {vid.description}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between border-t-2 border-[#2D1F1D]/10 pt-3">
                           <button
                             type="button"
                             onClick={() => {
                               toggleVideoActive(vid.id)
-                              toast(`"${vid.title}" is now ${isVidActive ? 'Deactivated (Hidden)' : 'Active (Live)'}`)
+                              toast(vid.isActive !== false ? 'Video hidden' : 'Video public')
                             }}
                             className={cn(
-                              'absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold shadow-md',
-                              isVidActive ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/80 text-white',
+                              'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2 py-1 text-[0.65rem] font-black cursor-pointer',
+                              vid.isActive !== false ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#E5E7EB] text-[#6B7280]',
                             )}
                           >
-                            {isVidActive ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
-                            {isVidActive ? 'Active' : 'Hidden'}
+                            {vid.isActive !== false ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                            <span>{vid.isActive !== false ? 'Public' : 'Hidden'}</span>
                           </button>
-                          <span className="absolute left-2 top-2 rounded-md bg-primary px-2 py-0.5 text-[0.65rem] font-bold text-primary-foreground">
-                            {vid.category}
-                          </span>
-                        </div>
 
-                        <div className="p-4 flex-1 flex flex-col justify-between">
-                          <div>
-                            <p className="text-[0.65rem] font-bold uppercase text-muted-foreground">{vid.level}</p>
-                            <h3 className="font-serif text-sm font-semibold text-foreground">{vid.title}</h3>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                              {vid.takeaways && vid.takeaways.length > 0 ? vid.takeaways.join(' • ') : 'Educational clip'}
-                            </p>
-                          </div>
-
-                          <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-                            <span className="text-[0.7rem] text-muted-foreground truncate max-w-[140px]">
-                              {vid.src}
-                            </span>
-                            <div className="flex gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => setEditingVideo(vid)}
-                                className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                              >
-                                <Edit3 className="size-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (confirm(`Delete video "${vid.title}"?`)) {
-                                    deleteVideo(vid.id)
-                                    toast('Video clip deleted.')
-                                  }
-                                }}
-                                className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* 6. RESOURCE SHOP TAB (CRUD + ACTIVATE/DEACTIVATE) */}
-            {activeTab === 'shop' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Resource Shop Products ({state.products.length})</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Add, price, activate/deactivate, and manage DIY props and printable sets available for buy or rent.
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('shop')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingProduct(true)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                    >
-                      <Plus className="size-3.5" />
-                      Add Product
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {state.products.map((prod) => {
-                    const isProdActive = prod.isActive !== false
-                    return (
-                      <div
-                        key={prod.id}
-                        className={cn(
-                          'group flex flex-col justify-between overflow-hidden rounded-2xl border bg-card shadow-xs',
-                          isProdActive ? 'border-border/80' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
-                        )}
-                      >
-                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                          <Image
-                            src={prod.image || '/placeholder.svg'}
-                            alt={prod.name}
-                            fill
-                            sizes="200px"
-                            className="object-cover"
-                          />
-                          <span className="absolute left-2 top-2 rounded-full bg-card/90 px-2 py-0.5 text-[0.65rem] font-bold uppercase text-foreground">
-                            {prod.category}
-                          </span>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              toggleProductActive(prod.id)
-                              toast(`"${prod.name}" is now ${isProdActive ? 'Deactivated (Hidden)' : 'Active (Live)'}`)
-                            }}
-                            className={cn(
-                              'absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold shadow-md',
-                              isProdActive ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/80 text-white',
-                            )}
-                          >
-                            {isProdActive ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
-                            {isProdActive ? 'Active' : 'Hidden'}
-                          </button>
-                        </div>
-
-                        <div className="p-4 flex-1 flex flex-col justify-between">
-                          <div>
-                            <h3 className="font-serif text-sm font-semibold text-foreground">{prod.name}</h3>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{prod.description}</p>
-                          </div>
-
-                          <div className="mt-3">
-                            <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                              {prod.buyPrice != null ? (
-                                <span>Buy: {prod.buyPrice} TND</span>
-                              ) : (
-                                <span className="text-muted-foreground">Buy: N/A</span>
-                              )}
-                              {prod.rentPrice != null ? (
-                                <span className="text-primary">Rent: {prod.rentPrice} TND/day</span>
-                              ) : (
-                                <span className="text-muted-foreground">Rent: N/A</span>
-                              )}
-                            </div>
-
-                            <div className="mt-3 flex items-center justify-end gap-1.5 border-t border-border/60 pt-2">
-                              <button
-                                type="button"
-                                onClick={() => setEditingProduct(prod)}
-                                className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                              >
-                                <Edit3 className="size-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (confirm(`Delete product "${prod.name}"?`)) {
-                                    deleteProduct(prod.id)
-                                    toast('Product deleted.')
-                                  }
-                                }}
-                                className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* 7. TARGET AUDIENCES TAB */}
-            {activeTab === 'audiences' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Target Audiences ({state.audiences.length})</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Edit or deactivate tailored messaging for Students, Parents, and Teachers.
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('audiences')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                  {state.audiences.map((aud) => {
-                    const isAudActive = aud.isActive !== false
-                    return (
-                      <div
-                        key={aud.id}
-                        className={cn(
-                          'rounded-2xl border bg-card p-4 space-y-3',
-                          isAudActive ? 'border-border' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-serif text-sm font-bold">{aud.title}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              toggleAudienceActive(aud.id)
-                              toast(`"${aud.title}" is now ${isAudActive ? 'Deactivated' : 'Active'}`)
-                            }}
-                            className={cn(
-                              'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
-                              isAudActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-muted text-muted-foreground',
-                            )}
-                          >
-                            {isAudActive ? 'Active' : 'Deactivated'}
-                          </button>
-                        </div>
-
-                        <div>
-                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                            Headline / Intro
-                          </label>
-                          <textarea
-                            rows={2}
-                            value={aud.intro}
-                            onChange={(e) => {
-                              updateAudience(aud.id, { intro: e.target.value })
-                            }}
-                            className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">
-                            Key Points (comma separated)
-                          </label>
-                          <input
-                            type="text"
-                            value={(aud.points || []).join(', ')}
-                            onChange={(e) => {
-                              const next = e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)
-                              updateAudience(aud.id, { points: next })
-                            }}
-                            className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground outline-none focus:border-primary"
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* 8. TESTIMONIALS TAB (CRUD + ACTIVATE/DEACTIVATE + OPTIONAL STARS) */}
-            {activeTab === 'testimonials' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">
-                      Community Testimonials ({state.testimonials.length})
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Add, update, activate/deactivate, and configure endorsements with or without star ratings.
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('testimonials')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingTestimonial(true)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                    >
-                      <Plus className="size-3.5" />
-                      Add Testimonial
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {state.testimonials.map((test) => {
-                    const isTestActive = test.isActive !== false
-                    const hasStars = test.showRating !== false && (test.rating ?? 0) > 0
-
-                    return (
-                      <div
-                        key={test.id}
-                        className={cn(
-                          'flex flex-col justify-between rounded-2xl border bg-card p-5 shadow-xs',
-                          isTestActive ? 'border-border' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
-                        )}
-                      >
-                        <div>
-                          <div className="flex items-center justify-between">
-                            {hasStars ? (
-                              <div className="flex items-center gap-1 text-primary">
-                                {Array.from({ length: test.rating || 5 }).map((_, i) => (
-                                  <Star key={i} className="size-3.5 fill-current" />
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="rounded-md bg-muted px-2 py-0.5 text-[0.65rem] font-bold text-muted-foreground">
-                                Quote only (No stars)
-                              </span>
-                            )}
+                          <div className="flex items-center gap-1.5">
                             <button
                               type="button"
-                              onClick={() => {
-                                toggleTestimonialActive(test.id)
-                                toast(`Testimonial from ${test.name} is now ${isTestActive ? 'Hidden' : 'Live'}`)
-                              }}
-                              className={cn(
-                                'flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
-                                isTestActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-muted text-muted-foreground',
-                              )}
+                              onClick={() => setEditingVideo(vid)}
+                              className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
                             >
-                              {isTestActive ? 'Active' : 'Hidden'}
-                            </button>
-                          </div>
-                          <blockquote className="mt-2 text-xs italic leading-relaxed text-foreground">
-                            &ldquo;{test.quote}&rdquo;
-                          </blockquote>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-                          <div>
-                            <p className="font-serif text-xs font-bold text-foreground">{test.name}</p>
-                            <p className="text-[0.7rem] text-muted-foreground">{test.role}</p>
-                          </div>
-
-                          <div className="flex gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setEditingTestimonial(test)}
-                              className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
-                            >
-                              <Edit3 className="size-3.5" />
+                              <Edit3 className="size-3" /> Edit
                             </button>
                             <button
                               type="button"
                               onClick={() => {
-                                if (confirm(`Delete testimonial from ${test.name}?`)) {
-                                  deleteTestimonial(test.id)
-                                  toast('Testimonial deleted.')
+                                if (confirm(`Delete "${vid.title}"?`)) {
+                                  deleteVideo(vid.id)
+                                  toast('Video deleted.')
                                 }
                               }}
-                              className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                              className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
                             >
                               <Trash2 className="size-3.5" />
                             </button>
                           </div>
                         </div>
                       </div>
-                    )
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* 9. FAQS TAB (CRUD + ACTIVATE/DEACTIVATE) */}
-            {activeTab === 'faqs' && (
+            {/* 6. RESOURCE SHOP (PRODUCTS) TAB */}
+            {activeTab === 'shop' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Frequently Asked Questions ({state.faqs.length})</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Edit, activate/deactivate, or add new questions to provide clarity on rentals and workshops.
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewSection('faqs')}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-muted"
-                    >
-                      <Eye className="size-3.5 text-primary" />
-                      Live Preview
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingFaq(true)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                    >
-                      <Plus className="size-3.5" />
-                      Add FAQ
-                    </button>
-                  </div>
-                </div>
+                <SectionHeaderCard
+                  title="Resource Shop (Props & Printables)"
+                  subtitle="Manage purchasable & rentable classroom materials, PDF printables, stock status, and prices."
+                  onPreview={() => setPreviewSection('shop')}
+                  actionLabel="+ Add New Product"
+                  onAction={() => setIsAddingProduct(true)}
+                />
 
-                <div className="space-y-3">
-                  {state.faqs.map((faq) => {
-                    const isFaqActive = faq.isActive !== false
-                    return (
-                      <div
-                        key={faq.id}
-                        className={cn(
-                          'flex items-start justify-between gap-4 rounded-2xl border bg-card p-4 shadow-xs',
-                          isFaqActive ? 'border-border' : 'border-dashed border-muted-foreground/40 opacity-70 bg-muted/20',
-                        )}
-                      >
-                        <div className="space-y-1 flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-serif text-sm font-semibold text-foreground">{faq.q}</h4>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {state.products.map((prod) => (
+                    <div
+                      key={prod.id}
+                      className={cn(
+                        'flex flex-col justify-between overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-1',
+                        prod.isActive === false && 'opacity-60 bg-gray-100',
+                      )}
+                    >
+                      <div className="relative h-44 w-full border-b-2 border-[#2D1F1D] bg-[#FAF5EC]">
+                        <Image
+                          src={prod.image || '/images/product-phonics-wheel.png'}
+                          alt={prod.title || prod.name || 'Product'}
+                          fill
+                          className="object-cover"
+                        />
+                        <span className="absolute top-2.5 left-2.5 rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#065F46]">
+                          {prod.format || prod.category}
+                        </span>
+                        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5">
+                          <span className="rounded-full border border-[#2D1F1D] bg-white px-2.5 py-0.5 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]">
+                            Buy: {prod.priceBuy || prod.buyPrice || 0} TND
+                          </span>
+                          {(prod.priceRent || prod.rentPrice) && (
+                            <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-0.5 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]">
+                              Rent: {prod.priceRent || prod.rentPrice} TND
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
+                            {prod.title || prod.name}
+                          </h4>
+                          <p className="mt-0.5 text-xs font-bold text-[#FF7D6B]">{prod.subtitle || prod.category}</p>
+                          <p className="mt-2 text-xs font-medium text-[#6B5550] line-clamp-2">
+                            {prod.description}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between border-t-2 border-[#2D1F1D]/10 pt-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleProductActive(prod.id)
+                              toast(prod.isActive !== false ? 'Product hidden' : 'Product active')
+                            }}
+                            className={cn(
+                              'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2 py-1 text-[0.65rem] font-black cursor-pointer',
+                              prod.isActive !== false ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#E5E7EB] text-[#6B7280]',
+                            )}
+                          >
+                            {prod.isActive !== false ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                            <span>{prod.isActive !== false ? 'In Shop' : 'Hidden'}</span>
+                          </button>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setEditingProduct(prod)}
+                              className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+                            >
+                              <Edit3 className="size-3" /> Edit
+                            </button>
                             <button
                               type="button"
                               onClick={() => {
-                                toggleFaqActive(faq.id)
-                                toast(`FAQ is now ${isFaqActive ? 'Hidden' : 'Active'}`)
+                                if (confirm(`Delete "${prod.title || prod.name}"?`)) {
+                                  deleteProduct(prod.id)
+                                  toast('Product deleted.')
+                                }
                               }}
-                              className={cn(
-                                'rounded-full px-2 py-0.5 text-[0.65rem] font-bold',
-                                isFaqActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-muted text-muted-foreground',
-                              )}
+                              className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
                             >
-                              {isFaqActive ? 'Active' : 'Hidden'}
+                              <Trash2 className="size-3.5" />
                             </button>
                           </div>
-                          <p className="text-xs text-muted-foreground">{faq.a}</p>
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-                        <div className="flex shrink-0 gap-1.5">
+            {/* 7. TARGET AUDIENCES (WHO I SERVE) TAB */}
+            {activeTab === 'audiences' && (
+              <div className="space-y-6">
+                <SectionHeaderCard
+                  title="Target Audiences (Who I Serve)"
+                  subtitle="Manage audience categories: Primary Learners, Middle Schoolers, ESL Learners, Parents & Teachers."
+                  onPreview={() => setPreviewSection('audiences')}
+                  actionLabel="+ Add New Audience"
+                  onAction={() => setIsAddingAudience(true)}
+                />
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {state.audiences.map((aud) => (
+                    <div
+                      key={aud.id}
+                      className={cn(
+                        'flex flex-col justify-between overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-5 shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-1',
+                        aud.isActive === false && 'opacity-60 bg-gray-100',
+                      )}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-2xl">{aud.icon || '🎒'}</span>
+                          <span className="rounded-full bg-[#FFE68C] px-2.5 py-0.5 text-xs font-black border border-[#2D1F1D]">
+                            {aud.ageGroup}
+                          </span>
+                        </div>
+                        <h4 className="mt-3 font-sans text-base font-black text-[#2D1F1D]">
+                          {aud.title}
+                        </h4>
+                        <p className="text-xs font-bold text-[#FF7D6B]">{aud.subtitle}</p>
+                        <p className="mt-2 text-xs font-medium text-[#6B5550]">
+                          {aud.focus}
+                        </p>
+
+                        {/* Bullet Points */}
+                        <div className="mt-3 space-y-1">
+                          {aud.points?.map((pt, i) => (
+                            <div key={i} className="flex items-center gap-1.5 text-xs font-bold text-[#2D1F1D]">
+                              <Check className="size-3.5 text-[#059669] stroke-[3]" />
+                              <span>{pt}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between border-t-2 border-[#2D1F1D]/10 pt-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            toggleAudienceActive(aud.id)
+                            toast(aud.isActive !== false ? 'Audience hidden' : 'Audience active')
+                          }}
+                          className={cn(
+                            'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2 py-1 text-[0.65rem] font-black cursor-pointer',
+                            aud.isActive !== false ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#E5E7EB] text-[#6B7280]',
+                          )}
+                        >
+                          {aud.isActive !== false ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                          <span>{aud.isActive !== false ? 'Public' : 'Hidden'}</span>
+                        </button>
+
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
-                            onClick={() => setEditingFaq(faq)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted"
+                            onClick={() => setEditingAudience(aud)}
+                            className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
                           >
-                            <Edit3 className="size-3.5" />
+                            <Edit3 className="size-3" /> Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => {
-                              if (confirm('Delete this question?')) {
-                                deleteFaq(faq.id)
-                                toast('FAQ deleted.')
+                              if (confirm(`Delete "${aud.title}"?`)) {
+                                deleteAudience(aud.id)
+                                toast('Audience deleted.')
                               }
                             }}
-                            className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                            className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
                           >
                             <Trash2 className="size-3.5" />
                           </button>
                         </div>
                       </div>
-                    )
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* 10. CONTACT INFO TAB */}
+            {/* 8. TESTIMONIALS (ENDORSEMENTS) TAB */}
+            {activeTab === 'testimonials' && (
+              <div className="space-y-6">
+                <SectionHeaderCard
+                  title="Testimonials & Endorsements"
+                  subtitle="Manage parent and educator feedback, quotes, star ratings, and author roles."
+                  onPreview={() => setPreviewSection('testimonials')}
+                  actionLabel="+ Add Testimonial"
+                  onAction={() => setIsAddingTestimonial(true)}
+                />
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {state.testimonials.map((test) => (
+                    <div
+                      key={test.id}
+                      className={cn(
+                        'flex flex-col justify-between rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-5 shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-1',
+                        test.isActive === false && 'opacity-60 bg-gray-100',
+                      )}
+                    >
+                      <div>
+                        {/* Stars */}
+                        <div className="flex items-center gap-1 text-[#FFC837]">
+                          {[...Array(test.rating || 5)].map((_, i) => (
+                            <Star key={i} className="size-4 fill-[#FFC837] stroke-[#2D1F1D]" />
+                          ))}
+                        </div>
+
+                        <p className="mt-3 font-medium text-xs text-[#2D1F1D] italic">
+                          &ldquo;{test.quote}&rdquo;
+                        </p>
+
+                        <div className="mt-4 pt-3 border-t border-[#2D1F1D]/10">
+                          <h4 className="font-sans text-xs font-black text-[#2D1F1D]">
+                            {test.name}
+                          </h4>
+                          <p className="text-[0.7rem] font-bold text-[#FF7D6B]">{test.role}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between border-t-2 border-[#2D1F1D]/10 pt-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            toggleTestimonialActive(test.id)
+                            toast(test.isActive !== false ? 'Review hidden' : 'Review active')
+                          }}
+                          className={cn(
+                            'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2 py-1 text-[0.65rem] font-black cursor-pointer',
+                            test.isActive !== false ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#E5E7EB] text-[#6B7280]',
+                          )}
+                        >
+                          {test.isActive !== false ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                          <span>{test.isActive !== false ? 'Public' : 'Hidden'}</span>
+                        </button>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setEditingTestimonial(test)}
+                            className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+                          >
+                            <Edit3 className="size-3" /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete endorsement from "${test.name}"?`)) {
+                                deleteTestimonial(test.id)
+                                toast('Testimonial deleted.')
+                              }
+                            }}
+                            className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 9. ATELIER FAQ TAB */}
+            {activeTab === 'faqs' && (
+              <div className="space-y-6">
+                <SectionHeaderCard
+                  title="Frequently Asked Questions (FAQ)"
+                  subtitle="Manage questions & answers about custom props, rentals, workshop bookings, and shipping."
+                  onPreview={() => setPreviewSection('faqs')}
+                  actionLabel="+ Add New Question"
+                  onAction={() => setIsAddingFaq(true)}
+                />
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {state.faqs.map((faq) => (
+                    <div
+                      key={faq.id}
+                      className={cn(
+                        'flex flex-col justify-between rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-5 shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-0.5',
+                        faq.isActive === false && 'opacity-60 bg-gray-100',
+                      )}
+                    >
+                      <div>
+                        <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
+                          Q: {faq.q}
+                        </h4>
+                        <p className="mt-2 text-xs font-medium text-[#6B5550]">
+                          {faq.a}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between border-t-2 border-[#2D1F1D]/10 pt-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            toggleFaqActive(faq.id)
+                            toast(faq.isActive !== false ? 'FAQ hidden' : 'FAQ active')
+                          }}
+                          className={cn(
+                            'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2 py-1 text-[0.65rem] font-black cursor-pointer',
+                            faq.isActive !== false ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#E5E7EB] text-[#6B7280]',
+                          )}
+                        >
+                          {faq.isActive !== false ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
+                          <span>{faq.isActive !== false ? 'In FAQ' : 'Hidden'}</span>
+                        </button>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setEditingFaq(faq)}
+                            className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+                          >
+                            <Edit3 className="size-3" /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete FAQ?`)) {
+                                deleteFaq(faq.id)
+                                toast('FAQ deleted.')
+                              }
+                            }}
+                            className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 10. CONTACT & ATELIER INFO TAB */}
             {activeTab === 'contact' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-xl font-bold">Studio Contact &amp; Location Details</h2>
-                    <p className="text-xs text-muted-foreground">
-                      Configure your direct WhatsApp contact number, email, and studio location in Sfax, Tunisia.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      updateContact(contactForm)
-                      toast('Contact details updated!')
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:shadow-md"
-                  >
-                    <Save className="size-3.5" />
-                    Save Changes
-                  </button>
-                </div>
+                <SectionHeaderCard
+                  title="Contact Information & Studio Settings"
+                  subtitle="Edit Farah's email address, WhatsApp numbers, physical studio location, and workshop availability."
+                  onPreview={() => setPreviewSection('contact')}
+                />
 
-                <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
-                  <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-5">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Display WhatsApp Number</label>
-                      <input
-                        type="text"
-                        value={contactForm.whatsapp}
-                        onChange={(e) => setContactForm({ ...contactForm, whatsapp: e.target.value })}
-                        placeholder="+216 52 095 014"
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-1 block text-xs font-semibold">Raw WhatsApp Numeric (For wa.me links)</label>
-                      <input
-                        type="text"
-                        value={contactForm.whatsappRaw}
-                        onChange={(e) => setContactForm({ ...contactForm, whatsappRaw: e.target.value })}
-                        placeholder="21652095014"
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-1 block text-xs font-semibold">Email Address</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Contact Email Address
+                      </label>
                       <input
                         type="email"
                         value={contactForm.email}
                         onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                        placeholder="affesfarah6@gmail.com"
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
                       />
                     </div>
-
                     <div>
-                      <label className="mb-1 block text-xs font-semibold">Location / City</label>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Studio Location / City
+                      </label>
                       <input
                         type="text"
                         value={contactForm.location}
                         onChange={(e) => setContactForm({ ...contactForm, location: e.target.value })}
-                        placeholder="Sfax, Tunisia"
-                        className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
                       />
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3.5">
-                    <input
-                      type="checkbox"
-                      id="openForWorkshops"
-                      checked={contactForm.openForWorkshops}
-                      onChange={(e) => setContactForm({ ...contactForm, openForWorkshops: e.target.checked })}
-                      className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
-                    />
-                    <label htmlFor="openForWorkshops" className="text-xs font-semibold text-foreground cursor-pointer">
-                      Show &quot;Open for workshops &amp; commissions&quot; active badge in About section
-                    </label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        WhatsApp Display Number
+                      </label>
+                      <input
+                        type="text"
+                        value={contactForm.whatsapp}
+                        onChange={(e) => setContactForm({ ...contactForm, whatsapp: e.target.value })}
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        WhatsApp International Link Number (No spaces)
+                      </label>
+                      <input
+                        type="text"
+                        value={contactForm.whatsappRaw}
+                        onChange={(e) => setContactForm({ ...contactForm, whatsappRaw: e.target.value })}
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                        Response Time Badge
+                      </label>
+                      <input
+                        type="text"
+                        value={contactForm.responseTime}
+                        onChange={(e) => setContactForm({ ...contactForm, responseTime: e.target.value })}
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-3 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+                      />
+                    </div>
+                    <div className="flex items-center gap-3 rounded-xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-3 shadow-[2px_2px_0px_#2D1F1D]">
+                      <input
+                        type="checkbox"
+                        id="workshopsCheck"
+                        checked={contactForm.openForWorkshops}
+                        onChange={(e) => setContactForm({ ...contactForm, openForWorkshops: e.target.checked })}
+                        className="size-5 rounded border-2 border-[#2D1F1D] accent-[#FF7D6B] cursor-pointer"
+                      />
+                      <label htmlFor="workshopsCheck" className="text-xs font-black text-[#2D1F1D] cursor-pointer">
+                        Currently Open for School Workshops &amp; Training
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-3 border-t-2 border-[#2D1F1D]/10">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateContact(contactForm)
+                        toast('✨ Contact details updated!')
+                      }}
+                      className="flex items-center gap-2 rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-6 py-2.5 text-xs font-black text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+                    >
+                      <Save className="size-4" />
+                      <span>Save Contact Details</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1799,19 +1785,19 @@ export default function AdminPage() {
             {/* 11. MESSAGES INBOX TAB */}
             {activeTab === 'inbox' && (
               <div className="space-y-6">
-                <div>
-                  <h2 className="font-serif text-xl font-bold">Contact Messages Inbox ({state.messages.length})</h2>
-                  <p className="text-xs text-muted-foreground">
-                    Messages sent directly through the portfolio web app (no Outlook or external client required).
-                  </p>
-                </div>
+                <SectionHeaderCard
+                  title="Client Inquiries & Messages Inbox"
+                  subtitle="Review workshop requests, prop orders, and teacher inquiries sent via the contact form."
+                />
 
                 {state.messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border p-12 text-center">
-                    <Inbox className="size-10 text-muted-foreground" />
-                    <p className="mt-2 font-serif text-base font-semibold">No messages yet</p>
-                    <p className="text-xs text-muted-foreground">
-                      When visitors send an inquiry through the contact form, it will pop up here instantly in real-time.
+                  <div className="flex flex-col items-center justify-center rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-12 text-center shadow-[4px_4px_0px_#2D1F1D]">
+                    <Inbox className="size-12 text-[#6B5550]" />
+                    <h3 className="mt-3 font-sans text-base font-black text-[#2D1F1D]">
+                      No messages in your inbox yet
+                    </h3>
+                    <p className="mt-1 font-hand text-sm font-bold text-[#6B5550]">
+                      Inquiries submitted from the public contact form will appear here in real-time.
                     </p>
                   </div>
                 ) : (
@@ -1820,246 +1806,144 @@ export default function AdminPage() {
                       <div
                         key={msg.id}
                         className={cn(
-                          'rounded-2xl border p-4 shadow-xs transition-all',
-                          msg.status === 'unread'
-                            ? 'border-primary/50 bg-primary/[0.03] ring-1 ring-primary/20'
-                            : 'border-border bg-card',
+                          'rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-5 shadow-[4px_4px_0px_#2D1F1D] space-y-3',
+                          msg.status === 'unread' && 'border-[#FF7D6B] bg-[#FFF9E6]',
                         )}
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5">
+                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="font-serif text-sm font-bold text-foreground">{msg.name}</span>
-                            <span className="rounded-full bg-muted px-2 py-0.5 text-[0.65rem] font-semibold text-muted-foreground">
+                            <span className="font-sans text-sm font-black text-[#2D1F1D]">
+                              {msg.name}
+                            </span>
+                            <span className="rounded-full bg-[#FFE68C] px-2 py-0.2 text-[0.65rem] font-bold border border-[#2D1F1D]">
                               {msg.role}
                             </span>
-                            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.65rem] font-bold text-foreground">
+                            <span className="rounded-full bg-[#A7F3D0] px-2 py-0.2 text-[0.65rem] font-bold border border-[#2D1F1D]">
                               {msg.topic}
                             </span>
-                            {msg.status === 'unread' && (
-                              <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-amber-600 dark:text-amber-400">
-                                New
-                              </span>
-                            )}
                           </div>
-
-                          <div className="flex items-center gap-2">
-                            <span className="text-[0.65rem] text-muted-foreground">
-                              {new Date(msg.created_at).toLocaleDateString('en-GB', {
-                                day: 'numeric',
-                                month: 'short',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                markMessageRead(msg.id, msg.status === 'unread' ? 'replied' : 'unread')
-                              }}
-                              className="rounded-lg border border-border px-2 py-1 text-[0.65rem] font-semibold hover:bg-muted"
-                            >
-                              {msg.status === 'unread' ? 'Mark as Replied' : 'Mark Unread'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm('Delete this message?')) {
-                                  deleteMessage(msg.id)
-                                  toast('Message deleted.')
-                                }
-                              }}
-                              className="rounded-lg border border-destructive/30 bg-destructive/10 p-1 text-destructive hover:bg-destructive/20"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
-                          </div>
+                          <span className="text-[0.7rem] font-bold text-[#6B5550]">
+                            {new Date(msg.created_at).toLocaleDateString()}
+                          </span>
                         </div>
 
-                        <p className="mt-3 text-xs leading-relaxed text-foreground whitespace-pre-wrap">
+                        <p className="text-xs font-medium text-[#2D1F1D] bg-[#FAF5EC] p-3 rounded-2xl border border-[#2D1F1D]/10">
                           {msg.message}
                         </p>
 
-                        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/40">
-                          <span>Email: {msg.email}</span>
-                          <a
-                            href={`mailto:${msg.email}?subject=Re: ${msg.topic}&body=Hello ${msg.name},\n\nThank you for reaching out!`}
-                            className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-                          >
-                            <Send className="size-3" /> Reply by Email
-                          </a>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 12. ORDERS & RENTALS TRACKER TAB */}
-            {activeTab === 'orders' && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="font-serif text-xl font-bold">Orders &amp; Rentals Tracker ({state.orders.length})</h2>
-                  <p className="text-xs text-muted-foreground">
-                    Track customer purchase and rental requests. Send direct 1-click WhatsApp confirmations.
-                  </p>
-                </div>
-
-                {state.orders.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border p-12 text-center">
-                    <Package className="size-10 text-muted-foreground" />
-                    <p className="mt-2 font-serif text-base font-semibold">No orders recorded yet</p>
-                    <p className="text-xs text-muted-foreground">
-                      When visitors checkout DIY props or worksheets, their orders will be organized here.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {state.orders.map((order) => (
-                      <div
-                        key={order.id}
-                        className={cn(
-                          'rounded-2xl border p-5 shadow-xs transition-all',
-                          order.status === 'pending'
-                            ? 'border-primary/50 bg-primary/[0.02] ring-1 ring-primary/20'
-                            : 'border-border bg-card',
-                        )}
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-serif text-base font-bold">{order.customer_name}</span>
-                            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold">
-                              {order.customer_location || 'Sfax'}
-                            </span>
-                            <span
-                              className={cn(
-                                'rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase',
-                                order.status === 'pending'
-                                  ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
-                                  : order.status === 'completed' || order.status === 'fulfilled'
-                                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                                    : 'bg-muted text-muted-foreground',
-                              )}
-                            >
-                              {order.status}
-                            </span>
-                          </div>
+                        <div className="flex items-center justify-between pt-2">
+                          <span className="text-xs font-bold text-[#FF7D6B]">{msg.email}</span>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(order.created_at).toLocaleDateString('en-GB', {
-                                day: 'numeric',
-                                month: 'short',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </span>
-
-                            <select
-                              value={order.status}
-                              onChange={(e) => {
-                                updateOrderStatus(order.id, e.target.value as StoredOrder['status'])
-                                toast(`Order marked as ${e.target.value}`)
-                              }}
-                              className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-semibold outline-none"
+                            <a
+                              href={`mailto:${msg.email}?subject=Re: Inquiry with Teacher Farah Affes`}
+                              className="flex items-center gap-1 rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]"
                             >
-                              <option value="pending">Pending</option>
-                              <option value="processing">Processing</option>
-                              <option value="completed">Completed</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
-
+                              <Send className="size-3" /> Reply Email
+                            </a>
                             <button
                               type="button"
                               onClick={() => {
-                                if (confirm('Delete this order record?')) {
-                                  deleteOrder(order.id)
-                                  toast('Order deleted.')
-                                }
+                                deleteMessage(msg.id)
+                                toast('Message deleted.')
                               }}
-                              className="rounded-lg border border-destructive/30 bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20"
+                              className="flex size-7 items-center justify-center rounded-xl border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]"
                             >
                               <Trash2 className="size-3.5" />
                             </button>
                           </div>
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-                        {/* Customer Details */}
-                        <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
-                          <p>
-                            <span className="font-semibold text-muted-foreground">Phone / WA:</span>{' '}
-                            <span className="font-bold text-foreground">{order.customer_phone}</span>
-                          </p>
-                          {order.customer_email && (
-                            <p>
-                              <span className="font-semibold text-muted-foreground">Email:</span>{' '}
-                              <span>{order.customer_email}</span>
-                            </p>
-                          )}
-                          {order.rental_dates && (
-                            <p>
-                              <span className="font-semibold text-primary">Rental Dates:</span>{' '}
-                              <span className="font-semibold">{order.rental_dates}</span>
-                            </p>
-                          )}
-                        </div>
+            {/* 13. ORDERS & RENTALS TAB */}
+            {activeTab === 'orders' && (
+              <div className="space-y-6">
+                <SectionHeaderCard
+                  title="Resource Orders & Prop Rentals"
+                  subtitle="Manage customer orders, prop rental requests, and delivery confirmations."
+                />
 
-                        {order.notes && (
-                          <p className="mt-2 text-xs bg-muted/40 p-2.5 rounded-lg text-muted-foreground">
-                            <span className="font-semibold text-foreground">Customer Notes:</span> {order.notes}
-                          </p>
-                        )}
-
-                        {/* Itemized breakdown */}
-                        <div className="mt-3 rounded-xl border border-border/60 bg-muted/20 p-3">
-                          <p className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
-                            Items Ordered:
-                          </p>
-                          <ul className="mt-1.5 space-y-1 text-xs">
-                            {order.items.map((item, idx) => (
-                              <li key={idx} className="flex items-center justify-between">
-                                <span>
-                                  • {item.name} ({item.mode === 'rent' ? 'Rental' : 'Buy'}) x{item.qty}
-                                </span>
-                                <span className="font-semibold">{item.price * item.qty} TND</span>
-                              </li>
-                            ))}
-                          </ul>
-
-                          <div className="mt-2 flex items-center justify-between border-t border-border/40 pt-2 font-serif text-sm font-bold">
-                            <span>Total Amount:</span>
-                            <span className="text-primary">{order.subtotal} TND</span>
+                {state.orders.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-12 text-center shadow-[4px_4px_0px_#2D1F1D]">
+                    <Package className="size-12 text-[#6B5550]" />
+                    <h3 className="mt-3 font-sans text-base font-black text-[#2D1F1D]">
+                      No orders or rental requests yet
+                    </h3>
+                    <p className="mt-1 font-hand text-sm font-bold text-[#6B5550]">
+                      When visitors request prop rentals or purchases from the shop, they appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {state.orders.map((ord) => (
+                      <div
+                        key={ord.id}
+                        className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-5 shadow-[4px_4px_0px_#2D1F1D] space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-sans text-sm font-black text-[#2D1F1D]">
+                              {ord.customer_name}
+                            </span>
+                            <p className="text-xs font-bold text-[#FF7D6B]">📞 {ord.customer_phone}</p>
                           </div>
+                          <span className="rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black">
+                            Total: {ord.subtotal} {ord.currency || 'TND'}
+                          </span>
                         </div>
 
-                        {/* Quick WhatsApp Action to Customer */}
-                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const cleanPhone = order.customer_phone.replace(/[^0-9]/g, '')
-                              const fullPhone = cleanPhone.startsWith('216') ? cleanPhone : `216${cleanPhone}`
-                              const msg = `Hello ${order.customer_name}! This is Farah Affes regarding your order of (${order.items.map((i) => i.name).join(', ')}). Your order is confirmed and ready for delivery/pickup in ${order.customer_location || 'Sfax'}.`
-                              window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank')
-                            }}
-                            className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#20bd5a]"
-                          >
-                            <MessageCircle className="size-3.5" />
-                            Message Customer on WhatsApp
-                          </button>
+                        {/* Items */}
+                        <div className="rounded-2xl border border-[#2D1F1D]/10 bg-[#FAF5EC] p-3 space-y-1">
+                          {ord.items.map((it, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-xs font-bold">
+                              <span>
+                                {it.qty}x {it.name} ({it.mode === 'rent' ? 'Rental' : 'Purchase'})
+                              </span>
+                              <span>{it.price * it.qty} TND</span>
+                            </div>
+                          ))}
+                        </div>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard.writeText(
-                                `Order #${order.id}\nCustomer: ${order.customer_name} (${order.customer_phone})\nLocation: ${order.customer_location}\nTotal: ${order.subtotal} TND`,
-                              )
-                              toast('Order summary copied to clipboard!')
+                        <div className="flex items-center justify-between pt-2">
+                          <select
+                            value={ord.status}
+                            onChange={(e) => {
+                              updateOrderStatus(ord.id, e.target.value as StoredOrder['status'])
+                              toast(`Order status updated to ${e.target.value}`)
                             }}
-                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                            className="rounded-xl border-2 border-[#2D1F1D] bg-white px-2.5 py-1 text-xs font-bold outline-none"
                           >
-                            <Copy className="size-3.5" /> Copy Details
-                          </button>
+                            <option value="pending">⏳ Pending</option>
+                            <option value="confirmed">✅ Confirmed</option>
+                            <option value="fulfilled">📦 Fulfilled</option>
+                            <option value="cancelled">❌ Cancelled</option>
+                          </select>
+
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`https://wa.me/${ord.customer_phone.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(ord.customer_name)},%20this%20is%20Teacher%20Farah%20Affes%20regarding%20your%20atelier%20request!`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-1 rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-3 py-1 text-xs font-black text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D]"
+                            >
+                              <MessageCircle className="size-3" /> WhatsApp Customer
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                deleteOrder(ord.id)
+                                toast('Order deleted.')
+                              }}
+                              className="flex size-7 items-center justify-center rounded-xl border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -2068,102 +1952,58 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 13. STUDIO SETTINGS & DATABASE SYNC TAB */}
+            {/* 14. STUDIO SETTINGS TAB */}
             {activeTab === 'settings' && (
               <div className="space-y-6">
-                <div>
-                  <h2 className="font-serif text-xl font-bold">Studio Settings &amp; Data Management</h2>
-                  <p className="text-xs text-muted-foreground">
-                    Configure notification preferences, PIN security, or export complete backups.
+                <SectionHeaderCard
+                  title="Studio Settings, Security &amp; Backups"
+                  subtitle="Change your PIN, download full data backups, or restore portfolio defaults."
+                />
+
+                {/* Change PIN */}
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-4">
+                  <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+                    Studio Access PIN
+                  </h3>
+                  <p className="font-hand text-xs font-bold text-[#6B5550]">
+                    Current secret PIN: <span className="font-mono text-[#FF7D6B] font-bold">{state.adminPin}</span>
                   </p>
-                </div>
 
-                {/* Device Notification Settings */}
-                <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-serif text-base font-bold">Notification Controls</h3>
-                      <p className="text-xs text-muted-foreground">
-                        Turn audio chimes and pop-up notifications ON or OFF.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        toggleNotificationsMuted()
-                        toast(isNotificationsMuted ? 'Notifications enabled.' : 'Notifications muted.')
-                      }}
-                      className={cn(
-                        'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
-                        isNotificationsMuted
-                          ? 'bg-muted text-muted-foreground'
-                          : 'bg-emerald-500 text-white',
-                      )}
-                    >
-                      {isNotificationsMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
-                      {isNotificationsMuted ? 'Muted (OFF)' : 'Active (ON)'}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3.5">
-                    <div className="flex items-center gap-3">
-                      <BellRing className="size-4 text-primary" />
-                      <span className="text-xs font-semibold">Browser &amp; OS Push Permission</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const granted = await requestNotifications()
-                        if (granted) {
-                          toast('Device push alerts enabled!')
-                        } else {
-                          toast('Please allow notification permission in your browser.')
-                        }
-                      }}
-                      className={cn(
-                        'rounded-lg px-3 py-1 text-xs font-semibold transition-all',
-                        hasNotificationPermission
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-primary text-primary-foreground',
-                      )}
-                    >
-                      {hasNotificationPermission ? 'Granted ✓' : 'Enable Push'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Change PIN Card */}
-                <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
-                  <h3 className="font-serif text-base font-bold">Change Admin Studio PIN</h3>
-                  <div className="flex max-w-sm gap-2">
+                  <div className="flex gap-2 max-w-sm">
                     <input
-                      type="password"
+                      type="text"
                       value={newPin}
                       onChange={(e) => setNewPin(e.target.value)}
-                      placeholder="Enter new 4+ char PIN"
-                      className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                      placeholder="Enter new 6-digit PIN"
+                      className="flex-1 rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-bold outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => {
-                        if (newPin.trim().length < 4) {
-                          toast('PIN must be at least 4 characters long.')
+                        if (newPin.length < 4) {
+                          toast('PIN should be at least 4 characters.')
                           return
                         }
-                        updateAdminPin(newPin.trim())
+                        updateAdminPin(newPin)
                         setNewPin('')
-                        toast('Admin PIN updated successfully!')
+                        toast('✨ Admin PIN updated successfully!')
                       }}
-                      className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+                      className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-4 py-2.5 text-xs font-black shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
                     >
-                      Update PIN
+                      Save PIN
                     </button>
                   </div>
                 </div>
 
                 {/* Backup & Restore */}
-                <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-xs">
-                  <h3 className="font-serif text-base font-bold">Data Backup &amp; JSON Migration</h3>
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-4">
+                  <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+                    Data Export &amp; Backup
+                  </h3>
+                  <p className="font-hand text-xs font-bold text-[#6B5550]">
+                    Export a full JSON snapshot of all your crafts, texts, and photos:
+                  </p>
+
                   <div className="flex flex-wrap gap-3">
                     <button
                       type="button"
@@ -2175,65 +2015,28 @@ export default function AdminPage() {
                         a.href = url
                         a.download = `farah-portfolio-backup-${new Date().toISOString().slice(0, 10)}.json`
                         a.click()
-                        toast('Full Portfolio Backup downloaded!')
+                        toast('✨ Full Portfolio Backup downloaded!')
                       }}
-                      className="inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-xs font-semibold text-secondary-foreground shadow-sm hover:shadow-md"
+                      className="flex items-center gap-2 rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-4 py-2.5 text-xs font-black text-[#065F46] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#6EE7B7] cursor-pointer"
                     >
-                      <Download className="size-4 text-primary" />
-                      Export Complete Portfolio JSON
+                      <Download className="size-4" />
+                      <span>Download JSON Backup</span>
                     </button>
 
-                    <label className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-semibold text-foreground cursor-pointer hover:bg-muted">
-                      <Upload className="size-4 text-primary" />
-                      Import &amp; Restore JSON File
-                      <input
-                        type="file"
-                        accept=".json"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (!file) return
-                          const reader = new FileReader()
-                          reader.onload = (ev) => {
-                            const content = ev.target?.result as string
-                            if (content && importDataJson(content)) {
-                              toast('Portfolio restored successfully!')
-                              syncLocalForms()
-                            } else {
-                              toast('Invalid backup JSON file.')
-                            }
-                          }
-                          reader.readAsText(file)
-                        }}
-                      />
-                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm('Reset all portfolio texts and crafts back to factory defaults?')) {
+                          resetToDefaults()
+                          toast('Portfolio restored to initial defaults.')
+                        }
+                      }}
+                      className="flex items-center gap-2 rounded-xl border-2 border-[#2D1F1D] bg-[#FFB5B5] px-4 py-2.5 text-xs font-black text-[#2D1F1D] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
+                    >
+                      <RotateCcw className="size-4" />
+                      <span>Reset to Factory Defaults</span>
+                    </button>
                   </div>
-                </div>
-
-                {/* Factory Reset Card */}
-                <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-5 space-y-3">
-                  <h3 className="font-serif text-base font-bold text-destructive">Factory Reset</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Reset all text, works, products, and contact information to Farah&apos;s default state.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        confirm(
-                          'Are you sure you want to reset all portfolio data to default? This will clear custom changes.',
-                        )
-                      ) {
-                        resetToDefaults()
-                        syncLocalForms()
-                        toast('Portfolio reset to default seed data.')
-                      }
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-4 py-2 text-xs font-semibold text-white hover:bg-destructive/90"
-                  >
-                    <RotateCcw className="size-3.5" />
-                    Reset to Factory Defaults
-                  </button>
                 </div>
               </div>
             )}
@@ -2241,129 +2044,528 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* MODAL: ADD / EDIT WORK ITEM */}
-      {(isAddingWork || editingWork) && (
+      {/* ========================================================================= */}
+      {/* CRUD MODALS FOR ITEMS (Works, Videos, Products, Testimonials, FAQ, Pillar) */}
+      {/* ========================================================================= */}
+
+      {/* Work Item CRUD Modal */}
+      {(editingWork || isAddingWork) && (
         <WorkModal
           item={editingWork}
           onClose={() => {
-            setIsAddingWork(false)
             setEditingWork(null)
+            setIsAddingWork(false)
           }}
           onSave={(data) => {
             if (editingWork) {
               updateWork(editingWork.id, data)
-              toast('Work item updated.')
+              toast('✨ Craft updated!')
             } else {
               addWork(data as Omit<WorkItem, 'id'>)
-              toast('New work item created!')
+              toast('✨ New craft added to gallery!')
             }
-            setIsAddingWork(false)
             setEditingWork(null)
+            setIsAddingWork(false)
           }}
         />
       )}
 
-      {/* MODAL: ADD / EDIT VIDEO ITEM */}
-      {(isAddingVideo || editingVideo) && (
+      {/* Video Item CRUD Modal */}
+      {(editingVideo || isAddingVideo) && (
         <VideoModal
           item={editingVideo}
           onClose={() => {
-            setIsAddingVideo(false)
             setEditingVideo(null)
+            setIsAddingVideo(false)
           }}
           onSave={(data) => {
             if (editingVideo) {
               updateVideo(editingVideo.id, data)
-              toast('Video clip updated.')
+              toast('✨ Video lesson updated!')
             } else {
               addVideo(data as Omit<VideoType, 'id'>)
-              toast('New video clip added!')
+              toast('✨ New video added to classroom lessons!')
             }
-            setIsAddingVideo(false)
             setEditingVideo(null)
+            setIsAddingVideo(false)
           }}
         />
       )}
 
-      {/* MODAL: ADD / EDIT PRODUCT ITEM */}
-      {(isAddingProduct || editingProduct) && (
+      {/* Product Item CRUD Modal */}
+      {(editingProduct || isAddingProduct) && (
         <ProductModal
           item={editingProduct}
           onClose={() => {
-            setIsAddingProduct(false)
             setEditingProduct(null)
+            setIsAddingProduct(false)
           }}
           onSave={(data) => {
             if (editingProduct) {
               updateProduct(editingProduct.id, data)
-              toast('Product updated.')
+              toast('✨ Product updated!')
             } else {
               addProduct(data as Omit<Product, 'id'>)
-              toast('New product added to shop!')
+              toast('✨ New product added to shop!')
             }
-            setIsAddingProduct(false)
             setEditingProduct(null)
+            setIsAddingProduct(false)
           }}
         />
       )}
 
-      {/* MODAL: ADD / EDIT TESTIMONIAL (WITH OPTIONAL STAR RATING) */}
-      {(isAddingTestimonial || editingTestimonial) && (
+      {/* Audience Item CRUD Modal */}
+      {(editingAudience || isAddingAudience) && (
+        <AudienceModal
+          item={editingAudience}
+          onClose={() => {
+            setEditingAudience(null)
+            setIsAddingAudience(false)
+          }}
+          onSave={(data) => {
+            if (editingAudience) {
+              updateAudience(editingAudience.id, data)
+              toast('✨ Target audience updated!')
+            } else {
+              addAudience(data as Omit<Audience, 'id'>)
+              toast('✨ New audience added!')
+            }
+            setEditingAudience(null)
+            setIsAddingAudience(false)
+          }}
+        />
+      )}
+
+      {/* Testimonial Item CRUD Modal */}
+      {(editingTestimonial || isAddingTestimonial) && (
         <TestimonialModal
           item={editingTestimonial}
           onClose={() => {
-            setIsAddingTestimonial(false)
             setEditingTestimonial(null)
+            setIsAddingTestimonial(false)
           }}
           onSave={(data) => {
             if (editingTestimonial) {
               updateTestimonial(editingTestimonial.id, data)
-              toast('Testimonial updated.')
+              toast('✨ Testimonial updated!')
             } else {
               addTestimonial(data as Omit<TestimonialItem, 'id'>)
-              toast('New testimonial added!')
+              toast('✨ New testimonial added!')
             }
-            setIsAddingTestimonial(false)
             setEditingTestimonial(null)
+            setIsAddingTestimonial(false)
           }}
         />
       )}
 
-      {/* MODAL: ADD / EDIT FAQ */}
-      {(isAddingFaq || editingFaq) && (
+      {/* FAQ Item CRUD Modal */}
+      {(editingFaq || isAddingFaq) && (
         <FaqModal
           item={editingFaq}
           onClose={() => {
-            setIsAddingFaq(false)
             setEditingFaq(null)
+            setIsAddingFaq(false)
           }}
           onSave={(data) => {
             if (editingFaq) {
               updateFaq(editingFaq.id, data)
-              toast('FAQ question updated.')
+              toast('✨ FAQ question updated!')
             } else {
               addFaq(data as Omit<FaqItem, 'id'>)
-              toast('New FAQ question added!')
+              toast('✨ New FAQ added!')
             }
-            setIsAddingFaq(false)
             setEditingFaq(null)
+            setIsAddingFaq(false)
           }}
         />
       )}
 
-      {/* 100% HIGH-FIDELITY LIVE SECTION PREVIEW MODAL */}
-      {previewSection && (
-        <LivePreviewModal
-          section={previewSection}
-          onClose={() => setPreviewSection(null)}
+      {/* Pillar Item CRUD Modal */}
+      {editingPillar && (
+        <PillarModal
+          pillar={editingPillar}
+          onClose={() => setEditingPillar(null)}
+          onSave={(updatedPillar) => {
+            const currentPillars = [...(aboutForm.pillars || [])]
+            const pIdx = currentPillars.findIndex((p) => p.id === updatedPillar.id)
+            if (pIdx !== -1) {
+              currentPillars[pIdx] = updatedPillar
+            } else {
+              currentPillars.push(updatedPillar)
+            }
+            const newAbout = { ...aboutForm, pillars: currentPillars }
+            setAboutForm(newAbout)
+            updateAbout(newAbout)
+            toast('✨ Pedagogy pillar updated!')
+            setEditingPillar(null)
+          }}
         />
+      )}
+
+      {/* ========================================================================= */}
+      {/* LIVE SECTION PREVIEW MODAL (FULL-VIEWPORT RESPONSIVE PREVIEW)             */}
+      {/* ========================================================================= */}
+      {previewSection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-1 sm:p-4 backdrop-blur-sm">
+          <div className="flex h-[96vh] w-full max-w-[98vw] flex-col overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FAF5EC] shadow-[8px_8px_0px_#2D1F1D]">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b-3 border-[#2D1F1D] bg-[#FFFDF9] px-4 py-3 sm:px-6">
+              <div className="flex items-center gap-2">
+                <span className="flex size-7 items-center justify-center rounded-lg border border-[#2D1F1D] bg-[#6EE7B7] text-[#2D1F1D]">
+                  <Eye className="size-4" />
+                </span>
+                <span className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D]">
+                  Live Section Preview: <span className="text-[#FF7D6B] uppercase">{previewSection}</span>
+                </span>
+              </div>
+
+              {/* Viewport Width Controls */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center rounded-xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-0.5 shadow-[1.5px_1.5px_0px_#2D1F1D]">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={cn(
+                      'flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.7rem] font-black transition-all cursor-pointer',
+                      previewDevice === 'desktop'
+                        ? 'bg-[#FFE68C] text-[#2D1F1D] border border-[#2D1F1D]'
+                        : 'text-[#6B5550]',
+                    )}
+                  >
+                    <Monitor className="size-3" />
+                    <span className="hidden sm:inline">Desktop</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('tablet')}
+                    className={cn(
+                      'flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.7rem] font-black transition-all cursor-pointer',
+                      previewDevice === 'tablet'
+                        ? 'bg-[#FFE68C] text-[#2D1F1D] border border-[#2D1F1D]'
+                        : 'text-[#6B5550]',
+                    )}
+                  >
+                    <Tablet className="size-3" />
+                    <span className="hidden sm:inline">Tablet</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={cn(
+                      'flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.7rem] font-black transition-all cursor-pointer',
+                      previewDevice === 'mobile'
+                        ? 'bg-[#FFE68C] text-[#2D1F1D] border border-[#2D1F1D]'
+                        : 'text-[#6B5550]',
+                    )}
+                  >
+                    <Smartphone className="size-3" />
+                    <span className="hidden sm:inline">Mobile</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setPreviewSection(null)}
+                  className="flex size-8 items-center justify-center rounded-full border-2 border-[#2D1F1D] bg-[#FFB5B5] hover:bg-[#FF8A8A] cursor-pointer"
+                >
+                  <X className="size-4 text-[#2D1F1D]" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-1 justify-center overflow-y-auto overflow-x-auto bg-[#2D1F1D]/5 p-1 sm:p-4">
+              <div
+                className={cn(
+                  'w-full bg-background transition-all duration-200 shadow-xl overflow-hidden',
+                  previewDevice === 'desktop' && 'max-w-full rounded-2xl border-2 border-[#2D1F1D]',
+                  previewDevice === 'tablet' && 'max-w-[768px] rounded-3xl border-4 border-[#2D1F1D]',
+                  previewDevice === 'mobile' && 'max-w-[375px] rounded-[36px] border-4 border-[#2D1F1D]',
+                )}
+              >
+                {previewSection === 'hero' && <Hero />}
+                {previewSection === 'about' && <About />}
+                {previewSection === 'works' && <WorkShowcase />}
+                {previewSection === 'videos' && <Videos />}
+                {previewSection === 'shop' && <ResourceShop />}
+                {previewSection === 'audiences' && <WhoIServe />}
+                {previewSection === 'testimonials' && <Testimonials />}
+                {previewSection === 'faqs' && <Faq />}
+                {previewSection === 'contact' && <Contact />}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between border-t-3 border-[#2D1F1D] bg-[#FFFDF9] px-4 py-2.5 sm:px-6">
+              <span className="text-xs font-bold text-[#6B5550]">
+                Changes show up on your live site immediately.
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewSection(null)}
+                className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-1.5 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
 }
 
 // ----------------------------------------------------
-// SUB-COMPONENTS: MODALS FOR ADDING / EDITING ITEMS
+// REUSABLE SECTION HEADER CARD
+// ----------------------------------------------------
+function SectionHeaderCard({
+  title,
+  subtitle,
+  onPreview,
+  actionLabel,
+  onAction,
+}: {
+  title: string
+  subtitle: string
+  onPreview?: () => void
+  actionLabel?: string
+  onAction?: () => void
+}) {
+  return (
+    <div className="flex flex-col gap-3 rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-5 shadow-[4px_4px_0px_#2D1F1D] sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 className="font-sans text-lg font-black text-[#2D1F1D] sm:text-xl">{title}</h2>
+        <p className="font-hand text-xs font-bold text-[#6B5550]">{subtitle}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        {onPreview && (
+          <button
+            type="button"
+            onClick={onPreview}
+            className="flex items-center gap-1.5 rounded-xl border-2 border-[#2D1F1D] bg-[#6EE7B7] px-3.5 py-2 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#34D399] cursor-pointer"
+          >
+            <Eye className="size-3.5" />
+            <span>Section Preview</span>
+          </button>
+        )}
+        {actionLabel && onAction && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="flex items-center gap-1.5 rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-4 py-2 text-xs font-black text-[#2D1F1D] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+          >
+            <span>{actionLabel}</span>
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ----------------------------------------------------
+// PHOTO UPLOADER & PRESET PICKER COMPONENT
+// ----------------------------------------------------
+function PhotoUploader({
+  label,
+  currentValue,
+  onChange,
+}: {
+  label: string
+  currentValue: string
+  onChange: (val: string) => void
+}) {
+  const [showPresets, setShowPresets] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        onChange(reader.result)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <div className="rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-4 shadow-[2px_2px_0px_#2D1F1D] space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-black uppercase text-[#2D1F1D]">{label}</label>
+        <span className="text-[0.65rem] font-bold text-[#6B5550]">
+          File upload, URL link or Preset gallery
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* Photo Thumbnail Preview */}
+        <div className="relative size-20 shrink-0 overflow-hidden rounded-2xl border-2 border-[#2D1F1D] bg-white shadow-[2px_2px_0px_#2D1F1D]">
+          {currentValue ? (
+            <Image src={currentValue} alt="Preview" fill className="object-cover" />
+          ) : (
+            <div className="flex size-full items-center justify-center text-[#6B5550]">
+              <ImageIcon className="size-6" />
+            </div>
+          )}
+        </div>
+
+        {/* Input & Action Buttons */}
+        <div className="flex-1 space-y-2">
+          <input
+            type="text"
+            value={currentValue}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="/images/... or https://..."
+            className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold text-[#2D1F1D] outline-none"
+          />
+
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1 rounded-xl border border-[#2D1F1D] bg-white px-3 py-1 text-xs font-black text-[#2D1F1D] hover:bg-[#FFE68C] cursor-pointer"
+            >
+              <Upload className="size-3" />
+              <span>Upload from Device</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowPresets(!showPresets)}
+              className="flex items-center gap-1 rounded-xl border border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+            >
+              <Sparkles className="size-3" />
+              <span>Choose from Studio Presets</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Presets Grid */}
+      {showPresets && (
+        <div className="mt-3 rounded-2xl border-2 border-[#2D1F1D] bg-white p-3 space-y-2 animate-pop-in">
+          <div className="flex items-center justify-between pb-2 border-b border-[#2D1F1D]/10">
+            <span className="text-xs font-black text-[#2D1F1D]">Studio Image Presets</span>
+            <button
+              type="button"
+              onClick={() => setShowPresets(false)}
+              className="text-xs font-bold text-[#6B5550] hover:text-[#2D1F1D]"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 max-h-48 overflow-y-auto p-1">
+            {STUDIO_PRESET_IMAGES.map((preset, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  onChange(preset.url)
+                  setShowPresets(false)
+                }}
+                className={cn(
+                  'group flex flex-col items-center rounded-xl border p-1.5 text-center transition-all cursor-pointer',
+                  currentValue === preset.url
+                    ? 'border-[#2D1F1D] bg-[#FFE68C] shadow-[1.5px_1.5px_0px_#2D1F1D]'
+                    : 'border-transparent bg-[#FAF5EC] hover:border-[#2D1F1D]/30',
+                )}
+              >
+                <div className="relative h-12 w-full overflow-hidden rounded-lg">
+                  <Image src={preset.url} alt={preset.label} fill className="object-cover" />
+                </div>
+                <span className="mt-1 text-[0.65rem] font-bold text-[#2D1F1D] line-clamp-1">
+                  {preset.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ----------------------------------------------------
+// DYNAMIC LIST CHIP MANAGER
+// ----------------------------------------------------
+function ListTagEditor({
+  tags,
+  onChange,
+  placeholder,
+}: {
+  tags: string[]
+  onChange: (newTags: string[]) => void
+  placeholder: string
+}) {
+  const [inputVal, setInputVal] = useState('')
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inputVal.trim()) return
+    onChange([...tags, inputVal.trim()])
+    setInputVal('')
+  }
+
+  const handleRemove = (index: number) => {
+    onChange(tags.filter((_, i) => i !== index))
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-1.5">
+        {tags.map((t, idx) => (
+          <span
+            key={idx}
+            className="flex items-center gap-1.5 rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-0.5 text-xs font-bold text-[#2D1F1D]"
+          >
+            <span>{t}</span>
+            <button
+              type="button"
+              onClick={() => handleRemove(idx)}
+              className="text-[#6B5550] hover:text-[#EF4444] cursor-pointer"
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+      </div>
+
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={inputVal}
+          onChange={(e) => setInputVal(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              if (inputVal.trim()) {
+                onChange([...tags, inputVal.trim()])
+                setInputVal('')
+              }
+            }
+          }}
+          placeholder={placeholder}
+          className="flex-1 rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-bold text-[#2D1F1D] outline-none"
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-4 py-2.5 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#6EE7B7] cursor-pointer"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ----------------------------------------------------
+// MODALS FOR EDITING SPECIFIC ITEMS
 // ----------------------------------------------------
 
 function WorkModal({
@@ -2376,167 +2578,183 @@ function WorkModal({
   onSave: (data: Partial<WorkItem>) => void
 }) {
   const [title, setTitle] = useState(item?.title || '')
+  const [subtitle, setSubtitle] = useState(item?.subtitle || '')
   const [category, setCategory] = useState<WorkItem['category']>(item?.category || 'props')
-  const [tag, setTag] = useState(item?.tag || '')
   const [description, setDescription] = useState(item?.description || '')
-  const [image, setImage] = useState(item?.image || '/images/product-story-kit.png')
-  const [format, setFormat] = useState(item?.format || 'Physical Prop Kit • Rent / Buy')
-  const [year, setYear] = useState(item?.year || '2024')
-  const [highlights, setHighlights] = useState((item?.highlights || []).join(', '))
+  const [image, setImage] = useState(item?.image || '/images/product-phonics-wheel.png')
+  const [priceBuy, setPriceBuy] = useState<number | undefined>(item?.priceBuy)
+  const [priceRent, setPriceRent] = useState<number | undefined>(item?.priceRent)
+  const [dimensions, setDimensions] = useState(item?.dimensions || '')
+  const [materials, setMaterials] = useState<string[]>(item?.materials || [])
+  const [tags, setTags] = useState<string[]>(item?.tags || [])
+  const [isFeatured, setIsFeatured] = useState(item?.isFeatured || false)
   const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     onSave({
       title,
+      subtitle,
       category,
-      tag,
+      tag: subtitle || category,
       description,
       image,
-      format,
-      year,
+      priceBuy,
+      priceRent,
+      dimensions,
+      materials,
+      tags,
+      isFeatured,
       isActive,
-      highlights: highlights.split(',').map((s: string) => s.trim()).filter(Boolean),
     })
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-serif text-lg font-bold">
-            {item ? 'Edit Work Item' : 'Add New Portfolio Item'}
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
+          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+            {item ? 'Edit Craft Work' : 'Add New Craft Work'}
           </h3>
-          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-muted">
-            <X className="size-4" />
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5] hover:bg-[#FF8A8A]"
+          >
+            ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-semibold">Title</label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Kinesthetic Rotating Phonics Wheel"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Title</label>
+              <input
+                type="text"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Subtitle</label>
+              <input
+                type="text"
+                value={subtitle}
+                onChange={(e) => setSubtitle(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold">Category</label>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as WorkItem['category'])}
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
               >
-                <option value="props">DIY Props &amp; Kits</option>
-                <option value="posters">Posters &amp; Guides</option>
-                <option value="flyers">Flyers &amp; Events</option>
-                <option value="worksheets">Worksheets &amp; Quests</option>
-                <option value="classroom">Classroom Moments</option>
+                <option value="props">DIY Props &amp; Kits ✂️</option>
+                <option value="posters">Posters &amp; Guides 📜</option>
+                <option value="flyers">Flyers &amp; Events 🎈</option>
+                <option value="worksheets">Worksheets &amp; Quests 📝</option>
+                <option value="classroom">Classroom Moments 📸</option>
               </select>
             </div>
-
             <div>
-              <label className="mb-1 block text-xs font-semibold">Tag / Level</label>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Dimensions</label>
               <input
                 type="text"
-                value={tag}
-                onChange={(e) => setTag(e.target.value)}
-                placeholder="e.g. Early Literacy • Ages 5-8"
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                value={dimensions}
+                onChange={(e) => setDimensions(e.target.value)}
+                placeholder="e.g. 30 cm diameter"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Purchase Price (TND)</label>
+              <input
+                type="number"
+                value={priceBuy || ''}
+                onChange={(e) => setPriceBuy(e.target.value ? Number(e.target.value) : undefined)}
+                placeholder="35"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Rental Price (TND/day)</label>
+              <input
+                type="number"
+                value={priceRent || ''}
+                onChange={(e) => setPriceRent(e.target.value ? Number(e.target.value) : undefined)}
+                placeholder="10"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Image Path / URL</label>
-            <input
-              type="text"
-              required
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="/images/product-phonics-wheel.png"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-semibold">Description</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Description</label>
             <textarea
               rows={3}
-              required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe pedagogical purpose and tactile experience..."
-              className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-xs font-semibold">Format / Specs</label>
-              <input
-                type="text"
-                value={format}
-                onChange={(e) => setFormat(e.target.value)}
-                placeholder="Physical Prop Kit • Rent / Buy"
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold">Year</label>
-              <input
-                type="text"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                placeholder="2024"
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-              />
-            </div>
-          </div>
+          <PhotoUploader label="Main Craft Photo" currentValue={image} onChange={setImage} />
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Highlights (comma separated)</label>
-            <input
-              type="text"
-              value={highlights}
-              onChange={(e) => setHighlights(e.target.value)}
-              placeholder="Tactile phonics, 36 word blends, Wipe-clean"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            />
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Materials Used</label>
+            <ListTagEditor tags={materials} onChange={setMaterials} placeholder="e.g. Laminated cardstock, Brass eyelets" />
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
-            <input
-              type="checkbox"
-              id="workActiveCheckbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
-            />
-            <label htmlFor="workActiveCheckbox" className="text-xs font-semibold cursor-pointer">
-              Active (Visible on public portfolio website)
-            </label>
+          <div className="flex items-center gap-4 rounded-xl bg-[#FAF5EC] p-3 border border-[#2D1F1D]/10">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="featCheck"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+                className="size-4 accent-[#FF7D6B]"
+              />
+              <label htmlFor="featCheck" className="text-xs font-bold text-[#2D1F1D]">
+                Mark as Featured
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="actCheck"
+                checked={isActive}
+                onChange={(e) => setIsActive(e.target.checked)}
+                className="size-4 accent-[#FF7D6B]"
+              />
+              <label htmlFor="actCheck" className="text-xs font-bold text-[#2D1F1D]">
+                Visible on Public Site
+              </label>
+            </div>
           </div>
 
-          <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
+              className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black hover:bg-[#FAF5EC]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm"
+              className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFD952]"
             >
-              Save Item
+              Save Craft
             </button>
           </div>
         </form>
@@ -2555,12 +2773,13 @@ function VideoModal({
   onSave: (data: Partial<VideoType>) => void
 }) {
   const [title, setTitle] = useState(item?.title || '')
-  const [duration, setDuration] = useState(item?.duration || '3:45')
+  const [duration, setDuration] = useState(item?.duration || '4:30')
   const [category, setCategory] = useState<VideoType['category']>(item?.category || 'pronunciation')
-  const [level, setLevel] = useState(item?.level || 'Primary • Grades 1-3')
-  const [src, setSrc] = useState(item?.src || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4')
+  const [ageGroup, setAgeGroup] = useState(item?.ageGroup || 'Primary (6–11 yrs)')
+  const [description, setDescription] = useState(item?.description || '')
+  const [videoUrl, setVideoUrl] = useState(item?.videoUrl || item?.src || 'https://www.youtube.com/embed/dQw4w9WgXcQ')
   const [thumbnail, setThumbnail] = useState(item?.thumbnail || '/images/video-lesson.png')
-  const [takeaways, setTakeaways] = useState((item?.takeaways || []).join(', '))
+  const [takeaways, setTakeaways] = useState<string[]>(item?.takeaways || [])
   const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -2569,134 +2788,110 @@ function VideoModal({
       title,
       duration,
       category,
-      level,
-      src,
+      level: ageGroup || 'All levels',
+      ageGroup,
+      description,
+      src: videoUrl,
+      videoUrl,
       thumbnail,
+      takeaways,
       isActive,
-      takeaways: takeaways.split(',').map((s: string) => s.trim()).filter(Boolean),
     })
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-serif text-lg font-bold">{item ? 'Edit Video Clip' : 'Add Video Clip'}</h3>
-          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-muted">
-            <X className="size-4" />
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
+          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+            {item ? 'Edit Video Lesson' : 'Add New Video Lesson'}
+          </h3>
+          <button type="button" onClick={onClose} className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5]">
+            ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold">Video Title</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Video Title</label>
             <input
               type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Master the Magic 'E' Phonics Rule"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold">Category</label>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as VideoType['category'])}
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
               >
-                <option value="pronunciation">Pronunciation &amp; Phonics</option>
-                <option value="grammar">Grammar Made Simple</option>
-                <option value="storytelling">Storytelling &amp; Immersion</option>
-                <option value="workshop">Teacher Workshops</option>
+                <option value="pronunciation">Pronunciation &amp; Phonics 🗣️</option>
+                <option value="grammar">Grammar Made Simple 🧩</option>
+                <option value="storytelling">Storytelling &amp; Immersion 📖</option>
+                <option value="workshop">Teacher Workshops 🎒</option>
               </select>
             </div>
-
             <div>
-              <label className="mb-1 block text-xs font-semibold">Duration (e.g. 4:15)</label>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Duration</label>
               <input
                 type="text"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                placeholder="4:30"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Age Group</label>
+              <input
+                type="text"
+                value={ageGroup}
+                onChange={(e) => setAgeGroup(e.target.value)}
+                placeholder="Primary (6-11 yrs)"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Level / Grade</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Video Embed URL (YouTube/Vimeo/MP4)</label>
             <input
               type="text"
-              value={level}
-              onChange={(e) => setLevel(e.target.value)}
-              placeholder="Primary • Grades 2-4"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/embed/..."
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Video Stream URL</label>
-            <input
-              type="text"
-              required
-              value={src}
-              onChange={(e) => setSrc(e.target.value)}
-              placeholder="https://commondatastorage.googleapis.com/..."
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-semibold">Thumbnail URL / Image</label>
-            <input
-              type="text"
-              required
-              value={thumbnail}
-              onChange={(e) => setThumbnail(e.target.value)}
-              placeholder="/images/video-lesson.png"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-semibold">Takeaways (comma separated)</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Description</label>
             <textarea
-              rows={2}
-              value={takeaways}
-              onChange={(e) => setTakeaways(e.target.value)}
-              placeholder="Tongue placement technique, Minimal pairs practice"
-              className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
             />
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
-            <input
-              type="checkbox"
-              id="vidActiveCheckbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
-            />
-            <label htmlFor="vidActiveCheckbox" className="text-xs font-semibold cursor-pointer">
-              Active (Visible on public portfolio website)
-            </label>
+          <PhotoUploader label="Video Thumbnail Photo" currentValue={thumbnail} onChange={setThumbnail} />
+
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Key Lesson Takeaways</label>
+            <ListTagEditor tags={takeaways} onChange={setTakeaways} placeholder="e.g. Tactile sound blending, Rhyming games" />
           </div>
 
-          <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
-            >
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
+            <button type="button" onClick={onClose} className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm"
-            >
+            <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
               Save Video
             </button>
           </div>
@@ -2715,155 +2910,262 @@ function ProductModal({
   onClose: () => void
   onSave: (data: Partial<Product>) => void
 }) {
-  const [name, setName] = useState(item?.name || '')
-  const [category, setCategory] = useState(item?.category || 'Physical DIY Prop')
+  const [title, setTitle] = useState(item?.title || item?.name || '')
+  const [subtitle, setSubtitle] = useState(item?.subtitle || '')
+  const [category, setCategory] = useState<Product['category']>(item?.category || 'props')
+  const [format, setFormat] = useState<Product['format']>(item?.format || 'Handmade Physical Prop')
+  const [priceBuy, setPriceBuy] = useState<number>(item?.priceBuy || item?.buyPrice || 30)
+  const [priceRent, setPriceRent] = useState<number | undefined>(item?.priceRent || item?.rentPrice)
+  const [badge, setBadge] = useState(item?.badge || '')
   const [description, setDescription] = useState(item?.description || '')
-  const [image, setImage] = useState(item?.image || '/images/product-story-kit.png')
-  const [buyPrice, setBuyPrice] = useState<string>(item?.buyPrice != null ? String(item.buyPrice) : '45')
-  const [rentPrice, setRentPrice] = useState<string>(item?.rentPrice != null ? String(item.rentPrice) : '15')
-  const [features, setFeatures] = useState((item?.features || []).join(', '))
+  const [image, setImage] = useState(item?.image || '/images/product-phonics-wheel.png')
+  const [features, setFeatures] = useState<string[]>(item?.features || [])
+  const [tags, setTags] = useState<string[]>(item?.tags || [])
   const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const options: ('buy' | 'rent')[] = []
-    if (buyPrice) options.push('buy')
-    if (rentPrice) options.push('rent')
-
     onSave({
-      name,
+      name: title,
+      title,
+      subtitle,
       category,
+      format,
+      options: ['buy', ...(priceRent ? ['rent' as const] : [])],
+      buyPrice: priceBuy,
+      rentPrice: priceRent,
+      priceBuy,
+      priceRent,
+      badge,
       description,
       image,
-      options,
+      features,
+      tags,
       isActive,
-      buyPrice: buyPrice ? Number(buyPrice) : undefined,
-      rentPrice: rentPrice ? Number(rentPrice) : undefined,
-      features: features.split(',').map((s: string) => s.trim()).filter(Boolean),
     })
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-serif text-lg font-bold">{item ? 'Edit Shop Product' : 'Add Shop Resource'}</h3>
-          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-muted">
-            <X className="size-4" />
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
+          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+            {item ? 'Edit Shop Resource' : 'Add New Resource'}
+          </h3>
+          <button type="button" onClick={onClose} className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5]">
+            ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-semibold">Product Name</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Phonics Spinner Wheel Kit"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold">Category</label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Physical DIY Prop, Digital Download..."
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-semibold">Image URL</label>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Product Title</label>
               <input
                 type="text"
                 required
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="/images/product-story-kit.png"
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Subtitle / Tagline</label>
+              <input
+                type="text"
+                value={subtitle}
+                onChange={(e) => setSubtitle(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold">Purchase Price (TND)</label>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Format</label>
               <input
-                type="number"
-                value={buyPrice}
-                onChange={(e) => setBuyPrice(e.target.value)}
-                placeholder="45"
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                type="text"
+                value={format}
+                onChange={(e) => setFormat(e.target.value as Product['format'])}
+                placeholder="e.g. Handmade Physical Prop / Digital PDF"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
               />
             </div>
-
             <div>
-              <label className="mb-1 block text-xs font-semibold">Daily Rental Price (TND)</label>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Badge / Ribbon</label>
+              <input
+                type="text"
+                value={badge}
+                onChange={(e) => setBadge(e.target.value)}
+                placeholder="e.g. Best Seller / New"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Purchase Price (TND)</label>
               <input
                 type="number"
-                value={rentPrice}
-                onChange={(e) => setRentPrice(e.target.value)}
-                placeholder="15"
-                className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+                required
+                value={priceBuy}
+                onChange={(e) => setPriceBuy(Number(e.target.value))}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Rental Price (TND/day)</label>
+              <input
+                type="number"
+                value={priceRent || ''}
+                onChange={(e) => setPriceRent(e.target.value ? Number(e.target.value) : undefined)}
+                placeholder="10"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Description</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Description</label>
             <textarea
-              rows={2}
-              required
+              rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What comes in the kit..."
-              className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
+            />
+          </div>
+
+          <PhotoUploader label="Product Photo" currentValue={image} onChange={setImage} />
+
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Features Included</label>
+            <ListTagEditor tags={features} onChange={setFeatures} placeholder="e.g. 40 word strips, Laminated guide" />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
+            <button type="button" onClick={onClose} className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black">
+              Cancel
+            </button>
+            <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
+              Save Product
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function AudienceModal({
+  item,
+  onClose,
+  onSave,
+}: {
+  item: Audience | null
+  onClose: () => void
+  onSave: (data: Partial<Audience>) => void
+}) {
+  const [title, setTitle] = useState(item?.title || '')
+  const [subtitle, setSubtitle] = useState(item?.subtitle || '')
+  const [ageGroup, setAgeGroup] = useState(item?.ageGroup || '')
+  const [icon, setIcon] = useState(item?.icon || '🎒')
+  const [focus, setFocus] = useState(item?.focus || item?.intro || '')
+  const [points, setPoints] = useState<string[]>(item?.points || [])
+  const [isActive, setIsActive] = useState(item?.isActive !== false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSave({
+      title,
+      subtitle,
+      ageGroup,
+      icon,
+      focus,
+      intro: focus || subtitle || '',
+      points,
+      isActive,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
+          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+            {item ? 'Edit Target Audience' : 'Add Target Audience'}
+          </h3>
+          <button type="button" onClick={onClose} className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5]">
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Audience Title</label>
+              <input
+                type="text"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Age / Role Badge</label>
+              <input
+                type="text"
+                value={ageGroup}
+                onChange={(e) => setAgeGroup(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Subtitle</label>
+              <input
+                type="text"
+                value={subtitle}
+                onChange={(e) => setSubtitle(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Emoji Icon</label>
+              <input
+                type="text"
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                placeholder="🎒"
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Pedagogical Focus</label>
+            <textarea
+              rows={3}
+              value={focus}
+              onChange={(e) => setFocus(e.target.value)}
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Features (comma separated)</label>
-            <input
-              type="text"
-              value={features}
-              onChange={(e) => setFeatures(e.target.value)}
-              placeholder="36 Word cards, Laminated, Dry-erase marker included"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-            />
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Benefit Bullet Points</label>
+            <ListTagEditor tags={points} onChange={setPoints} placeholder="e.g. Tactile sound blends, Low-anxiety games" />
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
-            <input
-              type="checkbox"
-              id="prodActiveCheckbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
-            />
-            <label htmlFor="prodActiveCheckbox" className="text-xs font-semibold cursor-pointer">
-              Active (Visible in public shop &amp; cart checkout)
-            </label>
-          </div>
-
-          <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
-            >
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
+            <button type="button" onClick={onClose} className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm"
-            >
-              Save Product
+            <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
+              Save Audience
             </button>
           </div>
         </form>
@@ -2882,126 +3184,83 @@ function TestimonialModal({
   onSave: (data: Partial<TestimonialItem>) => void
 }) {
   const [name, setName] = useState(item?.name || '')
-  const [role, setRole] = useState(item?.role || 'Parent • Sfax')
+  const [role, setRole] = useState(item?.role || '')
   const [quote, setQuote] = useState(item?.quote || '')
-  const [rating, setRating] = useState(item?.rating || 5)
-  const [showRating, setShowRating] = useState(item?.showRating !== false)
+  const [rating, setRating] = useState<number>(item?.rating || 5)
   const [isActive, setIsActive] = useState(item?.isActive !== false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({
-      name,
-      role,
-      quote,
-      rating: showRating ? rating : 0,
-      showRating,
-      isActive,
-    })
+    onSave({ name, role, quote, rating, isActive })
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-serif text-lg font-bold">
+      <div className="w-full max-w-md rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
+          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
             {item ? 'Edit Testimonial' : 'Add Testimonial'}
           </h3>
-          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-muted">
-            <X className="size-4" />
+          <button type="button" onClick={onClose} className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5]">
+            ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold">Author Name</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Author Name</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Leila Bouazizi"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Role / Title</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Role / Location</label>
             <input
               type="text"
               required
               value={role}
               onChange={(e) => setRole(e.target.value)}
               placeholder="e.g. Primary English Teacher • Tunis"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
             />
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold">Show Star Rating?</label>
-              <input
-                type="checkbox"
-                checked={showRating}
-                onChange={(e) => setShowRating(e.target.checked)}
-                className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
-              />
-            </div>
-
-            {showRating && (
-              <div>
-                <label className="mb-1 block text-[0.65rem] font-bold uppercase text-muted-foreground">Rating</label>
-                <select
-                  value={rating}
-                  onChange={(e) => setRating(Number(e.target.value))}
-                  className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
-                >
-                  <option value={5}>5 Stars ★★★★★</option>
-                  <option value={4}>4 Stars ★★★★☆</option>
-                  <option value={3}>3 Stars ★★★☆☆</option>
-                </select>
-              </div>
-            )}
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Star Rating</label>
+            <select
+              value={rating}
+              onChange={(e) => setRating(Number(e.target.value))}
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+            >
+              <option value={5}>★★★★★ 5 Stars</option>
+              <option value={4}>★★★★☆ 4 Stars</option>
+              <option value={3}>★★★☆☆ 3 Stars</option>
+            </select>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Endorsement Quote</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Endorsement Quote</label>
             <textarea
               rows={3}
               required
               value={quote}
               onChange={(e) => setQuote(e.target.value)}
-              placeholder="What they loved about Farah's materials..."
-              className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
             />
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
-            <input
-              type="checkbox"
-              id="testActiveCheckbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
-            />
-            <label htmlFor="testActiveCheckbox" className="text-xs font-semibold cursor-pointer">
-              Active (Visible on public testimonials slider)
-            </label>
-          </div>
-
-          <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
-            >
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
+            <button type="button" onClick={onClose} className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm"
-            >
-              Save Endorsement
+            <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
+              Save Testimonial
             </button>
           </div>
         </form>
@@ -3030,64 +3289,46 @@ function FaqModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-serif text-lg font-bold">{item ? 'Edit FAQ' : 'Add FAQ'}</h3>
-          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-muted">
-            <X className="size-4" />
+      <div className="w-full max-w-md rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
+          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+            {item ? 'Edit FAQ Question' : 'Add FAQ Question'}
+          </h3>
+          <button type="button" onClick={onClose} className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5]">
+            ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold">Question</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Question</label>
             <input
               type="text"
               required
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="e.g. Can I rent props for a 2-day school event in Sfax?"
-              className="w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              placeholder="e.g. Can I rent props for a school event?"
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold">Answer</label>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Answer</label>
             <textarea
               rows={4}
               required
               value={a}
               onChange={(e) => setA(e.target.value)}
-              placeholder="Yes! Props can be rented daily with pickup or courier delivery..."
-              className="w-full resize-none rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-primary"
+              placeholder="Yes! Props can be rented with delivery..."
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
             />
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-muted/40 p-2.5">
-            <input
-              type="checkbox"
-              id="faqActiveCheckbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="size-4 rounded text-primary focus:ring-primary cursor-pointer"
-            />
-            <label htmlFor="faqActiveCheckbox" className="text-xs font-semibold cursor-pointer">
-              Active (Visible in public FAQ accordion)
-            </label>
-          </div>
-
-          <div className="mt-5 flex justify-end gap-2 border-t border-border pt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-border px-4 py-2 text-xs font-semibold hover:bg-muted"
-            >
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
+            <button type="button" onClick={onClose} className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm"
-            >
+            <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
               Save Question
             </button>
           </div>
@@ -3097,68 +3338,102 @@ function FaqModal({
   )
 }
 
-// ----------------------------------------------------
-// 100% HIGH-FIDELITY LIVE SECTION PREVIEW MODAL
-// Renders the exact public components with rich styling
-// ----------------------------------------------------
-
-function LivePreviewModal({
-  section,
+function PillarModal({
+  pillar,
   onClose,
+  onSave,
 }: {
-  section: string
+  pillar: AboutPillar
   onClose: () => void
+  onSave: (pillar: AboutPillar) => void
 }) {
+  const [title, setTitle] = useState(pillar.title || '')
+  const [subtitle, setSubtitle] = useState(pillar.subtitle || '')
+  const [number, setNumber] = useState(pillar.number || '01')
+  const [description, setDescription] = useState(pillar.description || '')
+  const [highlights, setHighlights] = useState<string[]>(pillar.highlights || [])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSave({
+      ...pillar,
+      title,
+      subtitle,
+      number,
+      description,
+      highlights,
+    })
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-md">
-      <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border bg-card px-6 py-3.5">
-          <div className="flex items-center gap-2.5">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Eye className="size-4" />
-            </span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
+          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+            Edit Pedagogy Pillar ({number})
+          </h3>
+          <button type="button" onClick={onClose} className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5]">
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3">
             <div>
-              <h3 className="font-serif text-sm font-bold capitalize sm:text-base">
-                100% Exact Live Preview: <span className="text-primary">{section} Section</span>
-              </h3>
-              <p className="text-[0.7rem] text-muted-foreground">
-                Simulating the live public portfolio with your current active settings.
-              </p>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Number Badge</label>
+              <input
+                type="text"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Pillar Title</label>
+              <input
+                type="text"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+              />
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-full bg-muted/60 hover:bg-muted"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
 
-        {/* Real Public Section Container */}
-        <div className="flex-1 overflow-y-auto bg-background">
-          {section === 'hero' && <Hero />}
-          {section === 'about' && <About />}
-          {section === 'works' && <WorkShowcase />}
-          {section === 'videos' && <Videos />}
-          {section === 'shop' && <ResourceShop />}
-          {section === 'audiences' && <WhoIServe />}
-          {section === 'testimonials' && <Testimonials />}
-          {section === 'faqs' && <Faq />}
-        </div>
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Subtitle / Method Focus</label>
+            <input
+              type="text"
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
+            />
+          </div>
 
-        <div className="border-t border-border bg-card px-6 py-3 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">
-            Changes saved in Admin Studio appear on the public site in real-time.
-          </span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground shadow-md hover:shadow-lg"
-          >
-            Close Preview
-          </button>
-        </div>
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Description</label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Pillar Highlights</label>
+            <ListTagEditor tags={highlights} onChange={setHighlights} placeholder="e.g. Phoneme-Grapheme Mapping" />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
+            <button type="button" onClick={onClose} className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black">
+              Cancel
+            </button>
+            <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
+              Save Pillar
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

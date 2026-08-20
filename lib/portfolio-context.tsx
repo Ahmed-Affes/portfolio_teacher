@@ -42,6 +42,14 @@ import {
 
 export type { WorkItem, Video, Product, Audience, WorkCategory, VideoCategory }
 
+export type ProfileBrandingData = {
+  name: string
+  tagline: string
+  avatarImage: string
+  avatarType: 'image' | 'icon'
+  badgeEmoji?: string
+}
+
 export type StatItem = {
   id: string
   value: string
@@ -145,6 +153,7 @@ export type StoredOrder = {
 }
 
 export type PortfolioState = {
+  profile: ProfileBrandingData
   hero: HeroData
   stats: StatItem[]
   about: AboutData
@@ -164,6 +173,13 @@ const STORAGE_KEY = 'farah_portfolio_state_v3'
 const SYNC_EVENT_KEY = 'farah_portfolio_sync_event'
 
 const INITIAL_STATE: PortfolioState = {
+  profile: {
+    name: 'Farah Affes',
+    tagline: 'Teacher Studio',
+    avatarImage: '/images/farah-portrait.png',
+    avatarType: 'image',
+    badgeEmoji: '✨',
+  },
   hero: {
     eyebrow: 'Passionate Primary & Middle School English Teacher • Sfax, Tunisia',
     titlePrefix: 'Making English',
@@ -266,6 +282,7 @@ interface PortfolioContextType {
   testNotificationChime: () => void
 
   // Content Mutators
+  updateProfile: (profile: Partial<ProfileBrandingData>) => void
   updateHero: (hero: Partial<HeroData>) => void
   updateAbout: (about: Partial<AboutData>) => void
   updateContact: (contact: Partial<ContactData>) => void
@@ -879,6 +896,19 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  // --- Profile & Branding Mutator ---
+  const updateProfile = useCallback(
+    (profileUpdates: Partial<ProfileBrandingData>) => {
+      setState((prev) => {
+        const nextProfile = { ...(prev.profile || INITIAL_STATE.profile), ...profileUpdates }
+        const newState = { ...prev, profile: nextProfile }
+        broadcastAndPersist(newState)
+        return newState
+      })
+    },
+    [broadcastAndPersist],
+  )
+
   // --- Hero & Stats Mutators ---
   const updateHero = useCallback(
     (heroUpdates: Partial<HeroData>) => {
@@ -1469,6 +1499,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       toggleNotificationsMuted,
       requestNotifications,
       testNotificationChime,
+      updateProfile,
       updateHero,
       updateAbout,
       updateContact,
@@ -1519,6 +1550,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       toggleNotificationsMuted,
       requestNotifications,
       testNotificationChime,
+      updateProfile,
       updateHero,
       updateAbout,
       updateContact,

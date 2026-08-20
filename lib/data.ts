@@ -31,6 +31,13 @@ export type WorkItem = {
   year?: string
   format?: string
   highlights?: string[]
+  subtitle?: string
+  priceBuy?: number
+  priceRent?: number
+  dimensions?: string
+  materials?: string[]
+  tags?: string[]
+  isFeatured?: boolean
   isActive?: boolean
 }
 
@@ -191,6 +198,9 @@ export type Video = {
   category: Exclude<VideoCategory, 'all'>
   thumbnail: string
   src: string
+  videoUrl?: string
+  description?: string
+  ageGroup?: string
   takeaways?: string[]
   isActive?: boolean
 }
@@ -285,12 +295,19 @@ export const VIDEOS: Video[] = [
 export type Product = {
   id: string
   name: string
+  title?: string
+  subtitle?: string
   category: string
+  format?: string
   image: string
   description: string
   options: ('buy' | 'rent')[]
   buyPrice?: number
   rentPrice?: number
+  priceBuy?: number
+  priceRent?: number
+  badge?: string
+  tags?: string[]
   features?: string[]
   isActive?: boolean
 }
@@ -348,6 +365,10 @@ export const PRODUCTS: Product[] = [
 export type Audience = {
   id: string
   title: string
+  subtitle?: string
+  ageGroup?: string
+  icon?: string
+  focus?: string
   intro: string
   points: string[]
   isActive?: boolean
