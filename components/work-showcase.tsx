@@ -8,9 +8,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Grid,
   Info,
-  LayoutGrid,
   Maximize2,
   Search,
   SlidersHorizontal,
@@ -52,7 +50,6 @@ export function WorkShowcase() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null)
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
-  const [viewMode, setViewMode] = useState<'grid' | 'bento'>('bento')
 
   // Only display active works on public site
   const activeWorks = useMemo(() => works.filter((w) => w.isActive !== false), [works])
@@ -171,31 +168,9 @@ export function WorkShowcase() {
                 )}
               </div>
 
-              {/* Layout Switcher */}
-              <div className="flex items-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-white p-0.5 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)]">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('grid')}
-                  className={cn(
-                    'flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black transition-all cursor-pointer',
-                    viewMode === 'grid' ? 'bg-[#FFC837] text-[#2D1F1D]' : 'text-[#6B5550]',
-                  )}
-                >
-                  <Grid className="size-3.5" />
-                  <span className="hidden sm:inline">Grid</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('bento')}
-                  className={cn(
-                    'flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black transition-all cursor-pointer',
-                    viewMode === 'bento' ? 'bg-[#FFC837] text-[#2D1F1D]' : 'text-[#6B5550]',
-                  )}
-                >
-                  <LayoutGrid className="size-3.5" />
-                  <span className="hidden sm:inline">Bento</span>
-                </button>
-              </div>
+              <span className="hidden rounded-full border-[1.5px] border-[#2D1F1D]/30 bg-white px-3 py-1.5 text-xs font-black text-[#6B5550] sm:inline-flex">
+                Browse the collection
+              </span>
             </div>
           </Reveal>
         </div>
@@ -254,24 +229,17 @@ export function WorkShowcase() {
             </div>
           </Reveal>
         ) : (
-          <div
-            className={cn(
-              'grid gap-6',
-              viewMode === 'grid'
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[auto]',
-            )}
-          >
+          <div className="columns-1 gap-6 sm:columns-2 lg:columns-3 [column-fill:_balance]">
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
-              const isFeature = viewMode === 'bento' && (i === 0 || i === 3)
+              const isFeature = i === 0 || i === 4
               const pinColor = PIN_COLORS[i % PIN_COLORS.length]
 
               return (
                 <Reveal
                   key={item.id}
                   delay={(i % 6) * 40}
-                  className={cn(isFeature && 'sm:col-span-2 lg:col-span-2')}
+                  className="mb-6 break-inside-avoid"
                 >
                   <div className="group relative h-full w-full">
                     {/* 3D PushPin & WashiTape on unclipped outer container */}
@@ -331,7 +299,7 @@ export function WorkShowcase() {
                           <ArrowUpRight className="size-4.5 shrink-0 text-[#2D1F1D] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
                         </div>
 
-                        <p className="mt-2 flex-1 text-xs font-bold leading-relaxed text-[#6B5550] line-clamp-2">
+                        <p className="mt-2 flex-1 text-sm font-bold leading-relaxed text-[#6B5550] line-clamp-3">
                           {item.description}
                         </p>
 

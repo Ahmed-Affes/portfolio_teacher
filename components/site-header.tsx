@@ -105,7 +105,7 @@ export function SiteHeader() {
         </a>
 
         {/* Desktop Navigation Links */}
-        <ul className="hidden items-center gap-1 rounded-full border border-[#2D1F1D]/15 bg-[#FAF5EC] p-1 xl:flex">
+        <ul className="hidden items-center gap-1 rounded-full border border-[#2D1F1D]/15 bg-[#FAF5EC] p-1 lg:flex">
           {NAV_ITEMS.map((item) => {
             const isActive = active === item.id
             return (
@@ -158,7 +158,7 @@ export function SiteHeader() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="flex size-9 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] xl:hidden sm:size-10 cursor-pointer"
+            className="hidden size-9 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] lg:hidden sm:size-10 cursor-pointer"
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -167,7 +167,7 @@ export function SiteHeader() {
 
       {/* Mobile Menu Drawer */}
       {menuOpen && (
-        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-[1.5px] border-[#2D1F1D]/40 bg-white p-4 shadow-[0_16px_36px_rgba(45,31,29,0.12),3px_3px_0px_rgba(45,31,29,0.5)] xl:hidden">
+        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-[1.5px] border-[#2D1F1D]/40 bg-white p-4 shadow-[0_16px_36px_rgba(45,31,29,0.12),3px_3px_0px_rgba(45,31,29,0.5)] lg:hidden">
           <ul className="grid grid-cols-2 gap-2">
             {NAV_ITEMS.map((item) => (
               <li key={item.id}>
@@ -188,6 +188,25 @@ export function SiteHeader() {
           </ul>
         </div>
       )}
+
+      <nav aria-label="Mobile section navigation" className="mobile-bottom-nav-safe fixed inset-x-3 bottom-3 z-50 lg:hidden">
+        <ul className="flex items-stretch justify-between gap-1 rounded-2xl border-[1.5px] border-[#2D1F1D]/35 bg-white/95 p-1.5 shadow-[0_10px_24px_rgba(45,31,29,0.14),2px_2px_0px_rgba(45,31,29,0.45)] backdrop-blur-md">
+          {NAV_ITEMS.slice(0, 5).map((item) => (
+            <li key={item.id} className="min-w-0 flex-1">
+              <a
+                href={`#${item.id}`}
+                onClick={(e) => handleNav(item.id, e)}
+                className={cn(
+                  'flex min-h-11 items-center justify-center rounded-xl px-1 text-center text-[0.68rem] font-black transition-all active:scale-95 sm:text-xs',
+                  active === item.id ? 'bg-[#FFC837] text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.35)]' : 'text-[#6B5550] hover:bg-[#FAF5EC] hover:text-[#2D1F1D]',
+                )}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   )
 }

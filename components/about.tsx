@@ -980,39 +980,6 @@ export function About() {
           {/* ========================================================================= */}
           <div className="relative lg:pr-10">
             <Reveal delay={80}>
-              {/* MOBILE / TABLET TOP CHAPTER TABS (lg:hidden) */}
-              <div className="grid grid-cols-4 gap-1 sm:gap-2 px-3 sm:px-5 mb-0 select-none lg:hidden">
-                {CHAPTER_CONFIG.map((tab) => {
-                  const isSelected = activeCategory === tab.id
-                  const count = allMilestones.filter((m) => m.category === tab.id).length
-
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => handleCategoryClick(tab.id)}
-                      className={cn(
-                        'relative -mb-[2px] flex items-center justify-center gap-1 sm:gap-1.5 rounded-t-xl sm:rounded-t-2xl border-[1.5px] border-[#2D1F1D]/40 py-1.5 sm:py-2 px-1 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none',
-                        tab.color,
-                        isSelected
-                          ? 'z-20 -translate-y-1 sm:-translate-y-1.5 border-b-0 shadow-[0_-2px_0_rgba(45,31,29,0.5)] text-[#2D1F1D]'
-                          : 'z-10 opacity-70 hover:opacity-100 hover:-translate-y-0.5 text-[#2D1F1D]',
-                      )}
-                    >
-                      <span className="text-xs sm:text-sm">{tab.icon}</span>
-                      <span className="text-[0.72rem] sm:text-xs font-black truncate">
-                        {tab.title}
-                      </span>
-                      {count > 0 && (
-                        <span className="rounded-full bg-white/90 border border-[#2D1F1D]/30 px-1.5 py-0.2 text-[0.6rem] font-black shrink-0 hidden sm:inline">
-                          {count}
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-
               {/* REALISTIC VINTAGE HARDCOVER BOOK WITH WARM SADDLE LEATHER & BRASS CORNERS */}
               <div className="mb-3 flex items-center justify-between px-2 text-[#5F3820]">
                 <div className="flex items-center gap-2">
@@ -1031,43 +998,6 @@ export function About() {
                 {/* Hardcover Perimeter Gold Stitched Line */}
                 <div className="absolute inset-1.5 rounded-[1.8rem_1.8rem_1.4rem_1.4rem] border border-dashed border-[#F3DF9C]/40 pointer-events-none" />
 
-                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Hidden on mobile) */}
-                <div className="hidden lg:flex absolute -right-9 xl:-right-11 top-10 bottom-10 flex-col justify-around z-30 pointer-events-auto">
-                  {CHAPTER_CONFIG.map((tab) => {
-                    const isSelected = activeCategory === tab.id
-                    const count = allMilestones.filter((m) => m.category === tab.id).length
-
-                    return (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        onClick={() => handleCategoryClick(tab.id)}
-                        aria-label={`Open chapter: ${tab.title}`}
-                        aria-selected={isSelected}
-                        role="tab"
-                        className={cn(
-                          'group relative flex items-center gap-1.5 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D]/40 px-2.5 py-2 text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-sm',
-                          tab.color,
-                          isSelected
-                            ? 'translate-x-3.5 sm:translate-x-4.5 shadow-[4px_4px_14px_rgba(45,31,29,0.2)] z-30 scale-105 ring-1 ring-[#4A2E1E]/25 text-[#2D1F1D]'
-                            : 'translate-x-0 opacity-80 hover:opacity-100 hover:translate-x-1.5 text-[#2D1F1D] z-10',
-                        )}
-                      >
-                        <span className="text-sm shrink-0">{tab.icon}</span>
-                        <span className="text-[0.72rem] font-black whitespace-nowrap pr-1 tracking-tight">
-                          {tab.title}
-                        </span>
-                        {count > 0 && (
-                          <span className="rounded-full bg-white/90 border border-[#2D1F1D]/25 px-1.5 py-0.2 text-[0.58rem] font-black text-[#2D1F1D] shrink-0">
-                            {count}
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-
-
                 {/* ------------------------------------------------------------- */}
                 {/* PHYSICAL 3D STACKED PAPER PAGES BLOCK (DECKLE EDGE TEXTURE)   */}
                 {/* ------------------------------------------------------------- */}
@@ -1076,8 +1006,36 @@ export function About() {
                     background:
                       'repeating-linear-gradient(to bottom, #F7F1E5, #F7F1E5 2px, #EBE1CE 3px, #EBE1CE 4px)',
                   }}
-                  className="relative rounded-[1.6rem_1.6rem_1.2rem_1.2rem] p-1.5 sm:p-2 border-r-3 border-l-2 border-b-2 border-[#C9BDA8] shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]"
+                  className="relative rounded-[1.6rem_1.6rem_1.2rem_1.2rem] p-1.5 pt-12 sm:p-2 sm:pt-14 border-r-3 border-l-2 border-b-2 border-[#C9BDA8] shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]"
                 >
+                  {/* Chapter tabs live on the paper deck, not on the leather cover. */}
+                  <div className="book-chapter-rail absolute inset-x-3 top-2 z-30 flex gap-1 overflow-x-auto px-1 pb-1 sm:inset-x-5 sm:top-2 sm:gap-2 select-none">
+                    {CHAPTER_CONFIG.map((tab) => {
+                      const isSelected = activeCategory === tab.id
+                      const count = allMilestones.filter((m) => m.category === tab.id).length
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => handleCategoryClick(tab.id)}
+                          aria-selected={isSelected}
+                          role="tab"
+                          className={cn(
+                            'relative flex min-w-[5.25rem] shrink-0 items-center justify-center gap-1 rounded-t-xl border-[1.5px] border-[#2D1F1D]/40 px-1 py-1.5 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none sm:gap-1.5 sm:py-2',
+                            tab.color,
+                            isSelected
+                              ? 'z-20 min-w-[8rem] min-h-10 sm:min-w-[9rem] sm:min-h-11 -translate-y-1 border-b-0 shadow-[0_-2px_0_rgba(45,31,29,0.5)] text-[#2D1F1D] sm:scale-x-110 sm:origin-bottom'
+                              : 'z-10 min-h-8 opacity-75 hover:-translate-y-0.5 hover:opacity-100 text-[#2D1F1D]',
+                          )}
+                        >
+                          <span className="shrink-0 text-xs sm:text-sm">{tab.icon}</span>
+                          <span className="truncate text-[0.68rem] font-black sm:text-xs">{tab.title}</span>
+                          {count > 0 && <span className="hidden shrink-0 rounded-full border border-[#2D1F1D]/30 bg-white/90 px-1.5 py-0.2 text-[0.6rem] font-black sm:inline">{count}</span>}
+                        </button>
+                      )
+                    })}
+                  </div>
+
                   {/* Left Side Paper Thickness Stack Fanning */}
                   <div className="absolute inset-y-2 left-0.5 w-1 border-r border-[#C9BDA8] pointer-events-none" />
                   <div className="absolute inset-y-3 left-1 w-1 border-r border-[#B8AA94] pointer-events-none" />
