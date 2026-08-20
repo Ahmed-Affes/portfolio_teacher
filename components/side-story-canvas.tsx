@@ -163,7 +163,7 @@ export function SideStoryCanvas() {
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
 
-    particles.current = Array.from({ length: 34 }, (_, index) => ({
+    particles.current = Array.from({ length: 12 }, (_, index) => ({
       x: (index * 37 + 11) % 100,
       y: (index * 61 + 7) % 100,
       size: 1.5 + (index % 3),
@@ -206,15 +206,12 @@ export function SideStoryCanvas() {
 
       // Keep most decoration in the gutters, with a few large pieces crossing behind sections.
       const drift = time * 0.22
-      cloud(ctx, ((width * 0.03 + drift * 35 + progress * width * 0.35) % (width + 220)) - 120, height * 0.14 + Math.sin(time * 0.35) * 12, 1.35, 0.62)
-      cloud(ctx, ((width * 0.69 - drift * 24 - progress * width * 0.3) % (width + 260)) - 130, height * 0.69 + Math.sin(time * 0.28 + 2) * 14, 1.05, 0.52)
-      cloud(ctx, ((width * 0.38 + drift * 18 + progress * width * 0.18) % (width + 180)) - 90, height * 0.93, 0.76, 0.46)
+      // One quiet cloud lane and a few hero objects keep the page alive without competing with content.
+      cloud(ctx, ((width * 0.03 + drift * 35 + progress * width * 0.35) % (width + 220)) - 120, height * 0.14 + Math.sin(time * 0.35) * 12, 1.35, 0.58)
+      cloud(ctx, ((width * 0.69 - drift * 24 - progress * width * 0.3) % (width + 260)) - 130, height * 0.69 + Math.sin(time * 0.28 + 2) * 14, 1.05, 0.48)
 
       balloon(ctx, width * 0.11 + Math.sin(progress * 8) * 34, height * 0.34 + Math.sin(time * 0.3) * 16 - progress * height * 0.12, 0.92, palette.coral, time * 1.2)
-      balloon(ctx, width * 0.88 + Math.sin(progress * 10 + 2) * 25, height * 0.48 + Math.cos(time * 0.26) * 20 - progress * height * 0.2, 0.7, palette.pink, time * 1.05 + 2)
-
       bird(ctx, width * (0.22 + ((progress * 0.75 + time * 0.018) % 0.62)), height * 0.22 + Math.sin(time * 0.8) * 18, 0.82, time * 5)
-      bird(ctx, width * (0.76 - ((progress * 0.55 + time * 0.012) % 0.48)), height * 0.57 + Math.cos(time * 0.62) * 22, 0.58, time * 5 + 1.3)
 
       sun(ctx, width * (0.87 - progress * 0.46), height * (0.13 + progress * 0.42), 0.62, time * 0.08)
       plane(ctx, width * (0.73 - progress * 0.42 + Math.sin(time * 0.5) * 0.03), height * (0.76 - progress * 0.34 + Math.cos(time * 0.4) * 0.03), 0.9, -0.12 + Math.sin(time * 0.7) * 0.08)
