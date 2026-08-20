@@ -407,6 +407,255 @@ export const AUDIENCES: Audience[] = [
   },
 ]
 
+export type MilestoneCategory = 'education' | 'career' | 'life' | 'achievement'
+
+export type CareerMilestone = {
+  id: string
+  period: string
+  title: string
+  organization: string
+  category: MilestoneCategory
+  categoryLabel: string
+  description: string
+  image?: string
+  images?: string[]
+  highlights: string[]
+  badgeEmoji?: string
+  isActive?: boolean
+}
+
+export const CAREER_MILESTONES: CareerMilestone[] = [
+  // =========================================================================
+  // CHAPTER 1: EDUCATION (2 Milestones)
+  // =========================================================================
+  {
+    id: 'm1',
+    period: '2018 — 2021',
+    title: 'Bachelor’s Degree in English Language, Literature & Linguistics',
+    organization: 'Faculty of Letters & Humanities of Sfax',
+    category: 'education',
+    categoryLabel: 'Academic Degree',
+    badgeEmoji: '🎓',
+    image: '/images/farah-portrait.png',
+    images: [
+      '/images/farah-portrait.png',
+      '/images/product-worksheets.png',
+      '/images/poster-phonics.png',
+      '/images/poster-verbs.png',
+    ],
+    description:
+      'Specialized in Applied English Linguistics, Phonetics, and Communicative Language Teaching (CLT). Researched how multi-sensory and phonetic awareness accelerates second-language fluency for young learners.',
+    highlights: ['Phonetics & Phonology', 'Communicative Language Teaching', 'Children’s Literature'],
+    isActive: true,
+  },
+  {
+    id: 'm1_2',
+    period: '2021',
+    title: 'Advanced Phonology Practicum & ESL Methodology Honors',
+    organization: 'Linguistic Research Department • Sfax',
+    category: 'education',
+    categoryLabel: 'Pedagogical Practicum',
+    badgeEmoji: '📜',
+    image: '/images/product-worksheets.png',
+    images: [
+      '/images/product-worksheets.png',
+      '/images/poster-phonics.png',
+      '/images/flyer-reading.png',
+    ],
+    description:
+      'Conducted field research on lowering the affective filter in bilingual primary classrooms through rhythm, physical gestures, and interactive syllable mapping.',
+    highlights: ['Affective Filter Science', 'Syllable Mapping', 'Early Literacy Pedagogy'],
+    isActive: true,
+  },
+
+  // =========================================================================
+  // CHAPTER 2: TEACHING CAREER (4 Milestones)
+  // =========================================================================
+  {
+    id: 'm2',
+    period: '2021 — Present',
+    title: 'Primary & Middle School English Teacher',
+    organization: 'Private & Public Primary Schools • Sfax, Tunisia',
+    category: 'career',
+    categoryLabel: 'Teaching Career',
+    badgeEmoji: '💼',
+    image: '/images/classroom-1.png',
+    images: [
+      '/images/classroom-1.png',
+      '/images/hero-classroom.png',
+      '/images/classroom-2.png',
+      '/images/video-lesson.png',
+    ],
+    description:
+      'Over 6+ years instructing vibrant student cohorts. Implemented kinesthetic grammar games, drama circles, and interactive storytelling quests that lower learning anxiety and spark confident speaking.',
+    highlights: ['900+ Learners Taught', 'Gamified ESL Curricula', 'Confidence-First Speaking'],
+    isActive: true,
+  },
+  {
+    id: 'm2_2',
+    period: '2022 — Present',
+    title: 'ESL Drama Club Director & Creative Storytelling Coach',
+    organization: 'Youth Educational Hub • Sfax',
+    category: 'career',
+    categoryLabel: 'Drama & Storytelling',
+    badgeEmoji: '🎭',
+    image: '/images/classroom-2.png',
+    images: [
+      '/images/classroom-2.png',
+      '/images/hero-classroom.png',
+      '/images/video-grammar.png',
+    ],
+    description:
+      'Directs weekly communicative theater sketches where students write, costume, and perform original short plays in English, building spontaneous oral fluency and teamwork.',
+    highlights: ['Interactive Theater', 'Spontaneous Oral Fluency', 'Script Writing Drills'],
+    isActive: true,
+  },
+  {
+    id: 'm2_3',
+    period: '2023 — Present',
+    title: 'Kinesthetic Phonics & Early Literacy Specialist',
+    organization: 'Montessori & Early Years Academy',
+    category: 'career',
+    categoryLabel: 'Early Literacy',
+    badgeEmoji: '🔤',
+    image: '/images/video-lesson.png',
+    images: [
+      '/images/video-lesson.png',
+      '/images/classroom-1.png',
+      '/images/poster-phonics.png',
+    ],
+    description:
+      'Pioneered tactile phonemic awareness stations using sensory letter tracing, sound matching pouches, and double-disc blending wheels for emergent bilingual readers.',
+    highlights: ['Tactile Sound Tracing', 'Sound Matching Pouches', 'Blending Drills'],
+    isActive: true,
+  },
+  {
+    id: 'm2_4',
+    period: '2024 — Present',
+    title: 'Differentiated Remedial & Confidence-First Coach',
+    organization: 'Community Literacy Program',
+    category: 'career',
+    categoryLabel: 'Remedial Support',
+    badgeEmoji: '🌱',
+    image: '/images/hero-classroom.png',
+    images: [
+      '/images/hero-classroom.png',
+      '/images/classroom-2.png',
+      '/images/flyer-reading.png',
+    ],
+    description:
+      'Provides dedicated micro-group scaffolding for students struggling with second-language anxiety, accelerating their reading comprehension and self-esteem through low-pressure visual games.',
+    highlights: ['Micro-Group Scaffolding', 'Anxiety-Free Coaching', 'Reading Acceleration'],
+    isActive: true,
+  },
+
+  // =========================================================================
+  // CHAPTER 3: CREATIVE ATELIER (3 Milestones)
+  // =========================================================================
+  {
+    id: 'm3',
+    period: '2022 — Present',
+    title: 'Founder & Head Designer — Farah Creative Atelier',
+    organization: 'Tactile Learning Studio & Material Lab',
+    category: 'life',
+    categoryLabel: 'Creative Atelier',
+    badgeEmoji: '✂️',
+    image: '/images/product-phonics-wheel.png',
+    images: [
+      '/images/product-phonics-wheel.png',
+      '/images/product-story-kit.png',
+      '/images/product-vocab-dice.png',
+      '/images/poster-phonics.png',
+    ],
+    description:
+      'Turned a lifelong passion for craft and child psychology into a full educational material laboratory. Handcrafts felt storytelling boards, double-disc phonics dials, and bespoke sensory aids rented and loved by teachers across Tunisia.',
+    highlights: ['Handmade Felt & Wood Craft', '100+ Custom Learning Aids', 'Teacher Prop Rentals'],
+    isActive: true,
+  },
+  {
+    id: 'm3_2',
+    period: '2023 — Present',
+    title: 'Creator of the Double-Disc Phonics Dial & Story Kit',
+    organization: 'Educational Aids Innovation Lab',
+    category: 'life',
+    categoryLabel: 'Prop Invention',
+    badgeEmoji: '🎯',
+    image: '/images/product-story-kit.png',
+    images: [
+      '/images/product-story-kit.png',
+      '/images/product-phonics-wheel.png',
+      '/images/product-worksheets.png',
+    ],
+    description:
+      'Engineered rotating concentric phonics dials and magnetic felt boards that transform abstract phoneme blending into a satisfying, tactile physical game.',
+    highlights: ['Concentric Dial Mechanics', 'Magnetic Felt Boards', 'Child-Safe Materials'],
+    isActive: true,
+  },
+  {
+    id: 'm3_3',
+    period: '2024 — Present',
+    title: 'National Teacher Prop Rental & Sensory Kit Library',
+    organization: 'Serving Schools & Tutors Across Tunisia',
+    category: 'life',
+    categoryLabel: 'Rental Program',
+    badgeEmoji: '📦',
+    image: '/images/product-vocab-dice.png',
+    images: [
+      '/images/product-vocab-dice.png',
+      '/images/product-story-kit.png',
+      '/images/poster-verbs.png',
+    ],
+    description:
+      'Established a sharing library where primary schools and independent tutoring centers can rent rotating thematic prop crates for seasonal English units.',
+    highlights: ['Seasonal Thematic Crates', 'School Rental Library', 'Sanitized & Durable Sets'],
+    isActive: true,
+  },
+
+  // =========================================================================
+  // CHAPTER 4: WORKSHOPS & TRAINING (2 Milestones)
+  // =========================================================================
+  {
+    id: 'm4',
+    period: '2023 — Present',
+    title: 'Teacher Trainer & Pedagogical Workshop Host',
+    organization: 'Tunisian Educator Seminars & Online Masterclasses',
+    category: 'achievement',
+    categoryLabel: 'Teacher Training',
+    badgeEmoji: '🌟',
+    image: '/images/classroom-2.png',
+    images: [
+      '/images/classroom-2.png',
+      '/images/flyer-workshop.png',
+      '/images/flyer-reading.png',
+      '/images/hero-classroom.png',
+    ],
+    description:
+      'Conducts hands-on masterclasses demonstrating how teachers can craft their own low-cost, high-impact DIY classroom props and design student-centered visual materials.',
+    highlights: ['Educator Seminars', 'Prop Building Masterclasses', 'Printable ESL Bundles'],
+    isActive: true,
+  },
+  {
+    id: 'm4_2',
+    period: '2024 — Present',
+    title: 'Keynote Speaker on Tactile ESL Pedagogy',
+    organization: 'National Language Teaching Symposium',
+    category: 'achievement',
+    categoryLabel: 'Keynote & Symposium',
+    badgeEmoji: '🏆',
+    image: '/images/flyer-workshop.png',
+    images: [
+      '/images/flyer-workshop.png',
+      '/images/classroom-2.png',
+      '/images/hero-classroom.png',
+    ],
+    description:
+      'Presented research and live demonstrations to 300+ educators on bridging theoretical linguistics with tactile classroom toys to maximize early childhood engagement.',
+    highlights: ['300+ Educators Reached', 'Keynote Demonstration', 'Published Visual Frameworks'],
+    isActive: true,
+  },
+]
+
+
 export const ABOUT_PILLARS = [
   {
     id: 'linguistics',

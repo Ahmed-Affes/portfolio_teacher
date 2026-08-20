@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Fredoka, Patrick_Hand, Plus_Jakarta_Sans } from 'next/font/google'
+import { Fredoka, Patrick_Hand, Plus_Jakarta_Sans, Lora } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import { CuteCursor } from '@/components/cute-cursor'
 import { SideStoryCanvas } from '@/components/side-story-canvas'
@@ -10,6 +10,13 @@ const fredoka = Fredoka({
   subsets: ['latin'],
   variable: '--font-fredoka',
   weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+})
+
+const lora = Lora({
+  subsets: ['latin'],
+  variable: '--font-lora',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 })
 
@@ -60,7 +67,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fredoka.variable} ${patrickHand.variable} ${jakarta.variable} bg-background`}
+      className={`${fredoka.variable} ${lora.variable} ${patrickHand.variable} ${jakarta.variable} bg-background`}
     >
       <body className="font-sans antialiased text-foreground bg-background selection:bg-[#FFC837] selection:text-[#2D1F1D]">
         <CuteCursor />

@@ -7,6 +7,7 @@ import {
   PRODUCTS as DEFAULT_PRODUCTS,
   STATS as DEFAULT_STATS,
   ABOUT_PILLARS as DEFAULT_PILLARS,
+  CAREER_MILESTONES as DEFAULT_MILESTONES,
   AUDIENCES as DEFAULT_AUDIENCES,
   TESTIMONIALS as DEFAULT_TESTIMONIALS,
   FAQS as DEFAULT_FAQS,
@@ -17,6 +18,8 @@ import {
   type Audience,
   type WorkCategory,
   type VideoCategory,
+  type CareerMilestone,
+  type MilestoneCategory,
 } from '@/lib/data'
 import {
   supabase,
@@ -40,7 +43,7 @@ import {
   setNotificationsMuted as setStoredNotificationsMuted,
 } from '@/lib/supabase'
 
-export type { WorkItem, Video, Product, Audience, WorkCategory, VideoCategory }
+export type { WorkItem, Video, Product, Audience, WorkCategory, VideoCategory, CareerMilestone, MilestoneCategory }
 
 export type ProfileBrandingData = {
   name: string
@@ -90,6 +93,7 @@ export type AboutData = {
   manifestoAuthor: string
   manifestoLocation: string
   pillars: AboutPillar[]
+  milestones?: CareerMilestone[]
 }
 
 export type TestimonialItem = {
@@ -226,6 +230,10 @@ const INITIAL_STATE: PortfolioState = {
       description: p.description,
       highlights: p.highlights,
     })),
+    milestones: DEFAULT_MILESTONES.map((m) => ({
+      ...m,
+      isActive: true,
+    })),
   },
   works: DEFAULT_WORKS.map((w) => ({
     ...w,
@@ -287,6 +295,13 @@ interface PortfolioContextType {
   updateAbout: (about: Partial<AboutData>) => void
   updateContact: (contact: Partial<ContactData>) => void
   updateStats: (stats: StatItem[]) => void
+
+  // Milestones (Education, Career & Life Journey) CRUD
+  addMilestone: (milestone: Omit<CareerMilestone, 'id'>) => void
+  updateMilestone: (id: string, milestone: Partial<CareerMilestone>) => void
+  toggleMilestoneActive: (id: string) => void
+  deleteMilestone: (id: string) => void
+  reorderMilestones: (milestones: CareerMilestone[]) => void
 
   // Works CRUD
   addWork: (work: Omit<WorkItem, 'id'>) => void
@@ -402,11 +417,21 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const parsed = JSON.parse(stored)
+        const parsedMilestones = parsed.about?.milestones
+        const resolvedMilestones =
+          Array.isArray(parsedMilestones) && parsedMilestones.length >= DEFAULT_MILESTONES.length
+            ? parsedMilestones
+            : DEFAULT_MILESTONES.map((m) => ({ ...m, isActive: true }))
+
         current = {
           ...INITIAL_STATE,
           ...parsed,
           hero: { ...INITIAL_STATE.hero, ...(parsed.hero || {}) },
-          about: { ...INITIAL_STATE.about, ...(parsed.about || {}) },
+          about: {
+            ...INITIAL_STATE.about,
+            ...(parsed.about || {}),
+            milestones: resolvedMilestones,
+          },
           contact: { ...INITIAL_STATE.contact, ...(parsed.contact || {}) },
           works: (parsed.works || INITIAL_STATE.works).map((w: WorkItem) => ({
             ...w,
@@ -476,10 +501,21 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         }
 
         setState((prev) => {
+          const cloudMilestones = (cloudSettings?.about as any)?.milestones
+          const resolvedCloudMilestones =
+            Array.isArray(cloudMilestones) && cloudMilestones.length >= DEFAULT_MILESTONES.length
+              ? cloudMilestones
+              : prev.about.milestones && prev.about.milestones.length >= DEFAULT_MILESTONES.length
+                ? prev.about.milestones
+                : DEFAULT_MILESTONES.map((m) => ({ ...m, isActive: true }))
+
           const merged: PortfolioState = {
             ...prev,
             hero: cloudSettings?.hero ? { ...prev.hero, ...(cloudSettings.hero || {}) } : prev.hero,
-            about: cloudSettings?.about ? { ...prev.about, ...(cloudSettings.about || {}) } : prev.about,
+            about: {
+              ...(cloudSettings?.about ? { ...prev.about, ...(cloudSettings.about || {}) } : prev.about),
+              milestones: resolvedCloudMilestones,
+            },
             stats: Array.isArray(cloudSettings?.stats) && cloudSettings.stats.length > 0 ? (cloudSettings.stats as StatItem[]) : prev.stats,
             contact: cloudSettings?.contact ? { ...prev.contact, ...(cloudSettings.contact || {}) } : prev.contact,
             works: Array.isArray(cloudSettings?.works) && cloudSettings.works.length > 0 ? (cloudSettings.works as WorkItem[]) : prev.works,
@@ -938,6 +974,84 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     (aboutUpdates: Partial<AboutData>) => {
       setState((prev) => {
         const nextAbout = { ...prev.about, ...aboutUpdates }
+        const newState = { ...prev, about: nextAbout }
+        broadcastAndPersist(newState)
+        return newState
+      })
+    },
+    [broadcastAndPersist],
+  )
+
+  // --- Milestones (Education, Career & Life Journey) CRUD ---
+  const addMilestone = useCallback(
+    (milestoneData: Omit<CareerMilestone, 'id'>) => {
+      setState((prev) => {
+        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const newMilestone: CareerMilestone = {
+          ...milestoneData,
+          id: `m_${Date.now()}`,
+          isActive: milestoneData.isActive !== undefined ? milestoneData.isActive : true,
+        }
+        const nextAbout = {
+          ...prev.about,
+          milestones: [newMilestone, ...currentMilestones],
+        }
+        const newState = { ...prev, about: nextAbout }
+        broadcastAndPersist(newState)
+        return newState
+      })
+    },
+    [broadcastAndPersist],
+  )
+
+  const updateMilestone = useCallback(
+    (id: string, updates: Partial<CareerMilestone>) => {
+      setState((prev) => {
+        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const updated = currentMilestones.map((m) => (m.id === id ? { ...m, ...updates } : m))
+        const nextAbout = { ...prev.about, milestones: updated }
+        const newState = { ...prev, about: nextAbout }
+        broadcastAndPersist(newState)
+        return newState
+      })
+    },
+    [broadcastAndPersist],
+  )
+
+  const toggleMilestoneActive = useCallback(
+    (id: string) => {
+      setState((prev) => {
+        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const updated = currentMilestones.map((m) =>
+          m.id === id ? { ...m, isActive: m.isActive === false } : m,
+        )
+        const nextAbout = { ...prev.about, milestones: updated }
+        const newState = { ...prev, about: nextAbout }
+        broadcastAndPersist(newState)
+        return newState
+      })
+    },
+    [broadcastAndPersist],
+  )
+
+  const deleteMilestone = useCallback(
+    (id: string) => {
+      setState((prev) => {
+        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const updated = currentMilestones.filter((m) => m.id !== id)
+        const nextAbout = { ...prev.about, milestones: updated }
+        const newState = { ...prev, about: nextAbout }
+        broadcastAndPersist(newState)
+        return newState
+      })
+    },
+    [broadcastAndPersist],
+  )
+
+  const reorderMilestones = useCallback(
+    (newMilestones: CareerMilestone[]) => {
+      setState((prev) => {
+        const nextAbout = { ...prev.about, milestones: newMilestones }
         const newState = { ...prev, about: nextAbout }
         broadcastAndPersist(newState)
         return newState
@@ -1504,6 +1618,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       updateAbout,
       updateContact,
       updateStats,
+      addMilestone,
+      updateMilestone,
+      toggleMilestoneActive,
+      deleteMilestone,
+      reorderMilestones,
       addWork,
       updateWork,
       toggleWorkActive,
@@ -1555,6 +1674,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       updateAbout,
       updateContact,
       updateStats,
+      addMilestone,
+      updateMilestone,
+      toggleMilestoneActive,
+      deleteMilestone,
+      reorderMilestones,
       addWork,
       updateWork,
       toggleWorkActive,

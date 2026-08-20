@@ -105,7 +105,6 @@ export function Contact() {
 
   const selectClass =
     'w-full appearance-none rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-3 text-xs font-bold text-[#2D1F1D] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#FFC837] cursor-pointer'
-
   return (
     <section id="contact" className="section-shell relative bg-white py-10 sm:py-14 lg:py-16 overflow-hidden">
       <SectionScene theme="contact" pattern="dots" />
@@ -212,148 +211,148 @@ export function Contact() {
                       </span>
                     </div>
                     <p className="mt-3 text-sm font-bold leading-relaxed text-[#6B5550]">
-                    Rent classroom props, order printable packs, or collaborate on a custom DIY teaching aid tailored to your learners.
-                  </p>
-                </div>
-
-                <ul className="space-y-3 text-xs font-bold text-[#2D1F1D] sm:text-sm">
-                  {[
-                    '🎨 Buy or rent handcrafted materials',
-                    '📝 Request custom worksheets & quest packs',
-                    '🌸 Book a teacher training workshop',
-                    '📍 Local pickup or delivery across Sfax',
-                  ].map((item) => (
-                    <li key={item} className="flex items-center gap-2">
-                      <span className="leading-snug">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="grid grid-cols-3 gap-2 border-t-2 border-[#2D1F1D]/10 pt-4">
-                  {TRUST_STATS.map((s) => (
-                    <div key={s.label} className="text-center rounded-xl bg-white border border-[#2D1F1D] p-2 shadow-xs">
-                      <p className="font-sans text-base font-black text-[#2D1F1D]">{s.value}</p>
-                      <p className="text-[0.6rem] font-bold text-[#6B5550]">
-                        {s.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] bg-white px-3.5 py-2.5 text-xs font-bold text-[#2D1F1D]">
-                  <Clock className="size-4 text-[#FF7D6B]" />
-                  <span>Replies within 24 hours with warmth &amp; care!</span>
-                </div>
-              </div>
-
-              {/* Form */}
-              <form
-                onSubmit={handleSubmit}
-                noValidate
-                className="flex flex-col gap-4 p-6 sm:p-8 bg-white lg:col-span-3"
-              >
-                {sent && (
-                  <div className="flex items-start gap-3 rounded-2xl border-2 border-[#2D1F1D] bg-[#A7F3D0] p-4 text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D]">
-                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 stroke-[3]" />
-                    <div className="text-xs sm:text-sm font-bold">
-                      <p className="font-black text-sm">Message Sent Successfully! 🌸</p>
-                      <p className="text-[#2D1F1D]/80">Farah has received your inquiry in the studio and will respond within 24 hours.</p>
-                    </div>
+                      Rent classroom props, order printable packs, or collaborate on a custom DIY teaching aid tailored to your learners.
+                    </p>
                   </div>
-                )}
 
-                <div className="grid gap-3.5 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="role" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
-                      I am a
-                    </label>
-                    <select
-                      id="role"
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
-                      className={selectClass}
-                    >
-                      {ROLES.map((r) => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
+                  <ul className="space-y-3 text-xs font-bold text-[#2D1F1D] sm:text-sm">
+                    {[
+                      '🎨 Buy or rent handcrafted materials',
+                      '📝 Request custom worksheets & quest packs',
+                      '🌸 Book a teacher training workshop',
+                      '📍 Local pickup or delivery across Sfax',
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-2">
+                        <span className="leading-snug">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="grid grid-cols-3 gap-2 border-t-2 border-[#2D1F1D]/10 pt-4">
+                    {TRUST_STATS.map((s) => (
+                      <div key={s.label} className="text-center rounded-xl bg-white border border-[#2D1F1D] p-2 shadow-xs">
+                        <p className="font-sans text-base font-black text-[#2D1F1D]">{s.value}</p>
+                        <p className="text-[0.6rem] font-bold text-[#6B5550]">
+                          {s.label}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <label htmlFor="topic" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
-                      Topic
-                    </label>
-                    <select
-                      id="topic"
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      className={selectClass}
-                    >
-                      {TOPICS.map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
+
+                  <div className="flex items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] bg-white px-3.5 py-2.5 text-xs font-bold text-[#2D1F1D]">
+                    <Clock className="size-4 text-[#FF7D6B]" />
+                    <span>Replies within 24 hours with warmth &amp; care!</span>
                   </div>
                 </div>
 
-                <div className="grid gap-3.5 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="name" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
-                      Name *
-                    </label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      required
-                      placeholder="Mariam Ben Ali"
-                      className={cn(inputClass, errors.name && 'border-[#FF5A5A]')}
-                    />
-                    {errors.name && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.name}</p>}
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
-                      Email *
-                    </label>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      placeholder="mariam@example.com"
-                      className={cn(inputClass, errors.email && 'border-[#FF5A5A]')}
-                    />
-                    {errors.email && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.email}</p>}
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
-                    Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={3}
-                    required
-                    placeholder="Tell me about your students, workshop date, or material request..."
-                    className={cn('resize-none', inputClass, errors.message && 'border-[#FF5A5A]')}
-                  />
-                  {errors.message && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.message}</p>}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="cute-btn w-full bg-[#FF7D6B] py-3.5 text-sm font-black text-white hover:bg-[#FF6B6B]"
+                {/* Form */}
+                <form
+                  onSubmit={handleSubmit}
+                  noValidate
+                  className="flex flex-col gap-4 p-6 sm:p-8 bg-white lg:col-span-3"
                 >
-                  <Send className="size-4" />
-                  <span>{isSubmitting ? 'Sending Message...' : 'Send Message to Farah 🚀'}</span>
-                </button>
-              </form>
+                  {sent && (
+                    <div className="flex items-start gap-3 rounded-2xl border-2 border-[#2D1F1D] bg-[#A7F3D0] p-4 text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D]">
+                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 stroke-[3]" />
+                      <div className="text-xs sm:text-sm font-bold">
+                        <p className="font-black text-sm">Message Sent Successfully! 🌸</p>
+                        <p className="text-[#2D1F1D]/80">Farah has received your inquiry in the studio and will respond within 24 hours.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid gap-3.5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="role" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+                        I am a
+                      </label>
+                      <select
+                        id="role"
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        className={selectClass}
+                      >
+                        {ROLES.map((r) => (
+                          <option key={r} value={r}>{r}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="topic" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+                        Topic
+                      </label>
+                      <select
+                        id="topic"
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        className={selectClass}
+                      >
+                        {TOPICS.map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3.5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="name" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+                        Name *
+                      </label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        required
+                        placeholder="Mariam Ben Ali"
+                        className={cn(inputClass, errors.name && 'border-[#FF5A5A]')}
+                      />
+                      {errors.name && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.name}</p>}
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+                        Email *
+                      </label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        placeholder="mariam@example.com"
+                        className={cn(inputClass, errors.email && 'border-[#FF5A5A]')}
+                      />
+                      {errors.email && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.email}</p>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="message" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+                      Message *
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={3}
+                      required
+                      placeholder="Tell me about your students, workshop date, or material request..."
+                      className={cn('resize-none', inputClass, errors.message && 'border-[#FF5A5A]')}
+                    />
+                    {errors.message && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.message}</p>}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="cute-btn w-full bg-[#FF7D6B] py-3.5 text-sm font-black text-white hover:bg-[#FF6B6B]"
+                  >
+                    <Send className="size-4" />
+                    <span>{isSubmitting ? 'Sending Message...' : 'Send Message to Farah 🚀'}</span>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      </Reveal>
+        </Reveal>
       </div>
     </section>
   )

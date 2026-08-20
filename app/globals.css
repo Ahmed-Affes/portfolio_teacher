@@ -6,7 +6,7 @@
 
 @theme inline {
   --font-sans: var(--font-fredoka), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fredoka), var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-serif: var(--font-lora), ui-serif, Georgia, Cambria, serif;
   --font-hand: var(--font-hand), cursive;
 
   --color-sidebar-ring: var(--ring);
@@ -113,6 +113,44 @@
   }
   50% {
     transform: rotate(6deg);
+  }
+}
+
+@keyframes pageFlipForward {
+  0% {
+    transform: rotateY(0deg) skewY(0deg);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  }
+  35% {
+    transform: rotateY(-65deg) skewY(-1.8deg);
+    filter: drop-shadow(-14px 18px 24px rgba(0, 0, 0, 0.24));
+  }
+  70% {
+    transform: rotateY(-125deg) skewY(1.8deg);
+    filter: drop-shadow(-8px 12px 18px rgba(0, 0, 0, 0.18));
+  }
+  100% {
+    transform: rotateY(-180deg) skewY(0deg);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  }
+}
+
+@keyframes pageFlipBackward {
+  0% {
+    transform: rotateY(0deg) skewY(0deg);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  }
+  35% {
+    transform: rotateY(65deg) skewY(1.8deg);
+    filter: drop-shadow(14px 18px 24px rgba(0, 0, 0, 0.24));
+  }
+  70% {
+    transform: rotateY(125deg) skewY(-1.8deg);
+    filter: drop-shadow(8px 12px 18px rgba(0, 0, 0, 0.18));
+  }
+  100% {
+    transform: rotateY(180deg) skewY(0deg);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
   }
 }
 

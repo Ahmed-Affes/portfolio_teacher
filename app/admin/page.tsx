@@ -78,6 +78,8 @@ import {
   type AboutData,
   type ContactData,
   type ProfileBrandingData,
+  type CareerMilestone,
+  type MilestoneCategory,
 } from '@/lib/portfolio-context'
 import { useToast } from '@/components/toast-provider'
 import { cn } from '@/lib/utils'
@@ -143,6 +145,11 @@ export default function AdminPage() {
     updateAbout,
     updateContact,
     updateStats,
+    addMilestone,
+    updateMilestone,
+    toggleMilestoneActive,
+    deleteMilestone,
+    reorderMilestones,
     addWork,
     updateWork,
     toggleWorkActive,
@@ -213,10 +220,15 @@ export default function AdminPage() {
   const [productSearch, setProductSearch] = useState('')
   const [testSearch, setTestSearch] = useState('')
   const [faqSearch, setFaqSearch] = useState('')
+  const [milestoneSearch, setMilestoneSearch] = useState('')
+  const [milestoneCategoryFilter, setMilestoneCategoryFilter] = useState<'all' | MilestoneCategory>('all')
   const [messageFilter, setMessageFilter] = useState<'all' | 'unread' | 'read' | 'replied'>('all')
   const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'confirmed' | 'fulfilled'>('all')
 
   // Modals for Items CRUD
+  const [editingMilestone, setEditingMilestone] = useState<CareerMilestone | null>(null)
+  const [isAddingMilestone, setIsAddingMilestone] = useState(false)
+
   const [editingWork, setEditingWork] = useState<WorkItem | null>(null)
   const [isAddingWork, setIsAddingWork] = useState(false)
 
@@ -445,12 +457,17 @@ export default function AdminPage() {
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-          {/* Navigation Sidebar (Sticky & follows scroll smoothly) */}
-          <aside className="flex flex-row gap-1.5 overflow-x-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-3 shadow-[4px_4px_0px_#2D1F1D] lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:flex-col lg:overflow-y-auto scrollbar-thin">
+          {/* Navigation Sidebar (Natural Static Scrolling) */}
+          <aside className="flex flex-row gap-1.5 overflow-x-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-3 shadow-[4px_4px_0px_#2D1F1D] lg:flex-col lg:space-y-1 lg:overflow-visible">
             {[
               { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, badge: null },
               { id: 'hero', label: 'Hero & Headlines', icon: Sparkles, badge: null },
-              { id: 'about', label: 'About & Pillars', icon: BookOpen, badge: null },
+              {
+                id: 'about',
+                label: 'Career & Life Story',
+                icon: BookOpen,
+                badge: state.about.milestones ? state.about.milestones.length : 11,
+              },
               { id: 'works', label: 'Craft Gallery', icon: Palette, badge: state.works.length },
               { id: 'videos', label: 'Video Lessons', icon: Video, badge: state.videos.length },
               { id: 'shop', label: 'Resource Shop', icon: ShoppingBag, badge: state.products.length },
@@ -482,20 +499,20 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setActiveTab(item.id as AdminTab)}
                   className={cn(
-                    'flex shrink-0 items-center justify-between gap-2 rounded-2xl border-2 px-3 py-2.5 text-xs font-black transition-all cursor-pointer lg:w-full',
+                    'flex shrink-0 items-center justify-between gap-2 rounded-2xl border-2 px-3 py-2 text-xs font-black transition-all cursor-pointer lg:w-full',
                     isActive
                       ? 'border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[3px_3px_0px_#2D1F1D] -translate-y-0.5'
                       : 'border-transparent text-[#6B5550] hover:border-[#2D1F1D]/30 hover:bg-[#FAF5EC] hover:text-[#2D1F1D]',
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <Icon className="size-4 shrink-0 text-[#2D1F1D]" />
+                    <Icon className="size-3.5 shrink-0 text-[#2D1F1D]" />
                     <span className="whitespace-nowrap">{item.label}</span>
                   </div>
                   {item.badge !== null && item.badge !== 0 && (
                     <span
                       className={cn(
-                        'rounded-full border border-[#2D1F1D] px-1.5 py-0.2 text-[0.65rem] font-black',
+                        'rounded-full border border-[#2D1F1D] px-1.5 py-0.2 text-[0.62rem] font-black',
                         item.badgeAlert
                           ? 'bg-[#FF7D6B] text-white'
                           : isActive
@@ -509,13 +526,23 @@ export default function AdminPage() {
                 </button>
               )
             })}
+
+            {/* Sidebar Studio Tag */}
+            <div className="hidden border-t-2 border-[#2D1F1D]/15 pt-2 lg:block">
+              <div className="rounded-2xl border border-[#2D1F1D]/15 bg-[#FAF5EC] p-2 text-center">
+                <p className="text-[0.65rem] font-black text-[#2D1F1D]">Farah Affes • Studio</p>
+                <p className="text-[0.55rem] font-bold text-[#6B5550]">Teacher Admin Suite v2.4</p>
+              </div>
+            </div>
           </aside>
+
 
           {/* Active Tab Panel */}
           <main className="space-y-6">
             {/* 1. OVERVIEW DASHBOARD */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
+
                 {/* Welcome Card */}
                 <div className="relative overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFE68C] p-6 shadow-[5px_5px_0px_#2D1F1D] sm:p-8">
                   <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1070,45 +1097,221 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* 4 Pedagogy Pillars Manager */}
-                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-4">
-                  <div className="flex items-center justify-between">
+                {/* Career & Life Journey Milestones Manager */}
+                <div className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[4px_4px_0px_#2D1F1D] space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b-2 border-[#2D1F1D]/10 pb-4">
                     <div>
-                      <h3 className="font-sans text-base font-black text-[#2D1F1D]">
-                        4 Pedagogy Pillars
-                      </h3>
-                      <p className="font-hand text-xs font-bold text-[#6B5550]">
-                        The 4 interactive tabs displayed in the philosophy binder:
+                      <div className="flex items-center gap-2">
+                        <span className="flex size-7 items-center justify-center rounded-lg border border-[#2D1F1D] bg-[#A7F3D0] text-[#2D1F1D]">
+                          <GraduationCap className="size-4" />
+                        </span>
+                        <h3 className="font-sans text-base font-black text-[#2D1F1D]">
+                          Career &amp; Life Journey Milestones
+                        </h3>
+                        <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.5 text-xs font-black text-[#2D1F1D]">
+                          {state.about.milestones ? state.about.milestones.length : 0} items
+                        </span>
+                      </div>
+                      <p className="font-hand text-xs font-bold text-[#6B5550] mt-1">
+                        Manage Farah&apos;s academic degrees, classroom teaching milestones, and creative atelier projects with photos and periods.
                       </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingMilestone(true)}
+                      className="flex items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-4 py-2 text-xs font-black text-[#065F46] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#6EE7B7] hover:-translate-y-0.5 cursor-pointer"
+                    >
+                      <Plus className="size-4 stroke-[3]" />
+                      <span>+ Add New Milestone</span>
+                    </button>
+                  </div>
+
+                  {/* Search & Category Filter Toolbar */}
+                  <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-[#6B5550]" />
+                      <input
+                        type="text"
+                        value={milestoneSearch}
+                        onChange={(e) => setMilestoneSearch(e.target.value)}
+                        placeholder="Search milestone title, school, or organization..."
+                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white pl-8 pr-3 py-2 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {[
+                        { id: 'all', label: 'All', emoji: '🌟' },
+                        { id: 'education', label: 'Education', emoji: '🎓' },
+                        { id: 'career', label: 'Teaching', emoji: '💼' },
+                        { id: 'life', label: 'Creative Life', emoji: '✂️' },
+                        { id: 'achievement', label: 'Workshops', emoji: '🏆' },
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setMilestoneCategoryFilter(tab.id as any)}
+                          className={cn(
+                            'flex items-center gap-1 rounded-xl border-2 px-2.5 py-1 text-xs font-black transition-all cursor-pointer',
+                            milestoneCategoryFilter === tab.id
+                              ? 'border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
+                              : 'border-transparent text-[#6B5550] hover:bg-[#FAF5EC]',
+                          )}
+                        >
+                          <span>{tab.emoji}</span>
+                          <span>{tab.label}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {aboutForm.pillars?.map((pillar, idx) => (
-                      <div
-                        key={pillar.id || idx}
-                        className="rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-4 shadow-[3px_3px_0px_#2D1F1D] space-y-2"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="rounded-full bg-[#FFE68C] px-2 py-0.5 text-xs font-black border border-[#2D1F1D]">
-                            Pillar {pillar.number || `0${idx + 1}`}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => setEditingPillar(pillar)}
-                            className="flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-white px-2.5 py-1 text-xs font-black hover:bg-[#FFE68C] cursor-pointer"
-                          >
-                            <Edit3 className="size-3" /> Edit
-                          </button>
+                  {/* Milestones Card Grid */}
+                  {(() => {
+                    const milestonesList = state.about.milestones || []
+                    const filtered = milestonesList.filter((m) => {
+                      const matchesCategory =
+                        milestoneCategoryFilter === 'all' || m.category === milestoneCategoryFilter
+                      const matchesSearch =
+                        milestoneSearch === '' ||
+                        m.title.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
+                        m.organization.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
+                        m.period.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
+                        m.description.toLowerCase().includes(milestoneSearch.toLowerCase())
+                      return matchesCategory && matchesSearch
+                    })
+
+                    if (filtered.length === 0) {
+                      return (
+                        <div className="rounded-2xl border-2 border-dashed border-[#2D1F1D]/30 bg-[#FAF5EC] p-8 text-center">
+                          <p className="text-2xl">🌱</p>
+                          <p className="font-sans text-xs font-black text-[#2D1F1D] mt-2">
+                            No journey milestones found matching your search.
+                          </p>
                         </div>
-                        <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
-                          {pillar.title}
-                        </h4>
-                        <p className="text-xs font-bold text-[#FF7D6B]">{pillar.subtitle}</p>
-                        <p className="text-xs text-[#6B5550] line-clamp-2">{pillar.description}</p>
-                      </div>
-                    ))}
-                  </div>
+                      )
+                    }
+
+                    return (
+                      <div className="space-y-3">
+                        {filtered.map((milestone) => {
+                          const photos =
+                            milestone.images && milestone.images.length > 0
+                              ? milestone.images
+                              : [milestone.image || '/images/farah-portrait.png']
+
+                          return (
+                            <div
+                              key={milestone.id}
+                              className="flex flex-col sm:flex-row items-start justify-between gap-4 rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-4 shadow-[3px_3px_0px_#2D1F1D] transition-all hover:bg-white"
+                            >
+                              <div className="flex items-start gap-3.5 flex-1">
+                                {/* Photo deck thumbnail stack */}
+                                <div className="relative size-16 shrink-0">
+                                  {photos.slice(0, 3).map((pUrl, pIdx) => (
+                                    <div
+                                      key={pIdx}
+                                      style={{
+                                        transform: `translate(${pIdx * 4}px, ${pIdx * 4}px) rotate(${
+                                          pIdx === 0 ? -4 : pIdx === 1 ? 2 : 6
+                                        }deg)`,
+                                        zIndex: 10 - pIdx,
+                                      }}
+                                      className="absolute inset-0 overflow-hidden rounded-xl border-2 border-[#2D1F1D] bg-white shadow-[1.5px_1.5px_0px_#2D1F1D]"
+                                    >
+                                      <Image src={pUrl} alt={milestone.title} fill className="object-cover" />
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="space-y-1 flex-1 pl-2">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="rounded-full border border-[#2D1F1D] bg-white px-2 py-0.2 text-[0.65rem] font-black text-[#2D1F1D]">
+                                      📅 {milestone.period}
+                                    </span>
+                                    <span className="rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2 py-0.2 text-[0.65rem] font-black text-[#065F46]">
+                                      {milestone.badgeEmoji || '🌸'} {milestone.categoryLabel || milestone.category}
+                                    </span>
+                                    <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.2 text-[0.65rem] font-black text-[#2D1F1D]">
+                                      🃏 {photos.length} {photos.length === 1 ? 'photo' : 'photos'} in deck
+                                    </span>
+                                    {!milestone.isActive && (
+                                      <span className="rounded-full bg-[#FFB5B5] px-2 py-0.2 text-[0.65rem] font-black text-[#2D1F1D]">
+                                        Hidden
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
+                                    {milestone.title}
+                                  </h4>
+                                  <p className="text-xs font-bold text-[#FF7D6B]">{milestone.organization}</p>
+                                  <p className="text-xs font-medium text-[#6B5550] line-clamp-2">
+                                    {milestone.description}
+                                  </p>
+
+                                  {milestone.highlights && milestone.highlights.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 pt-1">
+                                      {milestone.highlights.map((h, hIdx) => (
+                                        <span
+                                          key={hIdx}
+                                          className="rounded-md border border-[#2D1F1D]/20 bg-white px-1.5 py-0.2 text-[0.62rem] font-bold text-[#2D1F1D]"
+                                        >
+                                          ✓ {h}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex sm:flex-col items-center gap-1.5 shrink-0 self-end sm:self-center">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  toggleMilestoneActive(milestone.id)
+                                  toast(
+                                    milestone.isActive ? '👁️ Milestone hidden' : '✨ Milestone visible on website!',
+                                  )
+                                }}
+                                className={cn(
+                                  'rounded-xl border border-[#2D1F1D] px-2.5 py-1 text-[0.7rem] font-black cursor-pointer',
+                                  milestone.isActive
+                                    ? 'bg-[#A7F3D0] text-[#065F46]'
+                                    : 'bg-[#E5E7EB] text-[#6B7280]',
+                                )}
+                              >
+                                {milestone.isActive ? 'Visible' : 'Hidden'}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setEditingMilestone(milestone)}
+                                className="flex items-center gap-1 rounded-xl border border-[#2D1F1D] bg-white px-2.5 py-1 text-[0.7rem] font-black text-[#2D1F1D] hover:bg-[#FFE68C] cursor-pointer"
+                              >
+                                <Edit3 className="size-3" /> Edit
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Delete "${milestone.title}"?`)) {
+                                    deleteMilestone(milestone.id)
+                                    toast('🗑️ Milestone deleted.')
+                                  }
+                                }}
+                                className="flex size-7 items-center justify-center rounded-xl border border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
                 </div>
               </div>
             )}
@@ -2180,6 +2383,28 @@ export default function AdminPage() {
         />
       )}
 
+      {/* Milestone Item CRUD Modal */}
+      {(editingMilestone || isAddingMilestone) && (
+        <MilestoneModal
+          milestone={editingMilestone}
+          onClose={() => {
+            setEditingMilestone(null)
+            setIsAddingMilestone(false)
+          }}
+          onSave={(data) => {
+            if (editingMilestone) {
+              updateMilestone(editingMilestone.id, data)
+              toast('✨ Career milestone updated!')
+            } else {
+              addMilestone(data as Omit<CareerMilestone, 'id'>)
+              toast('✨ New career milestone added to your journey!')
+            }
+            setEditingMilestone(null)
+            setIsAddingMilestone(false)
+          }}
+        />
+      )}
+
       {/* Pillar Item CRUD Modal */}
       {editingPillar && (
         <PillarModal
@@ -2272,13 +2497,13 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="flex flex-1 justify-center overflow-y-auto overflow-x-auto bg-[#2D1F1D]/5 p-1 sm:p-4">
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto bg-[#2D1F1D]/5 p-2 sm:p-6 flex justify-center items-start scrollbar-thin">
               <div
                 className={cn(
-                  'w-full bg-background transition-all duration-200 shadow-xl overflow-hidden',
+                  'w-full bg-background transition-all duration-200 shadow-xl overflow-visible my-0',
                   previewDevice === 'desktop' && 'max-w-full rounded-2xl border-2 border-[#2D1F1D]',
-                  previewDevice === 'tablet' && 'max-w-[768px] rounded-3xl border-4 border-[#2D1F1D]',
-                  previewDevice === 'mobile' && 'max-w-[375px] rounded-[36px] border-4 border-[#2D1F1D]',
+                  previewDevice === 'tablet' && 'max-w-[768px] rounded-3xl border-4 border-[#2D1F1D] shrink-0',
+                  previewDevice === 'mobile' && 'max-w-[375px] rounded-[36px] border-4 border-[#2D1F1D] shrink-0',
                 )}
               >
                 {previewSection === 'hero' && <Hero />}
@@ -3431,6 +3656,328 @@ function PillarModal({
             </button>
             <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
               Save Pillar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function MilestoneModal({
+  milestone,
+  onClose,
+  onSave,
+}: {
+  milestone: CareerMilestone | null
+  onClose: () => void
+  onSave: (milestone: Partial<CareerMilestone>) => void
+}) {
+  const [title, setTitle] = useState(milestone?.title || '')
+  const [organization, setOrganization] = useState(milestone?.organization || '')
+  const [period, setPeriod] = useState(milestone?.period || '2023 — Present')
+  const [category, setCategory] = useState<MilestoneCategory>(milestone?.category || 'career')
+  const [categoryLabel, setCategoryLabel] = useState(milestone?.categoryLabel || 'Teaching Career')
+  const [badgeEmoji, setBadgeEmoji] = useState(milestone?.badgeEmoji || '💼')
+  const [images, setImages] = useState<string[]>(
+    milestone?.images && milestone.images.length > 0
+      ? milestone.images
+      : milestone?.image
+        ? [milestone.image]
+        : ['/images/classroom-1.png'],
+  )
+  const [description, setDescription] = useState(milestone?.description || '')
+  const [highlights, setHighlights] = useState<string[]>(
+    milestone?.highlights || ['Classroom Tested', 'Active Engagement'],
+  )
+  const [isActive, setIsActive] = useState(milestone?.isActive !== false)
+
+  const handleCategoryChange = (newCat: MilestoneCategory) => {
+    setCategory(newCat)
+    if (newCat === 'education') {
+      setCategoryLabel('Academic Degree')
+      setBadgeEmoji('🎓')
+    } else if (newCat === 'career') {
+      setCategoryLabel('Teaching Career')
+      setBadgeEmoji('💼')
+    } else if (newCat === 'life') {
+      setCategoryLabel('Creative Atelier & Life')
+      setBadgeEmoji('✂️')
+    } else if (newCat === 'achievement') {
+      setCategoryLabel('Teacher Training')
+      setBadgeEmoji('🌟')
+    }
+  }
+
+  const handleAddPhoto = (newUrl: string) => {
+    if (!newUrl) return
+    setImages([...images, newUrl])
+  }
+
+  const handleRemovePhoto = (removeIdx: number) => {
+    if (images.length <= 1) return
+    setImages(images.filter((_, idx) => idx !== removeIdx))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSave({
+      title,
+      organization,
+      period,
+      category,
+      categoryLabel,
+      badgeEmoji,
+      image: images[0] || '/images/farah-portrait.png',
+      images,
+      description,
+      highlights,
+      isActive,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-4 backdrop-blur-xs">
+      <div className="w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] shadow-[8px_8px_0px_#2D1F1D]">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between border-b-3 border-[#2D1F1D] bg-[#FAF5EC] px-5 py-3.5">
+          <div className="flex items-center gap-2">
+            <span className="flex size-7 items-center justify-center rounded-lg border border-[#2D1F1D] bg-[#A7F3D0] text-[#2D1F1D]">
+              <GraduationCap className="size-4" />
+            </span>
+            <div>
+              <h3 className="font-sans text-sm sm:text-base font-black text-[#2D1F1D]">
+                {milestone ? 'Edit Career & Life Milestone' : 'Add New Journey Milestone'}
+              </h3>
+              <p className="text-[0.65rem] font-bold text-[#6B5550]">
+                Manage degrees, classroom roles, or atelier projects with multiple photos.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5] hover:bg-[#FF8A8A] cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          {/* Milestone Title */}
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+              Milestone Title / Degree / Role *
+            </label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Bachelor's Degree in English Linguistics"
+              className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+            />
+          </div>
+
+          {/* Organization & Period */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                Institution / School / Organization *
+              </label>
+              <input
+                type="text"
+                required
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
+                placeholder="e.g. Faculty of Letters of Sfax"
+                className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                Period / Years (Stamp) *
+              </label>
+              <input
+                type="text"
+                required
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+                placeholder="e.g. 2018 — 2021 or 2021 — Present"
+                className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Category Selector */}
+          <div>
+            <label className="mb-1.5 block text-xs font-black uppercase text-[#2D1F1D]">
+              Journey Category
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { id: 'education', label: '🎓 Education', color: 'bg-[#A7F3D0]' },
+                { id: 'career', label: '💼 Teaching', color: 'bg-[#DDD6FE]' },
+                { id: 'life', label: '✂️ Creative Life', color: 'bg-[#FFB5B5]' },
+                { id: 'achievement', label: '🌟 Workshops', color: 'bg-[#FED7AA]' },
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategoryChange(cat.id as MilestoneCategory)}
+                  className={cn(
+                    'rounded-xl border-2 p-2 text-xs font-black transition-all cursor-pointer text-center',
+                    category === cat.id
+                      ? `${cat.color} border-[#2D1F1D] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]`
+                      : 'border-[#2D1F1D]/20 bg-white text-[#6B5550]',
+                  )}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Category Label & Emoji */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                Category Badge Text
+              </label>
+              <input
+                type="text"
+                value={categoryLabel}
+                onChange={(e) => setCategoryLabel(e.target.value)}
+                placeholder="e.g. Academic Degree"
+                className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-2 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+                Badge Emoji
+              </label>
+              <div className="flex items-center gap-1.5">
+                {['🎓', '💼', '✂️', '🌟', '🏆', '📖', '🌸', '🎨'].map((em) => (
+                  <button
+                    key={em}
+                    type="button"
+                    onClick={() => setBadgeEmoji(em)}
+                    className={cn(
+                      'flex size-8 items-center justify-center rounded-lg border text-sm transition-all cursor-pointer',
+                      badgeEmoji === em
+                        ? 'border-[#2D1F1D] bg-[#FFE68C] shadow-xs'
+                        : 'border-[#2D1F1D]/20 bg-white hover:bg-[#FAF5EC]',
+                    )}
+                  >
+                    {em}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Multiple Photos Deck Manager */}
+          <div className="rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-4 shadow-[2px_2px_0px_#2D1F1D] space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-xs font-black uppercase text-[#2D1F1D]">
+                  🃏 Milestone Photo Deck ({images.length} photos)
+                </label>
+                <p className="text-[0.65rem] font-bold text-[#6B5550]">
+                  These photos form the interactive playing card stack on your public profile.
+                </p>
+              </div>
+            </div>
+
+            {/* Current Photos Grid */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+              {images.map((imgUrl, idx) => (
+                <div
+                  key={idx}
+                  className="relative aspect-[4/3] rounded-xl border-2 border-[#2D1F1D] bg-white overflow-hidden shadow-[1.5px_1.5px_0px_#2D1F1D] group"
+                >
+                  <Image src={imgUrl} alt={`Photo ${idx + 1}`} fill className="object-cover" />
+                  <span className="absolute top-1 left-1 rounded bg-[#FFE68C] px-1 py-0.2 text-[0.55rem] font-black border border-[#2D1F1D]">
+                    #{idx + 1}
+                  </span>
+                  {images.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhoto(idx)}
+                      title="Remove this photo from deck"
+                      className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5] hover:bg-[#FF8A8A] cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Add another photo to deck */}
+            <PhotoUploader
+              label="+ Upload or Pick Another Photo for This Deck"
+              currentValue=""
+              onChange={(newUrl) => handleAddPhoto(newUrl)}
+            />
+          </div>
+
+          {/* Story Narrative */}
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+              Story Narrative &amp; Description *
+            </label>
+            <textarea
+              rows={3}
+              required
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe your achievements, studies, and classroom moments during this period..."
+              className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white p-2.5 text-xs font-medium text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+            />
+          </div>
+
+          {/* Highlights List */}
+          <div>
+            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">
+              Key Highlights &amp; Skills Pills
+            </label>
+            <ListTagEditor
+              tags={highlights}
+              onChange={setHighlights}
+              placeholder="Add key takeaway (e.g. Phonetics & Phonology)"
+            />
+          </div>
+
+          {/* Active Toggle Switch */}
+          <div className="flex items-center gap-3 rounded-2xl border-2 border-[#2D1F1D] bg-[#FAF5EC] p-3 shadow-[2px_2px_0px_#2D1F1D]">
+            <input
+              type="checkbox"
+              id="milestoneActive"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="size-5 rounded border-2 border-[#2D1F1D] accent-[#10B981] cursor-pointer"
+            />
+            <label htmlFor="milestoneActive" className="text-xs font-black text-[#2D1F1D] cursor-pointer">
+              Visible in Public About Me Timeline
+            </label>
+          </div>
+
+          {/* Footer Buttons */}
+          <div className="flex justify-end gap-2 pt-3 border-t-2 border-[#2D1F1D]/10">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border-2 border-[#2D1F1D] bg-white px-4 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-6 py-2 text-xs font-black text-[#2D1F1D] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
+            >
+              {milestone ? 'Save Changes' : 'Create Milestone'}
             </button>
           </div>
         </form>
