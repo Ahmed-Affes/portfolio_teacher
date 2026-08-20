@@ -1014,7 +1014,14 @@ export function About() {
               </div>
 
               {/* REALISTIC VINTAGE HARDCOVER BOOK WITH WARM SADDLE LEATHER & BRASS CORNERS */}
-              <div className="relative rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-[1.5px] border-[#4A2B18]/50 bg-gradient-to-br from-[#73472C] via-[#5F3820] to-[#4D2B16] p-2.5 sm:p-3 shadow-[0_20px_45px_rgba(68,39,22,0.24)]">
+              <div className="mb-3 flex items-center justify-between px-2 text-[#5F3820]">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="size-4" aria-hidden="true" />
+                  <span className="font-mono text-[0.65rem] font-black uppercase tracking-[0.18em]">Field notes / Farah Affes</span>
+                </div>
+                <span className="rounded-full border border-[#5F3820]/25 bg-white/60 px-2.5 py-1 font-mono text-[0.6rem] font-bold uppercase tracking-wider">Read, play, grow</span>
+              </div>
+              <div className="relative rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-[1.5px] border-[#4A2B18]/50 bg-gradient-to-br from-[#73472C] via-[#5F3820] to-[#4D2B16] p-2.5 sm:p-3 shadow-[0_20px_45px_rgba(68,39,22,0.24)]" aria-label="Farah Affes career storybook">
                 {/* 4 Antique Brass Filigree Metallic Corners */}
                 <BookBrassCorner position="top-left" />
                 <BookBrassCorner position="top-right" />
@@ -1089,11 +1096,11 @@ export function About() {
 
                   {/* ----------------------------------------------------------------- */}
                   {/* DESKTOP VIEW: AUTHENTIC 3D PHYSICAL BOOK SPREAD WITH TURNING LEAF */}
-                  {/* ----------------------------------------------------------------- */}
                   <div
                     style={{ perspective: '1600px' }}
                     className="hidden lg:block relative rounded-[1.1rem] border border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[435px]"
                   >
+                    <div className="pointer-events-none absolute left-1/2 top-0 z-40 h-full w-px -translate-x-1/2 bg-[#6B4328]/35 shadow-[1px_0_2px_rgba(255,255,255,0.45)]" aria-hidden="true" />
 
                     {/* BASE LAYER (Underneath): Left Page Base + Right Page Base */}
                     <div className="absolute inset-0 grid grid-cols-2 bg-[#FCF9F2]">

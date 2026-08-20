@@ -214,6 +214,7 @@ export const VIDEOS: Video[] = [
     category: 'pronunciation',
     thumbnail: '/images/video-lesson.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    ageGroup: 'Primary learners',
     takeaways: [
       'Tongue-between-teeth physical placement technique',
       'Vocal chord vibration testing with fingers on throat',
@@ -228,6 +229,7 @@ export const VIDEOS: Video[] = [
     category: 'grammar',
     thumbnail: '/images/video-grammar.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+    ageGroup: 'Primary & middle school',
     takeaways: [
       'Grouping irregular verbs by rhyme vowel shifts (sing/sang/sung)',
       'Avoiding rote memorization with contextual sentences',
@@ -242,6 +244,7 @@ export const VIDEOS: Video[] = [
     category: 'storytelling',
     thumbnail: '/images/classroom-1.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+    ageGroup: 'All learners',
     takeaways: [
       'Using vocal inflection and suspense pauses',
       'Physical prop integration to spark questions',
@@ -256,6 +259,7 @@ export const VIDEOS: Video[] = [
     category: 'workshop',
     thumbnail: '/images/classroom-2.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    ageGroup: 'Teachers & tutors',
     takeaways: [
       'Materials needed: cardboard, split pins, laminating sheets',
       'Choosing high-utility word family rimes (-at, -op, -in)',
@@ -270,6 +274,7 @@ export const VIDEOS: Video[] = [
     category: 'grammar',
     thumbnail: '/images/hero-classroom.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    ageGroup: 'Middle school',
     takeaways: [
       'The "interrupted action" visual metaphor',
       'Key trigger words: "while" vs "when"',
@@ -284,6 +289,7 @@ export const VIDEOS: Video[] = [
     category: 'pronunciation',
     thumbnail: '/images/video-lesson.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+    ageGroup: 'Young learners',
     takeaways: [
       'Jaw drop and lip shape visual cues',
       'Sorting games for /æ/ (cat) vs /e/ (bed)',

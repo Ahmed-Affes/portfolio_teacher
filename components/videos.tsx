@@ -38,7 +38,19 @@ export function Videos() {
   const [activeCategory, setActiveCategory] = useState<VideoCategory>('all')
   const [activeVideo, setActiveVideo] = useState<Video | null>(null)
 
-  const activeVideos = useMemo(() => videos.filter((v) => v.isActive !== false), [videos])
+  const activeVideos = useMemo(
+    () =>
+      videos
+        .filter((v) => v.isActive !== false)
+        .map((video) => ({
+          ...video,
+          ageGroup: video.ageGroup?.trim() || 'All learners',
+          description:
+            video.description?.trim() ||
+            'A focused classroom lesson designed for practical English learning.',
+        })),
+    [videos],
+  )
 
   const filteredVideos = useMemo(() => {
     if (activeCategory === 'all') return activeVideos
@@ -209,7 +221,7 @@ export function Videos() {
 
                       <div className="mt-4 flex items-center justify-between border-t border-[#2D1F1D]/10 pt-3">
                         <span className="text-[0.7rem] font-bold text-[#6B5550]">
-                          Target: {video.ageGroup}
+                          Target: {video.ageGroup?.trim() || 'All learners'}
                         </span>
                         <span className="inline-flex items-center gap-1 text-xs font-black text-[#FF7D6B] group-hover:underline">
                           Watch Video <ChevronRight className="size-3.5" />
@@ -221,6 +233,13 @@ export function Videos() {
               </Reveal>
             )
           })}
+          {filteredVideos.length === 0 && (
+            <div className="sm:col-span-2 lg:col-span-3 rounded-[2rem] border-[1.5px] border-dashed border-[#2D1F1D]/30 bg-white/70 p-8 text-center">
+              <VideoIcon className="mx-auto size-8 text-[#FF7D6B]" aria-hidden="true" />
+              <p className="mt-3 font-sans text-sm font-black text-[#2D1F1D]">No lessons in this collection yet.</p>
+              <p className="mt-1 text-xs text-[#6B5550]">Try another category to keep exploring.</p>
+            </div>
+          )}
         </div>
       </div>
 
