@@ -81,6 +81,7 @@ import {
   type CareerMilestone,
   type MilestoneCategory,
 } from '@/lib/portfolio-context'
+import { CAREER_MILESTONES as DEFAULT_MILESTONES } from '@/lib/data'
 import { useToast } from '@/components/toast-provider'
 import { cn } from '@/lib/utils'
 
@@ -466,7 +467,7 @@ export default function AdminPage() {
                 id: 'about',
                 label: 'Career & Life Story',
                 icon: BookOpen,
-                badge: state.about.milestones ? state.about.milestones.length : 11,
+                badge: state.about.milestones && state.about.milestones.length >= DEFAULT_MILESTONES.length ? state.about.milestones.length : DEFAULT_MILESTONES.length,
               },
               { id: 'works', label: 'Craft Gallery', icon: Palette, badge: state.works.length },
               { id: 'videos', label: 'Video Lessons', icon: Video, badge: state.videos.length },
@@ -1109,7 +1110,7 @@ export default function AdminPage() {
                           Career &amp; Life Journey Milestones
                         </h3>
                         <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.5 text-xs font-black text-[#2D1F1D]">
-                          {state.about.milestones ? state.about.milestones.length : 0} items
+                          {state.about.milestones && state.about.milestones.length >= DEFAULT_MILESTONES.length ? state.about.milestones.length : DEFAULT_MILESTONES.length} items
                         </span>
                       </div>
                       <p className="font-hand text-xs font-bold text-[#6B5550] mt-1">
@@ -1117,14 +1118,29 @@ export default function AdminPage() {
                       </p>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setIsAddingMilestone(true)}
-                      className="flex items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-4 py-2 text-xs font-black text-[#065F46] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#6EE7B7] hover:-translate-y-0.5 cursor-pointer"
-                    >
-                      <Plus className="size-4 stroke-[3]" />
-                      <span>+ Add New Milestone</span>
-                    </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          reorderMilestones(DEFAULT_MILESTONES.map((m) => ({ ...m, isActive: true })))
+                          toast('✨ Restored all 11 default milestones across all 4 chapters!')
+                        }}
+                        className="flex items-center gap-1.5 rounded-2xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-2 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFD952] hover:-translate-y-0.5 cursor-pointer"
+                        title="Reload the complete 11-milestone set across all 4 story chapters"
+                      >
+                        <RotateCcw className="size-3.5" />
+                        <span>Sync 11 Chapters</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingMilestone(true)}
+                        className="flex items-center gap-2 rounded-2xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-4 py-2 text-xs font-black text-[#065F46] shadow-[2.5px_2.5px_0px_#2D1F1D] hover:bg-[#6EE7B7] hover:-translate-y-0.5 cursor-pointer"
+                      >
+                        <Plus className="size-4 stroke-[3]" />
+                        <span>+ Add New Milestone</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Search & Category Filter Toolbar */}
@@ -1142,11 +1158,11 @@ export default function AdminPage() {
 
                     <div className="flex flex-wrap items-center gap-1.5">
                       {[
-                        { id: 'all', label: 'All', emoji: '🌟' },
-                        { id: 'education', label: 'Education', emoji: '🎓' },
-                        { id: 'career', label: 'Teaching', emoji: '💼' },
-                        { id: 'life', label: 'Creative Life', emoji: '✂️' },
-                        { id: 'achievement', label: 'Workshops', emoji: '🏆' },
+                        { id: 'all', label: 'All (11)', emoji: '🌟' },
+                        { id: 'education', label: 'Education (2)', emoji: '🎓' },
+                        { id: 'career', label: 'Teaching (4)', emoji: '💼' },
+                        { id: 'life', label: 'Atelier (3)', emoji: '✂️' },
+                        { id: 'achievement', label: 'Workshops (2)', emoji: '🏆' },
                       ].map((tab) => (
                         <button
                           key={tab.id}
@@ -1168,7 +1184,11 @@ export default function AdminPage() {
 
                   {/* Milestones Card Grid */}
                   {(() => {
-                    const milestonesList = state.about.milestones || []
+                    const rawList = state.about.milestones
+                    const milestonesList =
+                      rawList && rawList.length >= DEFAULT_MILESTONES.length
+                        ? rawList
+                        : DEFAULT_MILESTONES.map((m) => ({ ...m, isActive: true }))
                     const filtered = milestonesList.filter((m) => {
                       const matchesCategory =
                         milestoneCategoryFilter === 'all' || m.category === milestoneCategoryFilter
@@ -1178,6 +1198,7 @@ export default function AdminPage() {
                         m.organization.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
                         m.period.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
                         m.description.toLowerCase().includes(milestoneSearch.toLowerCase())
+
                       return matchesCategory && matchesSearch
                     })
 

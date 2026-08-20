@@ -173,7 +173,7 @@ export type PortfolioState = {
   adminPin: string
 }
 
-const STORAGE_KEY = 'farah_portfolio_state_v3'
+const STORAGE_KEY = 'farah_portfolio_state_v4'
 const SYNC_EVENT_KEY = 'farah_portfolio_sync_event'
 
 const INITIAL_STATE: PortfolioState = {
