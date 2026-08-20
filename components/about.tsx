@@ -978,10 +978,10 @@ export function About() {
           {/* ========================================================================= */}
           {/* RIGHT COLUMN: REALISTIC PHYSICAL HARDCOVER BOOK WITH STACKED PAGES & TABS */}
           {/* ========================================================================= */}
-          <div className="relative">
+          <div className="relative lg:pr-10">
             <Reveal delay={80}>
-              {/* 4 PHYSICAL BOOK CHAPTER INDEX TABS (EQUAL WIDTH, NO OVERFLOW) */}
-              <div className="grid grid-cols-4 gap-1 sm:gap-2 px-3 sm:px-5 mb-0 select-none">
+              {/* MOBILE / TABLET TOP CHAPTER TABS (lg:hidden) */}
+              <div className="grid grid-cols-4 gap-1 sm:gap-2 px-3 sm:px-5 mb-0 select-none lg:hidden">
                 {CHAPTER_CONFIG.map((tab) => {
                   const isSelected = activeCategory === tab.id
                   const count = allMilestones.filter((m) => m.category === tab.id).length
@@ -992,10 +992,10 @@ export function About() {
                       type="button"
                       onClick={() => handleCategoryClick(tab.id)}
                       className={cn(
-                        'relative -mb-[2px] flex items-center justify-center gap-1 sm:gap-1.5 rounded-t-xl sm:rounded-t-2xl border-2 border-[#2D1F1D] py-1.5 sm:py-2 px-1 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none',
+                        'relative -mb-[2px] flex items-center justify-center gap-1 sm:gap-1.5 rounded-t-xl sm:rounded-t-2xl border-[1.5px] border-[#2D1F1D]/40 py-1.5 sm:py-2 px-1 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none',
                         tab.color,
                         isSelected
-                          ? 'z-20 -translate-y-1 sm:-translate-y-1.5 border-b-0 shadow-[0_-2px_0_#2D1F1D] text-[#2D1F1D]'
+                          ? 'z-20 -translate-y-1 sm:-translate-y-1.5 border-b-0 shadow-[0_-2px_0_rgba(45,31,29,0.5)] text-[#2D1F1D]'
                           : 'z-10 opacity-70 hover:opacity-100 hover:-translate-y-0.5 text-[#2D1F1D]',
                       )}
                     >
@@ -1013,8 +1013,8 @@ export function About() {
                 })}
               </div>
 
-              {/* REALISTIC VINTAGE HARDCOVER BOOK WITH BRASS CORNERS (Refined borders & height) */}
-              <div className="relative rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-2 border-[#2D1F1D] bg-[#241713] p-2.5 sm:p-3 shadow-[0_20px_45px_rgba(36,23,19,0.35),6px_8px_0px_#2D1F1D]">
+              {/* REALISTIC VINTAGE HARDCOVER BOOK WITH WARM SADDLE LEATHER & BRASS CORNERS */}
+              <div className="relative rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-[1.5px] border-[#4A2B18]/50 bg-gradient-to-br from-[#73472C] via-[#5F3820] to-[#4D2B16] p-2.5 sm:p-3 shadow-[0_20px_45px_rgba(68,39,22,0.24)]">
                 {/* 4 Antique Brass Filigree Metallic Corners */}
                 <BookBrassCorner position="top-left" />
                 <BookBrassCorner position="top-right" />
@@ -1022,7 +1022,44 @@ export function About() {
                 <BookBrassCorner position="bottom-right" />
 
                 {/* Hardcover Perimeter Gold Stitched Line */}
-                <div className="absolute inset-1.5 rounded-[1.8rem_1.8rem_1.4rem_1.4rem] border border-dashed border-[#D4AF37]/35 pointer-events-none" />
+                <div className="absolute inset-1.5 rounded-[1.8rem_1.8rem_1.4rem_1.4rem] border border-dashed border-[#F3DF9C]/40 pointer-events-none" />
+
+                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Hidden on mobile) */}
+                <div className="hidden lg:flex absolute -right-9 xl:-right-11 top-10 bottom-10 flex-col justify-around z-30 pointer-events-auto">
+                  {CHAPTER_CONFIG.map((tab) => {
+                    const isSelected = activeCategory === tab.id
+                    const count = allMilestones.filter((m) => m.category === tab.id).length
+
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => handleCategoryClick(tab.id)}
+                        aria-label={`Open chapter: ${tab.title}`}
+                        aria-selected={isSelected}
+                        role="tab"
+                        className={cn(
+                          'group relative flex items-center gap-1.5 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D]/40 px-2.5 py-2 text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-sm',
+                          tab.color,
+                          isSelected
+                            ? 'translate-x-3.5 sm:translate-x-4.5 shadow-[4px_4px_14px_rgba(45,31,29,0.2)] z-30 scale-105 ring-1 ring-[#4A2E1E]/25 text-[#2D1F1D]'
+                            : 'translate-x-0 opacity-80 hover:opacity-100 hover:translate-x-1.5 text-[#2D1F1D] z-10',
+                        )}
+                      >
+                        <span className="text-sm shrink-0">{tab.icon}</span>
+                        <span className="text-[0.72rem] font-black whitespace-nowrap pr-1 tracking-tight">
+                          {tab.title}
+                        </span>
+                        {count > 0 && (
+                          <span className="rounded-full bg-white/90 border border-[#2D1F1D]/25 px-1.5 py-0.2 text-[0.58rem] font-black text-[#2D1F1D] shrink-0">
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+
 
                 {/* ------------------------------------------------------------- */}
                 {/* PHYSICAL 3D STACKED PAPER PAGES BLOCK (DECKLE EDGE TEXTURE)   */}
