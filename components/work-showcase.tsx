@@ -225,119 +225,280 @@ export function WorkShowcase() {
             </div>
           </Reveal>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 grid-flow-dense">
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
               const pinColor = PIN_COLORS[i % PIN_COLORS.length]
-              const hasTape = i % 3 === 0
-              const rotationClass = i % 2 === 0 ? 'rotate-0 sm:rotate-[-0.4deg]' : 'rotate-0 sm:rotate-[0.4deg]'
+
+              // Dynamic Bento sizing that tiles seamlessly across 2, 3, and 4-column screens
+              const mod = i % 6
+              let spanClass = 'col-span-1'
+              let variant: 'hero-large' | 'wide-horizontal' | 'tall-portrait' | 'compact' = 'compact'
+              const rotationClass = i % 2 === 0 ? 'rotate-0 sm:rotate-[-0.3deg]' : 'rotate-0 sm:rotate-[0.3deg]'
+
+              if (mod === 0) {
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-2'
+                variant = 'hero-large'
+              } else if (mod === 3) {
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-2'
+                variant = 'wide-horizontal'
+              } else if (mod === 1) {
+                spanClass = 'col-span-1'
+                variant = 'tall-portrait'
+              } else {
+                spanClass = 'col-span-1'
+                variant = 'compact'
+              }
 
               return (
-                <div key={item.id} className="relative w-full max-w-full">
-                  <Reveal delay={(i % 6) * 45} className="h-full">
-                    <div className="group relative w-full h-full pt-3">
+                <div key={item.id} className={cn('relative w-full max-w-full', spanClass)}>
+                  <Reveal delay={(i % 6) * 40} className="h-full">
+                    <div className="group relative w-full h-full pt-2.5 sm:pt-3">
                       {/* Scrapbook Pushpin / Washi Tape Accent */}
-                      {hasTape ? (
+                      {variant === 'hero-large' ? (
                         <WashiTape
-                          color={i % 6 === 0 ? '#FFC837' : '#A7F3D0'}
-                          className="left-6 sm:left-8 top-1 w-20 sm:w-24 z-30"
-                          pattern={i % 6 === 0 ? 'stripes' : 'dots'}
+                          color="#FFC837"
+                          className="left-5 sm:left-7 top-0.5 w-18 sm:w-22 z-30"
+                          pattern="stripes"
+                        />
+                      ) : variant === 'wide-horizontal' ? (
+                        <WashiTape
+                          color="#A7F3D0"
+                          className="left-5 sm:left-7 top-0.5 w-18 sm:w-22 z-30"
+                          pattern="dots"
                         />
                       ) : (
-                        <PushPin color={pinColor} size={22} className="left-1/2 top-3 z-30" />
+                        <PushPin color={pinColor} size={18} className="left-1/2 top-2 z-30" />
                       )}
 
                       <div
                         className={cn(
-                          'relative flex w-full h-full flex-col justify-between overflow-hidden rounded-[1.8rem_1.3rem_2rem_1.5rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] hover:-translate-y-1.5 hover:shadow-[0_16px_32px_rgba(45,31,29,0.12),4px_4px_0px_rgba(45,31,29,0.8)] transition-all duration-300',
+                          'relative flex w-full h-full flex-col justify-between overflow-hidden rounded-[1.4rem_1.1rem_1.6rem_1.2rem] sm:rounded-[1.8rem_1.3rem_2rem_1.5rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_4px_12px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.6)] hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(45,31,29,0.1),3.5px_3.5px_0px_rgba(45,31,29,0.8)] transition-all duration-300',
                           rotationClass,
                         )}
                       >
-                        {/* Top Photo Section */}
-                        <div className="p-3.5 sm:p-4 pb-0">
-                          <div
-                            onClick={() => setActiveItemIndex(actualIndex)}
-                            className="relative aspect-[16/11] sm:aspect-[4/3] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
-                          >
-                            <Image
-                              src={item.image || '/placeholder.svg'}
-                              alt={item.title}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                              className="object-cover transition-transform duration-500 group-hover/img:scale-105"
-                            />
+                        {/* ========================================================= */}
+                        {/* 1. HERO LARGE BENTO TILE (2-Column Featured Masterpiece)  */}
+                        {/* ========================================================= */}
+                        {variant === 'hero-large' && (
+                          <div className="flex flex-col h-full justify-between p-3 sm:p-4 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0]">
+                            <div
+                              onClick={() => setActiveItemIndex(actualIndex)}
+                              className="relative aspect-[16/9] max-h-[160px] sm:max-h-[220px] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
+                            >
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 600px"
+                                className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute left-2 top-2 flex items-center gap-1.5 flex-wrap">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFC837] px-2 py-0.5 text-[0.62rem] sm:text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                  Featured Masterpiece ✂️
+                                </span>
+                                <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                  {item.tag}
+                                </span>
+                              </div>
+                              <span className="absolute right-2 top-2 flex size-6.5 sm:size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs transition-all group-hover/img:scale-110">
+                                <Maximize2 className="size-3 sm:size-3.5" />
+                              </span>
+                              {item.year && (
+                                <div className="absolute bottom-1.5 right-1.5 rounded-md border border-[#2D1F1D]/30 bg-white/95 px-1.5 py-0.5 text-[0.6rem] font-bold text-[#2D1F1D]">
+                                  🗓️ {item.year}
+                                </div>
+                              )}
+                            </div>
 
-                            {/* Tag Badge */}
-                            <div className="absolute left-2.5 top-2.5 flex items-center gap-1.5 flex-wrap">
-                              <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-xs">
-                                {item.tag}
+                            <div className="space-y-1.5 pt-2 flex-1 flex flex-col justify-between">
+                              <div>
+                                <div
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="flex items-start justify-between gap-1.5 cursor-pointer group/title"
+                                >
+                                  <h3 className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug transition-colors group-hover/title:text-[#FF7D6B] line-clamp-1">
+                                    {item.title}
+                                  </h3>
+                                  <ArrowUpRight className="size-3.5 sm:size-4 shrink-0 text-[#2D1F1D] transition-transform group-hover/title:translate-x-0.5 group-hover/title:-translate-y-0.5" />
+                                </div>
+                                <p className="mt-0.5 text-xs sm:text-[0.8rem] font-medium leading-relaxed text-[#6B5550] line-clamp-2">
+                                  {item.description}
+                                </p>
+                              </div>
+
+                              {item.highlights && item.highlights.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-0.5">
+                                  {item.highlights.map((h) => (
+                                    <span
+                                      key={h}
+                                      className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-1.5 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-bold text-[#2D1F1D]"
+                                    >
+                                      <Sparkles className="size-2 text-[#FF7D6B]" />
+                                      <span>{h}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex items-center justify-between gap-2 border-t border-[#2D1F1D]/12 pt-2 mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="cute-btn flex-1 bg-[#FFE68C] px-2.5 py-1.5 text-[0.72rem] sm:text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] cursor-pointer min-h-[34px] sm:min-h-[36px] flex items-center justify-center touch-manipulation"
+                                >
+                                  <span>Inspect Lightbox 🔍</span>
+                                </button>
+                                <a
+                                  href="#contact"
+                                  className="cute-btn flex-1 bg-white px-2.5 py-1.5 text-[0.72rem] sm:text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer min-h-[34px] sm:min-h-[36px] flex items-center justify-center touch-manipulation"
+                                >
+                                  <span>Order Custom 💌</span>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ========================================================= */}
+                        {/* 2. WIDE HORIZONTAL ATELIER TILE (2-Column Panoramic Row)  */}
+                        {/* ========================================================= */}
+                        {variant === 'wide-horizontal' && (
+                          <div className="flex flex-col sm:flex-row h-full justify-between gap-2.5 sm:gap-3.5 p-3 sm:p-4 bg-white">
+                            <div
+                              onClick={() => setActiveItemIndex(actualIndex)}
+                              className="relative aspect-[16/9] sm:aspect-[4/3] sm:w-2/5 max-h-[140px] sm:max-h-none overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
+                            >
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 300px"
+                                className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute left-2 top-2">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2 py-0.5 text-[0.62rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                  {item.tag}
+                                </span>
+                              </div>
+                              <span className="absolute right-2 top-2 flex size-6.5 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
+                                <Maximize2 className="size-3" />
                               </span>
                             </div>
 
-                            {/* Zoom Lightbox Trigger */}
-                            <span className="absolute right-2.5 top-2.5 flex size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs transition-all group-hover/img:scale-110">
-                              <Maximize2 className="size-3.5" />
-                            </span>
-
-                            {/* Year / Format Badge */}
-                            {item.year && (
-                              <div className="absolute bottom-2 right-2 rounded-md border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.62rem] font-bold text-[#2D1F1D]">
-                                🗓️ {item.year}
+                            <div className="flex-1 flex flex-col justify-between space-y-1">
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="rounded-md border border-[#2D1F1D]/30 bg-[#A7F3D0] px-1.5 py-0.2 text-[0.6rem] font-black text-[#065F46]">
+                                    Atelier Spotlight
+                                  </span>
+                                  {item.year && <span className="text-[0.6rem] font-bold text-[#6B5550]">🗓️ {item.year}</span>}
+                                </div>
+                                <h4
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="mt-0.5 font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors line-clamp-1"
+                                >
+                                  {item.title}
+                                </h4>
+                                <p className="mt-0.5 text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-2">
+                                  {item.description}
+                                </p>
                               </div>
-                            )}
-                          </div>
-                        </div>
 
-                        {/* Card Body Section */}
-                        <div className="flex-1 flex flex-col justify-between p-3.5 sm:p-4 pt-3 space-y-2">
-                          <div className="space-y-1.5">
+                              {item.highlights && item.highlights.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-0.5">
+                                  {item.highlights.slice(0, 2).map((h) => (
+                                    <span
+                                      key={h}
+                                      className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-1.5 py-0.5 text-[0.6rem] font-bold text-[#2D1F1D]"
+                                    >
+                                      <Sparkles className="size-2 text-[#FF7D6B]" />
+                                      <span>{h}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="text-xs font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer min-h-[34px] flex items-center touch-manipulation"
+                                >
+                                  Inspect Lightbox 🔍
+                                </button>
+                                <a
+                                  href="#contact"
+                                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] min-h-[34px] touch-manipulation"
+                                >
+                                  <span>Inquire</span>
+                                  <ArrowRight className="size-3" />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ========================================================= */}
+                        {/* 3. TALL PORTRAIT & COMPACT TILES (1-Column Craft Cards)   */}
+                        {/* ========================================================= */}
+                        {(variant === 'tall-portrait' || variant === 'compact') && (
+                          <div className="flex flex-col h-full justify-between p-3 sm:p-4 bg-white">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
-                              className="flex items-start justify-between gap-2 cursor-pointer group/title"
+                              className="relative aspect-[16/10] sm:aspect-[4/3] max-h-[140px] sm:max-h-[170px] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
                             >
-                              <h3 className="font-sans text-base sm:text-[1.05rem] font-black text-[#2D1F1D] leading-snug transition-colors group-hover/title:text-[#FF7D6B] line-clamp-1">
-                                {item.title}
-                              </h3>
-                              <ArrowUpRight className="size-4 shrink-0 text-[#2D1F1D] transition-transform group-hover/title:translate-x-0.5 group-hover/title:-translate-y-0.5" />
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 300px"
+                                className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute left-2 top-2">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2 py-0.5 text-[0.62rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                  {item.tag}
+                                </span>
+                              </div>
+                              <span className="absolute right-2 top-2 flex size-6.5 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
+                                <Maximize2 className="size-3" />
+                              </span>
                             </div>
 
-                            <p className="text-xs sm:text-[0.82rem] font-medium leading-relaxed text-[#6B5550] line-clamp-2 sm:line-clamp-3">
-                              {item.description}
-                            </p>
-
-                            {/* Highlights Badges */}
-                            {item.highlights && item.highlights.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 pt-1">
-                                {item.highlights.slice(0, 2).map((h) => (
-                                  <span
-                                    key={h}
-                                    className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-1.5 py-0.5 text-[0.62rem] font-bold text-[#2D1F1D]"
-                                  >
-                                    <Sparkles className="size-2.5 text-[#FF7D6B]" />
-                                    <span>{h}</span>
-                                  </span>
-                                ))}
+                            <div className="space-y-1 pt-2 flex-1 flex flex-col justify-between">
+                              <div>
+                                <h4
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors line-clamp-1"
+                                >
+                                  {item.title}
+                                </h4>
+                                <p className="mt-0.5 text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-2">
+                                  {item.description}
+                                </p>
                               </div>
-                            )}
-                          </div>
 
-                          {/* Bottom Action Footer */}
-                          <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#2D1F1D]/12 mt-2">
-                            <button
-                              type="button"
-                              onClick={() => setActiveItemIndex(actualIndex)}
-                              className="cute-btn flex-1 bg-[#FFE68C] px-3 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] cursor-pointer min-h-[38px] flex items-center justify-center touch-manipulation"
-                            >
-                              <span>Inspect Lightbox 🔍</span>
-                            </button>
-                            <a
-                              href="#contact"
-                              className="cute-btn flex-1 bg-white px-3 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer min-h-[38px] flex items-center justify-center touch-manipulation"
-                            >
-                              <span>Order Custom 💌</span>
-                            </a>
+                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10 text-xs">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="text-[0.72rem] font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer min-h-[34px] flex items-center touch-manipulation"
+                                >
+                                  Inspect 🔍
+                                </button>
+                                {item.format ? (
+                                  <span className="text-[0.62rem] font-bold text-[#6B5550] truncate max-w-[110px]">
+                                    {item.format}
+                                  </span>
+                                ) : (
+                                  <span className="text-[0.62rem] font-bold text-[#6B5550]">
+                                    Handmade ✂️
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </Reveal>
