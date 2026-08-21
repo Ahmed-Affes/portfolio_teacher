@@ -225,7 +225,7 @@ export function WorkShowcase() {
             </div>
           </Reveal>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 auto-rows-fr">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 items-start">
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
               const pinColor = PIN_COLORS[i % PIN_COLORS.length]
@@ -237,35 +237,35 @@ export function WorkShowcase() {
               let rotationClass = 'rotate-0 sm:rotate-[-0.3deg]'
 
               if (mod === 0) {
-                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-2'
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2'
                 variant = 'hero-large'
                 rotationClass = 'rotate-0 sm:rotate-[-0.4deg]'
               } else if (mod === 1) {
-                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2'
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1'
                 variant = 'tall-portrait'
                 rotationClass = 'rotate-0 sm:rotate-[0.5deg]'
               } else if (mod === 2 || mod === 3) {
-                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1'
                 variant = 'compact'
                 rotationClass = mod === 2 ? 'rotate-0 sm:rotate-[-0.4deg]' : 'rotate-0 sm:rotate-[0.3deg]'
               } else if (mod === 4) {
-                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-1'
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2'
                 variant = 'wide-horizontal'
                 rotationClass = 'rotate-0 sm:rotate-[-0.2deg]'
               } else if (mod === 5) {
-                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1'
                 variant = 'compact'
                 rotationClass = 'rotate-0 sm:rotate-[0.4deg]'
               } else {
-                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1'
                 variant = 'compact'
                 rotationClass = 'rotate-0 sm:rotate-[-0.5deg]'
               }
 
               return (
                 <div key={item.id} className={cn('relative w-full max-w-full', spanClass)}>
-                  <Reveal delay={(i % 6) * 45} className="h-full">
-                    <div className="group relative w-full h-full pt-3">
+                  <Reveal delay={(i % 6) * 45} className="w-full">
+                    <div className="group relative w-full pt-3">
                       {/* Scrapbook Pushpin / Washi Tape Accent - Piercing directly into the card top edge */}
                       {mod === 0 || mod === 4 ? (
                         <WashiTape
@@ -279,7 +279,7 @@ export function WorkShowcase() {
 
                       <div
                         className={cn(
-                          'relative flex w-full h-full flex-col overflow-hidden rounded-[1.6rem_1.2rem_1.8rem_1.4rem] sm:rounded-[2.2rem_1.4rem_2.4rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_32px_rgba(45,31,29,0.12),4.5px_4.5px_0px_rgba(45,31,29,0.8)]',
+                          'relative flex w-full flex-col overflow-hidden rounded-[1.6rem_1.2rem_1.8rem_1.4rem] sm:rounded-[2.2rem_1.4rem_2.4rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_32px_rgba(45,31,29,0.12),4.5px_4.5px_0px_rgba(45,31,29,0.8)]',
                           rotationClass,
                         )}
                       >
@@ -287,10 +287,10 @@ export function WorkShowcase() {
                         {/* 1. HERO LARGE BENTO TILE (2x2 Expansive Workbench View)   */}
                         {/* ========================================================= */}
                         {variant === 'hero-large' && (
-                          <div className="flex h-full flex-col justify-between p-3.5 sm:p-5 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0]">
+                          <div className="flex flex-col p-3.5 sm:p-5 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0]">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
-                              className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full overflow-hidden rounded-xl sm:rounded-2xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
+                              className="relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden rounded-xl sm:rounded-2xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
                             >
                               <Image
                                 src={item.image || '/placeholder.svg'}
@@ -317,7 +317,7 @@ export function WorkShowcase() {
                               )}
                             </div>
 
-                            <div className="space-y-2 pt-2.5 flex-1 flex flex-col justify-between">
+                            <div className="space-y-2 pt-2.5">
                               <div>
                                 <div
                                   onClick={() => setActiveItemIndex(actualIndex)}
@@ -347,7 +347,7 @@ export function WorkShowcase() {
                                 </div>
                               )}
 
-                              <div className="flex flex-row items-center justify-between gap-2 border-t border-[#2D1F1D]/12 pt-2.5">
+                              <div className="flex flex-row items-center justify-between gap-2 border-t border-[#2D1F1D]/12 pt-2.5 mt-2">
                                 <button
                                   type="button"
                                   onClick={() => setActiveItemIndex(actualIndex)}
@@ -370,10 +370,10 @@ export function WorkShowcase() {
                         {/* 2. TALL PORTRAIT BENTO TILE (1x2 Vertical Poster View)    */}
                         {/* ========================================================= */}
                         {variant === 'tall-portrait' && (
-                          <div className="flex h-full flex-col justify-between p-3.5 sm:p-4 bg-white">
+                          <div className="flex flex-col p-3.5 sm:p-4 bg-white">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
-                              className="relative aspect-[16/10] sm:aspect-[3/4] lg:aspect-[4/5] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
+                              className="relative aspect-[16/10] sm:aspect-[4/3] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
                             >
                               <Image
                                 src={item.image || '/placeholder.svg'}
@@ -392,7 +392,7 @@ export function WorkShowcase() {
                               </span>
                             </div>
 
-                            <div className="space-y-1.5 pt-2 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1.5 pt-2">
                               <div>
                                 <h4
                                   onClick={() => setActiveItemIndex(actualIndex)}
@@ -418,7 +418,7 @@ export function WorkShowcase() {
                                 </div>
                               )}
 
-                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10">
+                              <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#2D1F1D]/10">
                                 <button
                                   type="button"
                                   onClick={() => setActiveItemIndex(actualIndex)}
@@ -440,7 +440,7 @@ export function WorkShowcase() {
                         {/* 3. WIDE HORIZONTAL BENTO TILE (2x1 Panoramic Row View)   */}
                         {/* ========================================================= */}
                         {variant === 'wide-horizontal' && (
-                          <div className="flex h-full flex-col sm:flex-row gap-3 sm:gap-4 p-3.5 sm:p-4 bg-white">
+                          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-3.5 sm:p-4 bg-white">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
                               className="relative aspect-[16/10] sm:aspect-[4/3] sm:w-2/5 shrink-0 overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
@@ -462,7 +462,7 @@ export function WorkShowcase() {
                               </span>
                             </div>
 
-                            <div className="flex-1 flex flex-col justify-between space-y-1.5">
+                            <div className="flex-1 space-y-1.5">
                               <div>
                                 <div className="flex items-center gap-2">
                                   <span className="rounded-md border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.2 text-[0.62rem] font-black text-[#065F46]">
@@ -519,7 +519,7 @@ export function WorkShowcase() {
                         {/* 4. COMPACT BENTO TILE (1x1 Standard Craft Tile)          */}
                         {/* ========================================================= */}
                         {variant === 'compact' && (
-                          <div className="flex h-full flex-col justify-between p-3.5 sm:p-4 bg-white">
+                          <div className="flex flex-col p-3.5 sm:p-4 bg-white">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
                               className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
@@ -541,7 +541,7 @@ export function WorkShowcase() {
                               </span>
                             </div>
 
-                            <div className="space-y-1.5 pt-2 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1.5 pt-2">
                               <div>
                                 <h4
                                   onClick={() => setActiveItemIndex(actualIndex)}
@@ -554,7 +554,7 @@ export function WorkShowcase() {
                                 </p>
                               </div>
 
-                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10 text-xs">
+                              <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#2D1F1D]/10 text-xs">
                                 <button
                                   type="button"
                                   onClick={() => setActiveItemIndex(actualIndex)}

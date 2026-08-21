@@ -933,7 +933,7 @@ export function About() {
                   photoIndex: 0,
                 })
               }
-              className="group/mobphoto relative aspect-[16/10] max-h-[185px] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2px_2px_0px_#2D1F1D] cursor-pointer"
+              className="group/mobphoto relative aspect-[16/9] max-h-[145px] sm:max-h-[155px] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2px_2px_0px_#2D1F1D] cursor-pointer"
             >
               <PushPin color="coral" size={20} className="left-1/2 top-2 z-30" />
 
@@ -955,7 +955,7 @@ export function About() {
           </div>
 
           {/* Story Narrative */}
-          <p className="font-sans text-xs sm:text-[0.82rem] font-medium leading-relaxed text-[#2D1F1D]/90 text-pretty">
+          <p className="font-sans text-xs sm:text-[0.8rem] font-medium leading-snug text-[#2D1F1D]/90 line-clamp-3 sm:line-clamp-4">
             {milestone?.description}
           </p>
 
@@ -1492,13 +1492,13 @@ export function About() {
                   {/* ----------------------------------------------------------------- */}
                   <div
                     style={{ perspective: '1200px' }}
-                    className="block lg:hidden relative rounded-[1.4rem_1.4rem_1.1rem_1.1rem] border border-[#2D1F1D]/30 bg-[#FCF9F2] shadow-[inset_0_0_20px_rgba(180,150,110,0.1),0_8px_20px_rgba(45,31,29,0.1)] overflow-hidden w-full"
+                    className="block lg:hidden relative h-[510px] sm:h-[530px] rounded-[1.4rem_1.4rem_1.1rem_1.1rem] border border-[#2D1F1D]/30 bg-[#FCF9F2] shadow-[inset_0_0_20px_rgba(180,150,110,0.1),0_8px_20px_rgba(45,31,29,0.1)] overflow-hidden w-full"
                   >
                     {/* Top Decorative Washi Tape on mobile */}
                     <div className="absolute -top-2 left-1/2 -translate-x-1/2 h-4 w-20 bg-[#FFC837]/90 border border-[#2D1F1D]/30 rotate-[-1deg] rounded-xs shadow-2xs pointer-events-none z-35" />
 
                     {/* BASE STATIC LAYER (Target page or current spread) */}
-                    <div className="w-full">
+                    <div className="size-full">
                       {renderMobilePageContent(
                         flipState.isFlipping ? toSpread : currentSpread,
                         flipState.isFlipping ? flipState.toIdx : safeIdx,
@@ -1526,7 +1526,7 @@ export function About() {
                             backfaceVisibility: 'hidden',
                             WebkitBackfaceVisibility: 'hidden',
                           }}
-                          className="bg-[#FCF9F2] border-l-2 border-[#2D1F1D]/30 shadow-[-10px_0_25px_rgba(0,0,0,0.22)]"
+                          className="size-full bg-[#FCF9F2] border-l-2 border-[#2D1F1D]/30 shadow-[-10px_0_25px_rgba(0,0,0,0.22)]"
                         >
                           {renderMobilePageContent(fromSpread, flipState.fromIdx, false)}
                           <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/5 to-transparent pointer-events-none" />
@@ -1554,7 +1554,7 @@ export function About() {
                             backfaceVisibility: 'hidden',
                             WebkitBackfaceVisibility: 'hidden',
                           }}
-                          className="bg-[#FCF9F2] border-r-2 border-[#2D1F1D]/30 shadow-[10px_0_25px_rgba(0,0,0,0.22)]"
+                          className="size-full bg-[#FCF9F2] border-r-2 border-[#2D1F1D]/30 shadow-[10px_0_25px_rgba(0,0,0,0.22)]"
                         >
                           {renderMobilePageContent(fromSpread, flipState.fromIdx, false)}
                           <div className="absolute inset-0 bg-gradient-to-l from-black/25 via-black/5 to-transparent pointer-events-none" />
