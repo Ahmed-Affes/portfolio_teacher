@@ -896,7 +896,7 @@ export function About() {
       return (
         <div className="size-full flex flex-col justify-between p-3.5 sm:p-5 bg-[#FCF9F2] select-none text-[#2D1F1D] relative shadow-[inset_0_0_18px_rgba(180,150,110,0.08)]">
           {/* Top Header */}
-          <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2 gap-1.5 flex-wrap">
+          <div className="shrink-0 flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2 gap-1.5 flex-wrap">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="shrink-0 rounded-full border border-[#2D1F1D]/40 bg-[#A7F3D0] px-2.5 py-0.5 text-xs font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
                 {milestone?.badgeEmoji || chapter.icon} {milestone?.categoryLabel || chapter.title}
@@ -912,106 +912,109 @@ export function About() {
             </span>
           </div>
 
-          {/* Organization and Title */}
-          <div className="space-y-0.5 pt-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#55403C]">
-              <MapPin className="size-3.5 text-[#FF7D6B] shrink-0" />
-              <span className="font-bold text-[#2D1F1D] truncate">{milestone?.organization}</span>
+          {/* Middle Scrollable Story Content (Guarantees zero text cutoff) */}
+          <div className="flex-1 overflow-y-auto overscroll-contain min-h-0 py-2 space-y-2.5 pr-0.5">
+            {/* Organization and Title */}
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#55403C]">
+                <MapPin className="size-3.5 text-[#FF7D6B] shrink-0" />
+                <span className="font-bold text-[#2D1F1D] truncate">{milestone?.organization}</span>
+              </div>
+              <h3 className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug">
+                {milestone?.title}
+              </h3>
             </div>
-            <h3 className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug">
-              {milestone?.title}
-            </h3>
-          </div>
 
-          {/* Spotlight Photo with Pushpin */}
-          <div className="relative pt-2 my-1">
-            <div
-              onClick={() =>
-                !flipState.isFlipping &&
-                setLightboxData({
-                  milestone,
-                  photoIndex: 0,
-                })
-              }
-              className="group/mobphoto relative aspect-[16/9] max-h-[145px] sm:max-h-[155px] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2px_2px_0px_#2D1F1D] cursor-pointer"
-            >
-              <PushPin color="coral" size={20} className="left-1/2 top-2 z-30" />
+            {/* Spotlight Photo with Pushpin */}
+            <div className="relative pt-1.5">
+              <div
+                onClick={() =>
+                  !flipState.isFlipping &&
+                  setLightboxData({
+                    milestone,
+                    photoIndex: 0,
+                  })
+                }
+                className="group/mobphoto relative aspect-[16/9] max-h-[140px] sm:max-h-[150px] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2px_2px_0px_#2D1F1D] cursor-pointer"
+              >
+                <PushPin color="coral" size={20} className="left-1/2 top-2 z-30" />
 
-              <div className="relative size-full overflow-hidden rounded-lg bg-[#FAF5EC]">
-                <Image
-                  src={spotlightImg}
-                  alt={milestone?.title || 'Milestone photo'}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 400px"
-                  className="object-cover transition-transform duration-500 group-hover/mobphoto:scale-105"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/mobphoto:opacity-100 transition-opacity">
-                  <span className="flex size-7 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-xs">
-                    <Maximize2 className="size-3.5" />
-                  </span>
+                <div className="relative size-full overflow-hidden rounded-lg bg-[#FAF5EC]">
+                  <Image
+                    src={spotlightImg}
+                    alt={milestone?.title || 'Milestone photo'}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 400px"
+                    className="object-cover transition-transform duration-500 group-hover/mobphoto:scale-105"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/mobphoto:opacity-100 transition-opacity">
+                    <span className="flex size-7 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-xs">
+                      <Maximize2 className="size-3.5" />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Story Narrative */}
-          <p className="font-sans text-xs sm:text-[0.8rem] font-medium leading-snug text-[#2D1F1D]/90 line-clamp-3 sm:line-clamp-4">
-            {milestone?.description}
-          </p>
+            {/* Story Narrative */}
+            <p className="font-sans text-xs sm:text-[0.82rem] font-medium leading-relaxed text-[#2D1F1D]/90 text-pretty">
+              {milestone?.description}
+            </p>
 
-          {/* Highlights */}
-          {milestone?.highlights && milestone.highlights.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {milestone.highlights.map((h, hIdx) => (
-                <span
-                  key={hIdx}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/30 bg-white px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D] shadow-2xs"
-                >
-                  <CheckCircle2 className="size-2.5 text-[#10B981] stroke-[2.5]" />
-                  <span>{h}</span>
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Multi-Photo Snapshots Strip (if multiple photos) */}
-          {photos.length > 1 && (
-            <div className="pt-1.5 border-t border-[#2D1F1D]/12">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[0.68rem] font-black uppercase font-sans text-[#2D1F1D] flex items-center gap-1">
-                  <Sparkles className="size-3 text-[#FF7D6B]" />
-                  <span>Snapshots ({photos.length})</span>
-                </span>
-                <span className="text-[0.62rem] font-bold text-[#6B5550]">Zoom 🔍</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1.5 h-[52px]">
-                {photos.slice(0, 3).map((photoUrl, pIdx) => (
-                  <div
-                    key={pIdx}
-                    onClick={() =>
-                      !flipState.isFlipping &&
-                      setLightboxData({
-                        milestone,
-                        photoIndex: pIdx,
-                      })
-                    }
-                    className="relative h-full rounded-md border border-[#2D1F1D] bg-white p-0.5 shadow-xs cursor-pointer overflow-hidden"
+            {/* Highlights */}
+            {milestone?.highlights && milestone.highlights.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {milestone.highlights.map((h, hIdx) => (
+                  <span
+                    key={hIdx}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/30 bg-white px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D] shadow-2xs"
                   >
-                    <Image
-                      src={photoUrl}
-                      alt={`${milestone?.title} ${pIdx + 1}`}
-                      fill
-                      sizes="100px"
-                      className="object-cover"
-                    />
-                  </div>
+                    <CheckCircle2 className="size-2.5 text-[#10B981] stroke-[2.5]" />
+                    <span>{h}</span>
+                  </span>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Multi-Photo Snapshots Strip (if multiple photos) */}
+            {photos.length > 1 && (
+              <div className="pt-1.5 border-t border-[#2D1F1D]/12">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[0.68rem] font-black uppercase font-sans text-[#2D1F1D] flex items-center gap-1">
+                    <Sparkles className="size-3 text-[#FF7D6B]" />
+                    <span>Snapshots ({photos.length})</span>
+                  </span>
+                  <span className="text-[0.62rem] font-bold text-[#6B5550]">Zoom 🔍</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 h-[50px]">
+                  {photos.slice(0, 3).map((photoUrl, pIdx) => (
+                    <div
+                      key={pIdx}
+                      onClick={() =>
+                        !flipState.isFlipping &&
+                        setLightboxData({
+                          milestone,
+                          photoIndex: pIdx,
+                        })
+                      }
+                      className="relative h-full rounded-md border border-[#2D1F1D] bg-white p-0.5 shadow-xs cursor-pointer overflow-hidden"
+                    >
+                      <Image
+                        src={photoUrl}
+                        alt={`${milestone?.title} ${pIdx + 1}`}
+                        fill
+                        sizes="100px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Prominent Bottom Page Navigation Toolbar */}
-          <div className="flex items-center justify-between gap-2 pt-2 mt-2 border-t border-[#2D1F1D]/15">
+          <div className="shrink-0 flex items-center justify-between gap-2 pt-2 border-t border-[#2D1F1D]/15">
             <button
               type="button"
               disabled={idx === 0 || !isStatic}
@@ -1492,7 +1495,7 @@ export function About() {
                   {/* ----------------------------------------------------------------- */}
                   <div
                     style={{ perspective: '1200px' }}
-                    className="block lg:hidden relative h-[510px] sm:h-[530px] rounded-[1.4rem_1.4rem_1.1rem_1.1rem] border border-[#2D1F1D]/30 bg-[#FCF9F2] shadow-[inset_0_0_20px_rgba(180,150,110,0.1),0_8px_20px_rgba(45,31,29,0.1)] overflow-hidden w-full"
+                    className="block lg:hidden relative h-[540px] sm:h-[560px] rounded-[1.4rem_1.4rem_1.1rem_1.1rem] border border-[#2D1F1D]/30 bg-[#FCF9F2] shadow-[inset_0_0_20px_rgba(180,150,110,0.1),0_8px_20px_rgba(45,31,29,0.1)] overflow-hidden w-full"
                   >
                     {/* Top Decorative Washi Tape on mobile */}
                     <div className="absolute -top-2 left-1/2 -translate-x-1/2 h-4 w-20 bg-[#FFC837]/90 border border-[#2D1F1D]/30 rotate-[-1deg] rounded-xs shadow-2xs pointer-events-none z-35" />
