@@ -95,20 +95,20 @@ export function Hero() {
               </div>
             </Reveal>
 
-            {/* 3D Tactile CTA Buttons */}
-            <Reveal delay={220}>
-              <div className="mt-6 flex flex-wrap items-center gap-3.5 sm:mt-7">
+            {/* 3D Tactile CTA Buttons — Side-by-side on mobile */}
+            <Reveal delay={220} className="w-full sm:w-auto">
+              <div className="mt-5 flex flex-row items-center gap-2.5 sm:gap-3.5 sm:mt-7 w-full sm:w-auto">
                 <a
                   href="#work"
-                  className="cute-btn bg-[#FFC837] px-7 py-3.5 text-sm font-black text-[#2D1F1D] hover:bg-[#FFB800] sm:text-base"
+                  className="cute-btn flex-1 sm:flex-initial bg-[#FFC837] px-3.5 py-3 text-xs sm:px-7 sm:py-3.5 text-center font-black text-[#2D1F1D] hover:bg-[#FFB800] sm:text-base min-h-[44px] touch-manipulation whitespace-nowrap"
                 >
-                  <span>{hero.ctaWorkText || 'Explore My Crafts 🎒'}</span>
-                  <ArrowRight className="size-4.5 stroke-[2.5]" />
+                  <span>{hero.ctaWorkText || 'Explore Crafts 🎒'}</span>
+                  <ArrowRight className="size-4 stroke-[2.5] shrink-0" />
                 </a>
 
                 <a
                   href="#contact"
-                  className="cute-btn bg-white px-6 py-3.5 text-sm font-black text-[#2D1F1D] hover:bg-[#FAF5EC] sm:text-base"
+                  className="cute-btn flex-1 sm:flex-initial bg-white px-3.5 py-3 text-xs sm:px-6 sm:py-3.5 text-center font-black text-[#2D1F1D] hover:bg-[#FAF5EC] sm:text-base min-h-[44px] touch-manipulation whitespace-nowrap"
                 >
                   <span>{hero.ctaContactText || 'Say Hello 🌸'}</span>
                 </a>
@@ -116,20 +116,20 @@ export function Hero() {
             </Reveal>
 
             {/* Quick Stats Flashcards */}
-            <Reveal delay={280}>
-              <dl className="mt-8 grid w-full max-w-xl grid-cols-2 gap-3 pt-6 sm:grid-cols-4">
+            <Reveal delay={280} className="w-full">
+              <dl className="mt-6 grid w-full max-w-xl grid-cols-2 gap-2.5 pt-4 sm:mt-8 sm:grid-cols-4 sm:gap-3 sm:pt-6">
                 {stats.map((s, idx) => {
                   const bgColors = ['bg-[#FFE68C]', 'bg-[#A7F3D0]', 'bg-[#DDD6FE]', 'bg-[#FFB5B5]']
                   return (
                     <div
                       key={s.id || s.label}
-                      className={`flex flex-col items-center justify-center rounded-2xl border-[1.5px] border-[#2D1F1D]/40 p-3 text-center shadow-[0_4px_12px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.5)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(45,31,29,0.08),3px_3px_0px_rgba(45,31,29,0.6)] ${bgColors[idx % bgColors.length]
+                      className={`flex flex-col items-center justify-center rounded-2xl border-[1.5px] border-[#2D1F1D]/40 p-2.5 sm:p-3 text-center shadow-[0_4px_12px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.5)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(45,31,29,0.08),3px_3px_0px_rgba(45,31,29,0.6)] ${bgColors[idx % bgColors.length]
                         }`}
                     >
-                      <dt className="font-sans text-2xl font-black text-[#2D1F1D] sm:text-3xl">
+                      <dt className="font-sans text-xl font-black text-[#2D1F1D] sm:text-3xl">
                         {s.value}
                       </dt>
-                      <dd className="mt-0.5 text-[0.65rem] font-black uppercase tracking-wider text-[#2D1F1D]/80 sm:text-[0.7rem]">
+                      <dd className="mt-0.5 text-[0.62rem] font-black uppercase tracking-wider text-[#2D1F1D]/80 sm:text-[0.7rem]">
                         {s.label}
                       </dd>
                     </div>
@@ -142,8 +142,8 @@ export function Hero() {
           {/* Right Column: Hero Visual with Playful Scrapbook Framing */}
           <Reveal delay={100} direction="left" className="relative mx-auto w-full max-w-md lg:max-w-none">
             <div className="relative">
-              {/* PushPin on hero frame */}
-              <PushPin color="red" className="left-1/2 -top-1" />
+              {/* PushPin piercing into hero frame */}
+              <PushPin color="red" className="left-1/2 top-2 z-30" />
               <WashiTape color="#FF7D6B" className="left-12 -top-4 w-24" pattern="stripes" />
               <WashiTape color="#A7F3D0" className="right-12 -bottom-4 w-24 left-auto rotate-3" pattern="dots" />
 

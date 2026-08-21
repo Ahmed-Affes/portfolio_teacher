@@ -98,39 +98,41 @@ export function ResourceShop() {
           </Reveal>
         </div>
 
-        {/* Category Filter Chips */}
-        <Reveal delay={80}>
-          <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1 sm:flex-wrap">
-            {SHOP_CATEGORIES.map((cat) => {
-              const isSelected = activeCategory === cat.id
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={cn(
-                    'group inline-flex shrink-0 items-center gap-1.5 rounded-2xl border-2 border-[#2D1F1D] px-3.5 py-1.5 text-xs font-black transition-all cursor-pointer',
-                    isSelected
-                      ? 'bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] -translate-y-0.5'
-                      : 'bg-white text-[#6B5550] shadow-xs hover:bg-[#FFE68C]/40 hover:text-[#2D1F1D]',
-                  )}
-                >
-                  <span>{cat.label}</span>
-                </button>
-              )
-            })}
+        {/* Category Filter Chips with Horizontal Scroll Fade */}
+        <Reveal delay={80} className="w-full">
+          <div className="relative -mx-4 sm:mx-0 px-4 sm:px-0">
+            <div className="scroll-fade-r sm:[mask-image:none] scrollbar-hide flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 snap-x snap-mandatory sm:flex-wrap sm:overflow-visible pr-8 sm:pr-0">
+              {SHOP_CATEGORIES.map((cat) => {
+                const isSelected = activeCategory === cat.id
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={cn(
+                      'group inline-flex shrink-0 snap-start items-center gap-1.5 rounded-2xl border-[1.5px] border-[#2D1F1D]/50 px-3.5 py-2 text-xs font-black transition-all cursor-pointer min-h-[44px] touch-manipulation',
+                      isSelected
+                        ? 'bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] -translate-y-0.5'
+                        : 'bg-white text-[#6B5550] shadow-xs hover:bg-[#FFE68C]/40 hover:text-[#2D1F1D]',
+                    )}
+                  >
+                    <span>{cat.label}</span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </Reveal>
 
         {/* The Artisan Market Stall Canopy & Wooden Shelf Frame */}
-        <div className="relative rounded-[2.5rem] border-[1.5px] border-[#3E251E]/40 bg-[#FAF5EC] p-4 shadow-[0_12px_30px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)] sm:p-6 lg:p-8">
+        <div className="relative rounded-[1.6rem] sm:rounded-[2.5rem] border-[1.5px] border-[#3E251E]/40 bg-[#FAF5EC] p-3.5 sm:p-6 lg:p-8 shadow-[0_8px_24px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.55)] sm:shadow-[0_12px_30px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)]">
           {/* Mediterranean Striped Market Awning Header */}
-          <div className="-mx-4 -mt-4 mb-6 sm:-mx-6 sm:-mt-6 sm:mb-8 lg:-mx-8 lg:-mt-8">
+          <div className="-mx-3.5 -mt-3.5 mb-5 sm:-mx-6 sm:-mt-6 sm:mb-8 lg:-mx-8 lg:-mt-8">
             <MarketAwning />
           </div>
 
           {/* Product Cards Display Stand */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {filteredProducts.map((product, i) => {
               const primaryPrice = product.buyPrice ?? product.rentPrice ?? 0
               const priceTagLabel = product.category === 'Digital Download' ? 'DOWNLOAD' : product.options.includes('rent') ? 'BUY / RENT' : 'BUY'
@@ -143,11 +145,11 @@ export function ResourceShop() {
 
                     {/* Product Card Container with organic craft squircle radii & subtle tilt */}
                     <div className={cn(
-                      'relative flex flex-1 flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.2rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)]',
-                      i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]',
+                      'relative flex flex-1 flex-col overflow-hidden rounded-[1.6rem_1.2rem_1.8rem_1.4rem] sm:rounded-[2.4rem_1.4rem_2.2rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)]',
+                      i % 2 === 0 ? 'rotate-0 sm:rotate-[-0.4deg]' : 'rotate-0 sm:rotate-[0.4deg]',
                     )}>
                       {/* Product Image Preview */}
-                      <div className="relative aspect-[4/3.2] w-full overflow-hidden bg-[#FFF9E6] border-b border-[#2D1F1D]/20">
+                      <div className="relative aspect-[4/3] sm:aspect-[4/3.2] w-full overflow-hidden bg-[#FFF9E6] border-b border-[#2D1F1D]/20">
                         <Image
                           src={product.image || '/placeholder.svg'}
                           alt={product.name}
@@ -155,33 +157,32 @@ export function ResourceShop() {
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <span className="absolute left-2.5 top-2.5 rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                        <span className="absolute left-2.5 top-2.5 rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-2.5 py-0.5 text-[0.62rem] sm:text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                           {product.category}
                         </span>
                       </div>
 
-
                       {/* Product Details */}
-                      <div className="flex flex-1 flex-col p-4 bg-white justify-between">
+                      <div className="flex flex-1 flex-col p-3.5 sm:p-4 bg-white justify-between">
                         <div>
-                          <h3 className="font-sans text-sm font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B] sm:text-base">
+                          <h3 className="font-sans text-sm sm:text-base font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B]">
                             {product.name}
                           </h3>
 
-                          <p className="mt-1.5 text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-2">
+                          <p className="mt-1 text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-2">
                             {product.description}
                           </p>
 
                           {/* Highlights */}
                           {product.features && (
-                            <div className="mt-2.5 flex flex-wrap gap-1 border-t border-[#2D1F1D]/10 pt-2">
+                            <div className="mt-2 flex flex-wrap gap-1 border-t border-[#2D1F1D]/10 pt-2">
                               {product.features.slice(0, 2).map((feat) => (
                                 <span
                                   key={feat}
-                                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/40 bg-[#FAF5EC] px-1.5 py-0.5 text-[0.6rem] font-bold text-[#2D1F1D]"
+                                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/30 bg-[#FAF5EC] px-1.5 py-0.5 text-[0.6rem] font-bold text-[#2D1F1D]"
                                 >
                                   <Check className="size-2.5 text-[#10B981] stroke-[3]" />
-                                  {feat}
+                                  <span className="truncate max-w-[150px]">{feat}</span>
                                 </span>
                               ))}
                             </div>
@@ -189,28 +190,28 @@ export function ResourceShop() {
                         </div>
 
                         {/* Pricing Bar & Action Buttons */}
-                        <div className="mt-3 border-t-2 border-[#2D1F1D]/10 pt-3">
+                        <div className="mt-2.5 sm:mt-3 border-t border-[#2D1F1D]/10 pt-2.5 sm:pt-3">
                           <div className="flex items-center justify-between text-xs font-black text-[#2D1F1D]">
                             {product.buyPrice != null && (
                               <div>
-                                <span className="block text-[0.6rem] font-bold uppercase text-[#6B5550]">Buy</span>
-                                <span>{product.buyPrice} DT</span>
+                                <span className="block text-[0.58rem] sm:text-[0.6rem] font-bold uppercase text-[#6B5550]">Buy</span>
+                                <span className="text-xs sm:text-sm font-black">{product.buyPrice} DT</span>
                               </div>
                             )}
                             {product.rentPrice != null && (
                               <div className="text-right">
-                                <span className="block text-[0.6rem] font-bold uppercase text-[#6B5550]">Rent/Day</span>
-                                <span className="text-[#FF7D6B]">{product.rentPrice} DT</span>
+                                <span className="block text-[0.58rem] sm:text-[0.6rem] font-bold uppercase text-[#6B5550]">Rent/Day</span>
+                                <span className="text-xs sm:text-sm font-black text-[#FF7D6B]">{product.rentPrice} DT</span>
                               </div>
                             )}
                           </div>
 
-                          <div className="mt-2.5 flex gap-1.5">
+                          <div className="mt-2 flex gap-1.5">
                             {product.options.includes('buy') && (
                               <button
                                 type="button"
                                 onClick={() => handleAdd(product, 'buy')}
-                                className="cute-btn flex-1 bg-[#FFC837] py-2 text-[0.7rem] font-black text-[#2D1F1D] hover:bg-[#FFB800]"
+                                className="cute-btn flex-1 bg-[#FFC837] py-2 text-[0.7rem] font-black text-[#2D1F1D] hover:bg-[#FFB800] min-h-[38px] touch-manipulation"
                               >
                                 {product.category === 'Digital Download' ? (
                                   <Download className="size-3" />
@@ -224,7 +225,7 @@ export function ResourceShop() {
                               <button
                                 type="button"
                                 onClick={() => handleAdd(product, 'rent')}
-                                className="cute-btn flex-1 bg-[#A7F3D0] py-2 text-[0.7rem] font-black text-[#2D1F1D] hover:bg-[#86EFAC]"
+                                className="cute-btn flex-1 bg-[#A7F3D0] py-2 text-[0.7rem] font-black text-[#2D1F1D] hover:bg-[#86EFAC] min-h-[38px] touch-manipulation"
                               >
                                 <Repeat className="size-3" />
                                 <span>Rent</span>

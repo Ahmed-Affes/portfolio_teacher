@@ -41,9 +41,9 @@ export function Testimonials() {
     'lavender',
   ]
   const swayAnimations = [
-    'animate-clothesline-1',
-    'animate-clothesline-2',
-    'animate-clothesline-3',
+    'lg:animate-clothesline-1',
+    'lg:animate-clothesline-2',
+    'lg:animate-clothesline-3',
   ]
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -104,7 +104,7 @@ export function Testimonials() {
             <button
               type="button"
               onClick={() => setIsReviewModalOpen(true)}
-              className="cute-btn bg-[#FFC837] px-5 py-2.5 text-xs font-black text-[#2D1F1D] hover:bg-[#FFB800] sm:text-sm"
+              className="cute-btn bg-[#FFC837] px-5 py-2.5 text-xs font-black text-[#2D1F1D] hover:bg-[#FFB800] sm:text-sm min-h-[44px] touch-manipulation"
             >
               <MessageSquarePlus className="size-4 stroke-[2.5]" />
               <span>Leave a Review 🌸</span>
@@ -113,11 +113,11 @@ export function Testimonials() {
         </Reveal>
 
         {/* Clothesline Rope with Hanging Cards Grid */}
-        <div className="relative pt-6">
-          {/* Single continuous smooth Clothesline Rope running directly through clothespin notches */}
-          <ClotheslineRope className="top-1 opacity-95" />
+        <div className="relative pt-4 sm:pt-6">
+          {/* Smooth Clothesline Rope running through clothespin notches (hidden on mobile stacked view to prevent broken line) */}
+          <ClotheslineRope className="top-1 opacity-95 hidden lg:block" />
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pt-4">
+          <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 pt-2 sm:pt-4">
             {activeTestimonials.map((t, i) => {
               const hasStars = t.showRating !== false && (t.rating ?? 0) > 0
               const pegColor = pegColors[i % pegColors.length]
@@ -125,54 +125,54 @@ export function Testimonials() {
 
               return (
                 <Reveal key={t.id || i} delay={i * 60}>
-                  {/* Hanging Clothesline Card Container with Physics Sway Animation */}
+                  {/* Hanging Clothesline Card Container with Physics Sway Animation on desktop */}
                   <div
                     className={cn(
-                      'group relative h-full pt-5 transition-all duration-300',
+                      'group relative h-full pt-4 sm:pt-5 transition-all duration-300',
                       swayAnim,
-                      'hover:!transform-none hover:-translate-y-2',
+                      'hover:!transform-none hover:-translate-y-1.5 sm:hover:-translate-y-2',
                     )}
                   >
-                    {/* 3D Handcrafted Wooden Clothespin clamping the card directly onto the rope */}
-                    <WoodenPeg color={pegColor} size={36} className="left-1/2 -top-4.5" />
+                    {/* 3D Handcrafted Wooden Clothespin clamping the card */}
+                    <WoodenPeg color={pegColor} size={30} className="left-1/2 -top-3.5 sm:-top-4.5" />
 
                     <figure
-                      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-[2.4rem_1.6rem_2.2rem_1.8rem] border-[1.5px] border-[#3E251E]/40 p-5 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 group-hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] ${cardBgs[i % cardBgs.length]} sm:p-6`}
+                      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-[1.6rem_1.2rem_1.8rem_1.4rem] sm:rounded-[2.4rem_1.6rem_2.2rem_1.8rem] border-[1.5px] border-[#3E251E]/40 p-4 sm:p-6 shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 group-hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] ${cardBgs[i % cardBgs.length]}`}
                     >
                       {/* Inner dashed craft stitch border */}
-                      <div className="pointer-events-none absolute inset-2 rounded-[2rem_1.2rem_1.8rem_1.4rem] border border-dashed border-[#2D1F1D]/15" />
+                      <div className="pointer-events-none absolute inset-2 rounded-[1.4rem_1rem_1.4rem_1.1rem] sm:rounded-[2rem_1.2rem_1.8rem_1.4rem] border border-dashed border-[#2D1F1D]/15" />
 
                       {/* Top clothesline grip notch line */}
-                      <div className="absolute left-1/2 -translate-x-1/2 top-0 h-1.5 w-12 rounded-b-md bg-[#2D1F1D]/15 z-10" />
+                      <div className="absolute left-1/2 -translate-x-1/2 top-0 h-1.5 w-10 sm:w-12 rounded-b-md bg-[#2D1F1D]/15 z-10" />
 
                       <div>
                         <div className="flex items-center justify-between">
                           {hasStars ? (
-                            <div className="flex gap-1 text-[#FFC837]">
+                            <div className="flex gap-0.5 sm:gap-1 text-[#FFC837]">
                               {Array.from({ length: t.rating || 5 }).map((_, s) => (
-                                <Star key={s} className="size-4.5 fill-[#FFC837] stroke-[#2D1F1D] stroke-[1.5]" />
+                                <Star key={s} className="size-4 sm:size-4.5 fill-[#FFC837] stroke-[#2D1F1D] stroke-[1.5]" />
                               ))}
                             </div>
                           ) : (
-                            <span className="rounded-full border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2.5 py-0.5 text-[0.68rem] font-black uppercase tracking-wider text-[#2D1F1D]">
+                            <span className="rounded-full border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.5 text-[0.62rem] sm:text-[0.68rem] font-black uppercase tracking-wider text-[#2D1F1D]">
                               Verified Review ✨
                             </span>
                           )}
-                          <Quote className="size-6 text-[#FF7D6B] fill-[#FF7D6B]/20" />
+                          <Quote className="size-5 sm:size-6 text-[#FF7D6B] fill-[#FF7D6B]/20" />
                         </div>
 
-                        <blockquote className="mt-4 font-sans text-sm font-bold leading-relaxed text-[#2D1F1D] sm:text-base text-pretty">
+                        <blockquote className="mt-3 sm:mt-4 font-sans text-xs sm:text-base font-bold leading-relaxed text-[#2D1F1D] text-pretty">
                           &ldquo;{t.quote}&rdquo;
                         </blockquote>
                       </div>
 
-                      <figcaption className="mt-6 flex items-center gap-3 border-t border-[#2D1F1D]/10 pt-4">
-                        <div className="flex size-10 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-[#FFE68C] text-xs font-black text-[#2D1F1D] shadow-xs">
+                      <figcaption className="mt-4 sm:mt-6 flex items-center gap-2.5 sm:gap-3 border-t border-[#2D1F1D]/10 pt-3 sm:pt-4">
+                        <div className="flex size-9 sm:size-10 items-center justify-center rounded-xl sm:rounded-2xl border border-[#2D1F1D]/30 bg-[#FFE68C] text-xs font-black text-[#2D1F1D] shadow-xs">
                           {t.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-sans text-sm font-black text-[#2D1F1D]">{t.name}</p>
-                          <p className="text-xs font-bold text-[#6B5550]">{t.role}</p>
+                          <p className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D]">{t.name}</p>
+                          <p className="text-[0.65rem] sm:text-xs font-bold text-[#6B5550]">{t.role}</p>
                         </div>
                       </figcaption>
                     </figure>

@@ -149,70 +149,70 @@ export function Contact() {
 
         {/* Quick Contact Action Cards with organic craft radii & dashed stitch framing */}
         <Reveal delay={40}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3.5 sm:gap-4 sm:grid-cols-3">
             {/* 1. Email Card */}
-            <div className="group relative">
-              <PushPin color="red" className="left-1/2 -top-1" />
+            <div className="group relative pt-3">
+              <PushPin color="red" size={22} className="left-1/2 top-3 z-30" />
               <a
                 href={`mailto:${contact.email}`}
-                className="relative flex items-center justify-between rounded-[2rem_1.4rem_2.2rem_1.4rem] border-[1.5px] border-[#3E251E]/40 bg-[#FFE68C] p-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] rotate-[-0.6deg]"
+                className="relative flex items-center justify-between rounded-[1.6rem_1.2rem_1.8rem_1.2rem] sm:rounded-[2rem_1.4rem_2.2rem_1.4rem] border-[1.5px] border-[#3E251E]/40 bg-[#FFE68C] p-3.5 sm:p-4 shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] rotate-0 sm:rotate-[-0.6deg] touch-manipulation"
               >
                 {/* Inner Dashed Stitch Border */}
-                <div className="pointer-events-none absolute inset-1.5 rounded-[1.6rem_1rem_1.8rem_1rem] border border-dashed border-[#2D1F1D]/20" />
+                <div className="pointer-events-none absolute inset-1.5 rounded-[1.3rem_0.9rem_1.5rem_0.9rem] sm:rounded-[1.6rem_1rem_1.8rem_1rem] border border-dashed border-[#2D1F1D]/20" />
 
-                <div className="relative flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
-                    <Mail className="size-5 text-[#FF7D6B]" />
+                <div className="relative flex items-center gap-2.5 sm:gap-3">
+                  <span className="flex size-9 sm:size-10 items-center justify-center rounded-xl sm:rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
+                    <Mail className="size-4.5 sm:size-5 text-[#FF7D6B]" />
                   </span>
-                  <div>
-                    <p className="text-[0.68rem] font-black uppercase tracking-wider text-[#6B5550]">Email Farah</p>
-                    <p className="text-xs font-black text-[#2D1F1D] sm:text-sm">{contact.email}</p>
+                  <div className="min-w-0">
+                    <p className="text-[0.62rem] sm:text-[0.68rem] font-black uppercase tracking-wider text-[#6B5550]">Email Farah</p>
+                    <p className="text-xs font-black text-[#2D1F1D] sm:text-sm truncate">{contact.email}</p>
                   </div>
                 </div>
-                <ArrowRight className="size-4 stroke-[2.5] text-[#2D1F1D]" />
+                <ArrowRight className="size-4 stroke-[2.5] text-[#2D1F1D] shrink-0" />
               </a>
             </div>
 
             {/* 2. WhatsApp Card */}
             {(contact.whatsapp || contact.whatsappRaw) && (
-              <div className="group relative">
-                <PushPin color="mint" className="left-1/2 -top-1" />
+              <div className="group relative pt-3">
+                <PushPin color="mint" size={22} className="left-1/2 top-3 z-30" />
                 <a
                   href={`https://wa.me/${(contact.whatsappRaw || contact.whatsapp).replace(/[^0-9]/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative flex items-center justify-between rounded-[1.6rem_2.2rem_1.5rem_2.4rem] border-[1.5px] border-[#3E251E]/40 bg-[#A7F3D0] p-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] rotate-[0.6deg]"
+                  className="relative flex items-center justify-between rounded-[1.4rem_1.8rem_1.3rem_1.8rem] sm:rounded-[1.6rem_2.2rem_1.5rem_2.4rem] border-[1.5px] border-[#3E251E]/40 bg-[#A7F3D0] p-3.5 sm:p-4 shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] rotate-0 sm:rotate-[0.6deg] touch-manipulation"
                 >
                   {/* Inner Dashed Stitch Border */}
-                  <div className="pointer-events-none absolute inset-1.5 rounded-[1.2rem_1.8rem_1.1rem_2rem] border border-dashed border-[#2D1F1D]/20" />
+                  <div className="pointer-events-none absolute inset-1.5 rounded-[1.1rem_1.5rem_1rem_1.5rem] sm:rounded-[1.2rem_1.8rem_1.1rem_2rem] border border-dashed border-[#2D1F1D]/20" />
 
-                  <div className="relative flex items-center gap-3">
-                    <span className="flex size-10 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
-                      <MessageCircle className="size-5 text-[#10B981]" />
+                  <div className="relative flex items-center gap-2.5 sm:gap-3">
+                    <span className="flex size-9 sm:size-10 items-center justify-center rounded-xl sm:rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
+                      <MessageCircle className="size-4.5 sm:size-5 text-[#10B981]" />
                     </span>
-                    <div>
-                      <p className="text-[0.68rem] font-black uppercase tracking-wider text-[#6B5550]">WhatsApp Direct</p>
-                      <p className="text-xs font-black text-[#2D1F1D] sm:text-sm">{contact.whatsapp}</p>
+                    <div className="min-w-0">
+                      <p className="text-[0.62rem] sm:text-[0.68rem] font-black uppercase tracking-wider text-[#6B5550]">WhatsApp Direct</p>
+                      <p className="text-xs font-black text-[#2D1F1D] sm:text-sm truncate">{contact.whatsapp}</p>
                     </div>
                   </div>
-                  <ArrowRight className="size-4 stroke-[2.5] text-[#2D1F1D]" />
+                  <ArrowRight className="size-4 stroke-[2.5] text-[#2D1F1D] shrink-0" />
                 </a>
               </div>
             )}
 
             {/* 3. Studio Card */}
-            <div className="group relative">
-              <PushPin color="purple" className="left-1/2 -top-1" />
-              <div className="relative flex items-center gap-3 rounded-[2.2rem_1.5rem_2rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-[#DDD6FE] p-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] rotate-[-0.4deg]">
+            <div className="group relative pt-3">
+              <PushPin color="purple" size={22} className="left-1/2 top-3 z-30" />
+              <div className="relative flex items-center gap-2.5 sm:gap-3 rounded-[1.8rem_1.3rem_1.6rem_1.4rem] sm:rounded-[2.2rem_1.5rem_2rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-[#DDD6FE] p-3.5 sm:p-4 shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] rotate-0 sm:rotate-[-0.4deg]">
                 {/* Inner Dashed Stitch Border */}
-                <div className="pointer-events-none absolute inset-1.5 rounded-[1.8rem_1.1rem_1.6rem_1.4rem] border border-dashed border-[#2D1F1D]/20" />
+                <div className="pointer-events-none absolute inset-1.5 rounded-[1.5rem_1rem_1.3rem_1.1rem] sm:rounded-[1.8rem_1.1rem_1.6rem_1.4rem] border border-dashed border-[#2D1F1D]/20" />
 
-                <span className="relative flex size-10 shrink-0 items-center justify-center rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
-                  <MapPin className="size-5 text-[#8B5CF6]" />
+                <span className="relative flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl border border-[#2D1F1D]/30 bg-white text-[#2D1F1D] shadow-xs">
+                  <MapPin className="size-4.5 sm:size-5 text-[#8B5CF6]" />
                 </span>
-                <div className="relative">
-                  <p className="text-[0.68rem] font-black uppercase tracking-wider text-[#6B5550]">Teaching Studio</p>
-                  <p className="text-xs font-black text-[#2D1F1D] sm:text-sm">{contact.location}</p>
+                <div className="relative min-w-0">
+                  <p className="text-[0.62rem] sm:text-[0.68rem] font-black uppercase tracking-wider text-[#6B5550]">Teaching Studio</p>
+                  <p className="text-xs font-black text-[#2D1F1D] sm:text-sm truncate">{contact.location}</p>
                 </div>
               </div>
             </div>
@@ -221,14 +221,14 @@ export function Contact() {
 
         {/* Master Contact Envelope Box with organic craft shape */}
         <Reveal delay={80}>
-          <div className="group relative">
-            {/* 3D PushPin on unclipped outer wrapper */}
-            <PushPin color="coral" className="left-1/2 -top-1" />
+          <div className="group relative pt-3">
+            {/* 3D PushPin piercing into envelope card */}
+            <PushPin color="coral" size={22} className="left-1/2 top-3 z-30" />
 
-            <div className="relative overflow-hidden rounded-[2.8rem_1.8rem_2.6rem_2rem] border-[1.5px] border-[#3E251E]/40 bg-[#FAF5EC] shadow-[0_14px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)]">
+            <div className="relative overflow-hidden rounded-[1.6rem_1.3rem_1.8rem_1.4rem] sm:rounded-[2.8rem_1.8rem_2.6rem_2rem] border-[1.5px] border-[#3E251E]/40 bg-[#FAF5EC] shadow-[0_10px_28px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_14px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)]">
               <div className="grid lg:grid-cols-5">
                 {/* Info panel */}
-                <div className="relative flex flex-col justify-between gap-5 p-5 sm:p-6 bg-[#FFE68C] border-b lg:border-b-0 lg:border-r border-[#2D1F1D]/20 lg:col-span-2">
+                <div className="relative flex flex-col justify-between gap-4 sm:gap-5 p-4 sm:p-6 bg-[#FFE68C] border-b lg:border-b-0 lg:border-r border-[#2D1F1D]/20 lg:col-span-2">
 
                   <div>
                     <div className="flex items-center gap-2">

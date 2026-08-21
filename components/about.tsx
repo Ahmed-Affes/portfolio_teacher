@@ -153,21 +153,21 @@ function BookBrassCorner({
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }) {
   const positionClasses = {
-    'top-left': '-top-1.5 -left-1.5 rounded-tl-xl border-t-2 border-l-2',
-    'top-right': '-top-1.5 -right-1.5 rounded-tr-xl border-t-2 border-r-2',
-    'bottom-left': '-bottom-1.5 -left-1.5 rounded-bl-xl border-b-2 border-l-2',
-    'bottom-right': '-bottom-1.5 -right-1.5 rounded-br-xl border-b-2 border-r-2',
+    'top-left': '-top-1 -left-1 sm:-top-1.5 sm:-left-1.5 rounded-tl-lg sm:rounded-tl-xl border-t-2 border-l-2',
+    'top-right': '-top-1 -right-1 sm:-top-1.5 sm:-right-1.5 rounded-tr-lg sm:rounded-tr-xl border-t-2 border-r-2',
+    'bottom-left': '-bottom-1 -left-1 sm:-bottom-1.5 sm:-left-1.5 rounded-bl-lg sm:rounded-bl-xl border-b-2 border-l-2',
+    'bottom-right': '-bottom-1 -right-1 sm:-bottom-1.5 sm:-right-1.5 rounded-br-lg sm:rounded-br-xl border-b-2 border-r-2',
   }[position]
 
   return (
     <div
       className={cn(
-        'absolute size-8 z-45 pointer-events-none border-[#785116] bg-gradient-to-br from-[#FFE898] via-[#D4AF37] to-[#8C6D23] shadow-[1.5px_1.5px_3px_rgba(0,0,0,0.4)] flex items-center justify-center',
+        'absolute size-6 sm:size-8 z-30 pointer-events-none border-[#785116] bg-gradient-to-br from-[#FFE898] via-[#D4AF37] to-[#8C6D23] shadow-[1px_1px_2px_rgba(0,0,0,0.35)] flex items-center justify-center',
         positionClasses,
       )}
     >
       {/* Ornate corner rivet */}
-      <span className="size-1.5 rounded-full bg-[#523A12] border border-[#FFE898]/70 shadow-inner" />
+      <span className="size-1 sm:size-1.5 rounded-full bg-[#523A12] border border-[#FFE898]/70 shadow-inner" />
     </div>
   )
 }
@@ -444,14 +444,14 @@ export function About() {
               disabled={idx === 0 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx - 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2.5 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1.5 rounded-xl border-[1.5px] border-[#2D1F1D] px-3 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none min-h-[36px]',
                 idx > 0 && isStatic
-                  ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:-translate-x-0.5 hover:bg-[#FFD952]'
+                  ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:-translate-x-0.5 hover:bg-[#FFD952]'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
               <ChevronLeft className="size-3.5 stroke-[2.5]" />
-              <span>‹ Previous</span>
+              <span>‹ Previous Page</span>
             </button>
 
             <span className="text-[0.68rem] font-bold text-[#6B5550] font-sans">
@@ -724,13 +724,14 @@ export function About() {
               disabled={idx === totalSpreads - 1 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1.5 rounded-xl border-[1.5px] border-[#2D1F1D] px-3.5 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none min-h-[36px]',
                 idx < totalSpreads - 1 && isStatic
-                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:translate-x-0.5 hover:bg-[#6EE7B7]'
+                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:translate-x-0.5 hover:bg-[#6EE7B7]'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
-              <span>Next ➔</span>
+              <span>Next Page ➔</span>
+              <ChevronRight className="size-3.5 stroke-[2.5]" />
             </button>
           </div>
         </div>
@@ -803,13 +804,14 @@ export function About() {
               disabled={idx === totalSpreads - 1 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1.5 rounded-xl border-[1.5px] border-[#2D1F1D] px-3.5 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none min-h-[36px]',
                 idx < totalSpreads - 1 && isStatic
-                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:translate-x-0.5'
+                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:translate-x-0.5 hover:bg-[#6EE7B7]'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
-              <span>Next ➔</span>
+              <span>Next Page ➔</span>
+              <ChevronRight className="size-3.5 stroke-[2.5]" />
             </button>
           </div>
         </div>
@@ -875,6 +877,284 @@ export function About() {
     )
   }
 
+  // =========================================================================
+  // RENDER MOBILE SINGLE PAGE (Milestone story, Chapter Transition, or Finale)
+  // =========================================================================
+  const renderMobilePageContent = (
+    spread: BookSpread,
+    idx: number,
+    isStatic = false,
+  ) => {
+    if (spread.type === 'milestone') {
+      const { milestone, chapter } = spread
+      const photos =
+        milestone?.images && milestone.images.length > 0
+          ? milestone.images
+          : [milestone?.image || '/images/farah-portrait.png']
+      const spotlightImg = photos[0]
+
+      return (
+        <div className="size-full flex flex-col justify-between p-3.5 sm:p-5 bg-[#FCF9F2] select-none text-[#2D1F1D] relative shadow-[inset_0_0_18px_rgba(180,150,110,0.08)]">
+          {/* Top Header */}
+          <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2 gap-1.5 flex-wrap">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="shrink-0 rounded-full border border-[#2D1F1D]/40 bg-[#A7F3D0] px-2.5 py-0.5 text-xs font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
+                {milestone?.badgeEmoji || chapter.icon} {milestone?.categoryLabel || chapter.title}
+              </span>
+              {milestone?.period && (
+                <span className="shrink-0 rounded-md border border-[#2D1F1D]/25 bg-white px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]">
+                  🗓️ {milestone.period}
+                </span>
+              )}
+            </div>
+            <span className="shrink-0 text-[0.65rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5 font-sans">
+              Page {idx + 1} of {totalSpreads}
+            </span>
+          </div>
+
+          {/* Organization and Title */}
+          <div className="space-y-0.5 pt-2">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#55403C]">
+              <MapPin className="size-3.5 text-[#FF7D6B] shrink-0" />
+              <span className="font-bold text-[#2D1F1D] truncate">{milestone?.organization}</span>
+            </div>
+            <h3 className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug">
+              {milestone?.title}
+            </h3>
+          </div>
+
+          {/* Spotlight Photo with Pushpin */}
+          <div className="relative pt-2 my-1">
+            <div
+              onClick={() =>
+                !flipState.isFlipping &&
+                setLightboxData({
+                  milestone,
+                  photoIndex: 0,
+                })
+              }
+              className="group/mobphoto relative aspect-[16/10] max-h-[185px] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2px_2px_0px_#2D1F1D] cursor-pointer"
+            >
+              <PushPin color="coral" size={20} className="left-1/2 top-2 z-30" />
+
+              <div className="relative size-full overflow-hidden rounded-lg bg-[#FAF5EC]">
+                <Image
+                  src={spotlightImg}
+                  alt={milestone?.title || 'Milestone photo'}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                  className="object-cover transition-transform duration-500 group-hover/mobphoto:scale-105"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/mobphoto:opacity-100 transition-opacity">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-xs">
+                    <Maximize2 className="size-3.5" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Story Narrative */}
+          <p className="font-sans text-xs sm:text-[0.82rem] font-medium leading-relaxed text-[#2D1F1D]/90 text-pretty">
+            {milestone?.description}
+          </p>
+
+          {/* Highlights */}
+          {milestone?.highlights && milestone.highlights.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {milestone.highlights.map((h, hIdx) => (
+                <span
+                  key={hIdx}
+                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/30 bg-white px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D] shadow-2xs"
+                >
+                  <CheckCircle2 className="size-2.5 text-[#10B981] stroke-[2.5]" />
+                  <span>{h}</span>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Multi-Photo Snapshots Strip (if multiple photos) */}
+          {photos.length > 1 && (
+            <div className="pt-1.5 border-t border-[#2D1F1D]/12">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[0.68rem] font-black uppercase font-sans text-[#2D1F1D] flex items-center gap-1">
+                  <Sparkles className="size-3 text-[#FF7D6B]" />
+                  <span>Snapshots ({photos.length})</span>
+                </span>
+                <span className="text-[0.62rem] font-bold text-[#6B5550]">Zoom 🔍</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 h-[52px]">
+                {photos.slice(0, 3).map((photoUrl, pIdx) => (
+                  <div
+                    key={pIdx}
+                    onClick={() =>
+                      !flipState.isFlipping &&
+                      setLightboxData({
+                        milestone,
+                        photoIndex: pIdx,
+                      })
+                    }
+                    className="relative h-full rounded-md border border-[#2D1F1D] bg-white p-0.5 shadow-xs cursor-pointer overflow-hidden"
+                  >
+                    <Image
+                      src={photoUrl}
+                      alt={`${milestone?.title} ${pIdx + 1}`}
+                      fill
+                      sizes="100px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Prominent Bottom Page Navigation Toolbar */}
+          <div className="flex items-center justify-between gap-2 pt-2 mt-2 border-t border-[#2D1F1D]/15">
+            <button
+              type="button"
+              disabled={idx === 0 || !isStatic}
+              onClick={() => isStatic && turnToSpread(idx - 1)}
+              className={cn(
+                'flex items-center gap-1 rounded-xl border-[1.5px] border-[#2D1F1D] px-3 py-2 text-xs font-black transition-all cursor-pointer min-h-[42px] shrink-0 touch-manipulation',
+                idx > 0 && isStatic
+                  ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFD952]'
+                  : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
+              )}
+            >
+              <ChevronLeft className="size-4 stroke-[2.5]" />
+              <span>Prev</span>
+            </button>
+
+            {/* Compact Page Counter */}
+            <div className="flex items-center gap-1 rounded-lg border border-[#2D1F1D]/25 bg-[#FAF5EC] px-2.5 py-1 text-xs font-black text-[#2D1F1D]">
+              <span>{idx + 1}</span>
+              <span className="text-[#6B5550] font-bold">/</span>
+              <span className="text-[#6B5550] font-bold">{totalSpreads}</span>
+            </div>
+
+            <button
+              type="button"
+              disabled={idx === totalSpreads - 1 || !isStatic}
+              onClick={() => isStatic && turnToSpread(idx + 1)}
+              className={cn(
+                'flex items-center gap-1.5 rounded-xl border-[1.5px] border-[#2D1F1D] px-3.5 py-2 text-xs font-black transition-all cursor-pointer min-h-[42px] shrink-0 touch-manipulation',
+                idx < totalSpreads - 1 && isStatic
+                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#6EE7B7]'
+                  : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
+              )}
+            >
+              <span>Next Page</span>
+              <ChevronRight className="size-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    if (spread.type === 'chapter-transition') {
+      const { completedChapter, nextChapter } = spread
+      return (
+        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none text-[#2D1F1D] relative shadow-[inset_0_0_18px_rgba(180,150,110,0.08)]">
+          <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2">
+            <span className="rounded-full bg-[#A7F3D0] border border-[#2D1F1D]/40 px-2.5 py-0.5 text-xs font-black text-[#065F46]">
+              ✨ Chapter {completedChapter.chapterNum} Complete
+            </span>
+            <span className="text-xs font-bold text-[#6B5550]">
+              Page {idx + 1} of {totalSpreads}
+            </span>
+          </div>
+
+          <div className="my-auto space-y-3 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-[#FFF8E7] p-4 text-center shadow-[2px_2px_0px_#2D1F1D]">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#2D1F1D] bg-[#FFE68C] text-2xl shadow-xs">
+              {nextChapter.icon}
+            </div>
+            <div>
+              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-[#6B5550]">Up Next</span>
+              <h4 className="font-sans text-base font-black text-[#2D1F1D]">
+                Chapter {nextChapter.chapterNum}: {nextChapter.title}
+              </h4>
+              <p className="mt-1 text-xs text-[#6B5550]">
+                {nextChapter.teaser}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/15">
+            <button
+              type="button"
+              disabled={idx === 0 || !isStatic}
+              onClick={() => isStatic && turnToSpread(idx - 1)}
+              className="rounded-xl border-[1.5px] border-[#2D1F1D] bg-[#FFE68C] px-3 py-2 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] cursor-pointer min-h-[44px] touch-manipulation"
+            >
+              ◀ Prev
+            </button>
+            <button
+              type="button"
+              disabled={idx === totalSpreads - 1 || !isStatic}
+              onClick={() => isStatic && turnToSpread(idx + 1)}
+              className="rounded-xl border-[1.5px] border-[#2D1F1D] bg-[#A7F3D0] px-4 py-2 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] cursor-pointer hover:bg-[#6EE7B7] min-h-[44px] touch-manipulation"
+            >
+              <span>Open Chapter {nextChapter.chapterNum} ➔</span>
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    // Finale
+    return (
+      <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none text-[#2D1F1D] relative shadow-[inset_0_0_18px_rgba(180,150,110,0.08)]">
+        <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2">
+          <span className="rounded-full bg-[#FFE68C] border border-[#2D1F1D]/40 px-2.5 py-0.5 text-xs font-black text-[#2D1F1D]">
+            🌟 Storybook Finale
+          </span>
+          <span className="text-xs font-bold text-[#6B5550]">
+            Page {idx + 1} of {totalSpreads}
+          </span>
+        </div>
+
+        <div className="my-auto space-y-2.5 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-[#FFF8E7] p-4 text-center shadow-[2px_2px_0px_#2D1F1D]">
+          <PartyPopper className="mx-auto size-8 text-[#FF7D6B]" />
+          <h4 className="font-sans text-base font-black text-[#2D1F1D]">
+            Full Journey Story Completed!
+          </h4>
+          <p className="text-xs text-[#6B5550]">
+            Ready to bring interactive props, storytelling &amp; workshops to your learners?
+          </p>
+          <div className="space-y-2 pt-1">
+            <a
+              href="#contact"
+              className="block w-full rounded-xl border-[1.5px] border-[#2D1F1D] bg-[#FF7D6B] py-2.5 text-xs font-black text-white shadow-[2px_2px_0px_#2D1F1D] min-h-[44px] flex items-center justify-center touch-manipulation"
+            >
+              Book a Workshop / Commission 🌸
+            </a>
+            <a
+              href="#shop"
+              className="block w-full rounded-xl border-[1.5px] border-[#2D1F1D] bg-white py-2.5 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] min-h-[44px] flex items-center justify-center touch-manipulation"
+            >
+              Explore Props Atelier ✂️
+            </a>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/15">
+          <button
+            type="button"
+            onClick={() => turnToSpread(0)}
+            className="rounded-xl border-[1.5px] border-[#2D1F1D] bg-[#FFE68C] px-3.5 py-2 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] cursor-pointer min-h-[44px] touch-manipulation"
+          >
+            ↺ Read From Start
+          </button>
+          <span className="text-xs font-bold text-[#6B5550]">
+            End of Storybook 🌸
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <section
       id="about"
@@ -916,19 +1196,19 @@ export function About() {
         {/* ========================================================================= */}
         {/* 2-COLUMN LAYOUT: LEFT (PORTRAIT + MANIFESTO) | RIGHT (REAL PHYSICAL BOOK) */}
         {/* ========================================================================= */}
-        <div className="grid items-start gap-6 lg:grid-cols-[290px_1fr] xl:grid-cols-[320px_1fr] lg:gap-8">
+        <div className="grid items-start gap-6 lg:grid-cols-[290px_1fr] xl:grid-cols-[320px_1fr] lg:gap-8 w-full max-w-full">
           {/* ========================================================================= */}
           {/* LEFT COLUMN: Clean Polaroid Portrait & Teacher Manifesto (OUTSIDE BOOK)   */}
           {/* ========================================================================= */}
-          <div className="flex flex-col gap-3.5">
+          <div className="flex flex-col gap-3.5 w-full max-w-full">
             {/* 1. Scrapbook Polaroid Portrait */}
-            <Reveal direction="right">
-              <div className="group relative mx-auto w-full max-w-sm lg:max-w-none">
-                {/* 3D Pushpin and Washi Tape */}
-                <PushPin color="red" size={30} className="left-1/2 -top-1" />
-                <WashiTape color="#FFC837" className="left-8 -top-3 w-22" pattern="stripes" />
+            <Reveal direction="up" className="w-full">
+              <div className="group relative mx-auto w-full max-w-sm lg:max-w-none pt-3">
+                {/* 3D Pushpin firmly pinned into portrait */}
+                <PushPin color="red" size={26} className="left-1/2 top-3 z-30" />
+                <WashiTape color="#FFC837" className="left-6 top-0.5 w-20 sm:w-22 z-30" pattern="stripes" />
 
-                <div className="relative aspect-[4/3.2] max-h-[260px] w-full overflow-hidden rounded-[2.2rem_1.4rem_2.2rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_10px_25px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-transform duration-300 hover:rotate-1 rotate-[-0.6deg]">
+                <div className="relative aspect-[4/3.2] max-h-[260px] w-full overflow-hidden rounded-[1.8rem_1.2rem_1.8rem_1.4rem] sm:rounded-[2.2rem_1.4rem_2.2rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_10px_25px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-transform duration-300 hover:rotate-1 rotate-0 sm:rotate-[-0.6deg]">
                   <Image
                     src={about.portraitImage || '/images/farah-portrait.png'}
                     alt="Portrait of Farah Affes holding an educational prop in Sfax"
@@ -939,19 +1219,19 @@ export function About() {
                   />
 
                   {/* Floating educator pill */}
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between rounded-xl border border-[#2D1F1D]/40 bg-white/95 p-2 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)] backdrop-blur-md">
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-6.5 items-center justify-center rounded-lg border border-[#2D1F1D]/30 bg-[#FFE68C] text-[#2D1F1D]">
+                  <div className="absolute bottom-2 left-2 right-2 sm:bottom-2.5 sm:left-2.5 sm:right-2.5 flex items-center justify-between rounded-xl border border-[#2D1F1D]/40 bg-white/95 p-2 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)] backdrop-blur-md">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                      <div className="flex size-6 sm:size-6.5 shrink-0 items-center justify-center rounded-lg border border-[#2D1F1D]/30 bg-[#FFE68C] text-[#2D1F1D]">
                         <GraduationCap className="size-3.5" />
                       </div>
-                      <div>
-                        <p className="text-xs font-black text-[#2D1F1D]">Farah Affes</p>
-                        <p className="text-[0.6rem] font-bold text-[#6B5550]">
+                      <div className="min-w-0">
+                        <p className="text-xs font-black text-[#2D1F1D] truncate">Farah Affes</p>
+                        <p className="text-[0.58rem] sm:text-[0.6rem] font-bold text-[#6B5550] truncate">
                           English Linguistics &amp; Atelier Teacher
                         </p>
                       </div>
                     </div>
-                    <span className="rounded-full border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.5 text-[0.58rem] font-black text-[#2D1F1D]">
+                    <span className="rounded-full border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.5 text-[0.58rem] font-black text-[#2D1F1D] shrink-0 ml-1">
                       Sfax, TN 🌸
                     </span>
                   </div>
@@ -960,11 +1240,12 @@ export function About() {
             </Reveal>
 
             {/* 2. Teacher Manifesto Sticky Note */}
-            <Reveal delay={90} direction="right">
-              <div className="group relative">
-                <PushPin color="purple" size={26} className="right-8 -top-1" />
+            <Reveal delay={90} direction="up" className="w-full">
+              <div className="group relative mx-auto w-full max-w-sm lg:max-w-none pt-3">
+                {/* 3D PushPin piercing into Manifesto note */}
+                <PushPin color="purple" size={24} className="right-6 top-3 z-30" />
 
-                <div className="relative overflow-hidden rounded-[1.6rem_2.2rem_1.4rem_2rem] border-[1.5px] border-[#3E251E]/40 bg-[#FFE68C] p-3.5 sm:p-4 text-[#2D1F1D] shadow-[0_10px_25px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] rotate-[0.6deg]">
+                <div className="relative overflow-hidden rounded-[1.4rem_1.8rem_1.2rem_1.6rem] sm:rounded-[1.6rem_2.2rem_1.4rem_2rem] border-[1.5px] border-[#3E251E]/40 bg-[#FFE68C] p-3.5 sm:p-4 text-[#2D1F1D] shadow-[0_10px_25px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] rotate-0 sm:rotate-[0.6deg]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-[#2D1F1D]">
                       <Sparkles className="size-3.5 fill-[#FF7D6B] text-[#2D1F1D]" />
@@ -1019,10 +1300,10 @@ export function About() {
           {/* ========================================================================= */}
           {/* RIGHT COLUMN: REALISTIC PHYSICAL HARDCOVER BOOK WITH STACKED PAGES & TABS */}
           {/* ========================================================================= */}
-          <div className="relative lg:pr-28 xl:pr-32">
-            <Reveal delay={80}>
-              {/* MOBILE / TABLET TOP CHAPTER TABS (lg:hidden) */}
-              <div className="grid grid-cols-4 gap-1 sm:gap-2 px-3 sm:px-5 mb-0 select-none lg:hidden">
+          <div className="relative lg:pr-28 xl:pr-32 w-full max-w-full overflow-hidden">
+            <Reveal delay={80} className="w-full">
+              {/* MOBILE / TABLET TOP CHAPTER RIBBON TABS (attached directly to top of book) */}
+              <div className="grid grid-cols-4 gap-1 sm:gap-1.5 px-2 mb-0 select-none lg:hidden w-full">
                 {CHAPTER_CONFIG.map((tab) => {
                   const isSelected = activeCategory === tab.id
                   const count = allMilestones.filter((m) => m.category === tab.id).length
@@ -1033,29 +1314,24 @@ export function About() {
                       type="button"
                       onClick={() => handleCategoryClick(tab.id)}
                       className={cn(
-                        'relative -mb-[2px] flex items-center justify-center gap-1 sm:gap-1.5 rounded-t-xl sm:rounded-t-2xl border-[1.5px] border-[#2D1F1D]/40 py-1.5 sm:py-2 px-1 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none',
+                        'relative -mb-[2px] flex flex-col items-center justify-center gap-0.5 rounded-t-xl sm:rounded-t-2xl border-[1.5px] border-[#2D1F1D]/50 py-1.5 px-1 text-center font-sans font-black transition-all duration-200 cursor-pointer select-none min-h-[44px] touch-manipulation',
                         tab.color,
                         isSelected
-                          ? 'z-20 -translate-y-1 sm:-translate-y-1.5 border-b-0 shadow-[0_-2px_0_rgba(45,31,29,0.5)] text-[#2D1F1D]'
-                          : 'z-10 opacity-70 hover:opacity-100 hover:-translate-y-0.5 text-[#2D1F1D]',
+                          ? 'z-20 -translate-y-1 border-b-0 shadow-[0_-3px_8px_rgba(0,0,0,0.15)] text-[#2D1F1D] ring-1 ring-[#2D1F1D]'
+                          : 'z-10 opacity-75 hover:opacity-100 hover:-translate-y-0.5 text-[#2D1F1D]',
                       )}
                     >
-                      <span className="text-xs sm:text-sm">{tab.icon}</span>
-                      <span className="text-[0.72rem] sm:text-xs font-black truncate">
+                      <span className="text-sm shrink-0">{tab.icon}</span>
+                      <span className="text-[0.62rem] sm:text-xs font-black truncate max-w-full leading-none">
                         {tab.title}
                       </span>
-                      {count > 0 && (
-                        <span className="rounded-full bg-white/90 border border-[#2D1F1D]/30 px-1.5 py-0.2 text-[0.6rem] font-black shrink-0 hidden sm:inline">
-                          {count}
-                        </span>
-                      )}
                     </button>
                   )
                 })}
               </div>
 
               {/* REALISTIC VINTAGE HARDCOVER BOOK WITH WARM SADDLE LEATHER & BRASS CORNERS */}
-              <div className="relative rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-[1.5px] border-[#4A2B18]/50 bg-gradient-to-br from-[#73472C] via-[#5F3820] to-[#4D2B16] p-2.5 sm:p-3 shadow-[0_20px_45px_rgba(68,39,22,0.24)]">
+              <div className="relative rounded-[1.8rem_1.8rem_1.4rem_1.4rem] sm:rounded-[2.2rem_2.2rem_1.8rem_1.8rem] border-[1.5px] border-[#4A2B18]/50 bg-gradient-to-br from-[#73472C] via-[#5F3820] to-[#4D2B16] p-2 sm:p-3 shadow-[0_20px_45px_rgba(68,39,22,0.24)] w-full max-w-full">
                 {/* 4 Antique Brass Filigree Metallic Corners */}
                 <BookBrassCorner position="top-left" />
                 <BookBrassCorner position="top-right" />
@@ -1065,7 +1341,7 @@ export function About() {
                 {/* Hardcover Perimeter Gold Stitched Line */}
                 <div className="absolute inset-1.5 rounded-[1.8rem_1.8rem_1.4rem_1.4rem] border border-dashed border-[#F3DF9C]/40 pointer-events-none" />
 
-                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Tightened stack with natural notebook spacing) */}
+                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS */}
                 <div className="hidden lg:flex absolute left-[calc(100%-2px)] top-8 flex-col gap-2 z-30 pointer-events-auto">
                   {CHAPTER_CONFIG.map((tab) => {
                     const isSelected = activeCategory === tab.id
@@ -1108,8 +1384,6 @@ export function About() {
                   })}
                 </div>
 
-
-
                 {/* ------------------------------------------------------------- */}
                 {/* PHYSICAL 3D STACKED PAPER PAGES BLOCK (DECKLE EDGE TEXTURE)   */}
                 {/* ------------------------------------------------------------- */}
@@ -1149,39 +1423,34 @@ export function About() {
                   {/* Storybook Quick-Jump Table of Contents Popover Modal */}
                   {isTocOpen && (
                     <div
+                      className="absolute inset-x-2 top-2 z-50 rounded-2xl border-2 border-[#2D1F1D] bg-[#FCF9F2] p-4 shadow-[0_16px_40px_rgba(45,31,29,0.3)] animate-pop-in"
                       role="dialog"
-                      aria-label="Storybook Chapters Index"
-                      className="absolute top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md rounded-2xl border-2 border-[#2D1F1D] bg-[#FCF9F2] p-4 shadow-[0_16px_36px_rgba(45,31,29,0.3),4px_4px_0px_#2D1F1D] animate-pop-in"
+                      aria-label="Table of Contents"
                     >
                       <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="flex size-7 items-center justify-center rounded-lg bg-[#FFE68C] border border-[#2D1F1D] text-sm">
-                            📖
-                          </span>
-                          <div>
-                            <h4 className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D]">
-                              Storybook Index &amp; Chapters
-                            </h4>
-                            <p className="text-[0.62rem] font-bold text-[#6B5550]">
-                              Jump to any chapter or spread directly
-                            </p>
-                          </div>
+                          <BookOpen className="size-4 text-[#FF7D6B]" />
+                          <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
+                            Storybook Chapter Index
+                          </h4>
                         </div>
                         <button
                           type="button"
                           onClick={() => setIsTocOpen(false)}
-                          className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5] hover:bg-[#FF8A8A] text-[#2D1F1D] cursor-pointer"
+                          className="rounded-full p-1 hover:bg-[#FFE68C] transition-colors cursor-pointer"
                           aria-label="Close table of contents"
                         >
-                          <X className="size-3.5 stroke-[2.5]" />
+                          <X className="size-4 text-[#2D1F1D]" />
                         </button>
                       </div>
 
-                      {/* Chapter Jump List */}
-                      <div className="my-3 space-y-1.5 max-h-[50vh] overflow-y-auto pr-1">
+                      <div className="my-3 space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
                         {CHAPTER_CONFIG.map((chap) => {
+                          const chapMilestones = allMilestones.filter(
+                            (m) => m.category === chap.id,
+                          )
                           const isCurrent = activeCategory === chap.id
-                          const chapMilestones = allMilestones.filter((m) => m.category === chap.id)
+
                           return (
                             <button
                               key={chap.id}
@@ -1193,7 +1462,7 @@ export function About() {
                               className={cn(
                                 'flex w-full items-center justify-between rounded-xl border p-2.5 text-left transition-all cursor-pointer',
                                 isCurrent
-                                  ? 'border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] font-black'
+                                  ? 'border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] font-black'
                                   : 'border-[#2D1F1D]/20 bg-white hover:bg-[#FAF5EC] text-[#2D1F1D] font-bold',
                               )}
                             >
@@ -1214,89 +1483,119 @@ export function About() {
                             </button>
                           )
                         })}
-
-                        {/* Finale Jump */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            turnToSpread(totalSpreads - 1)
-                            setIsTocOpen(false)
-                          }}
-                          className={cn(
-                            'flex w-full items-center justify-between rounded-xl border p-2.5 text-left transition-all cursor-pointer',
-                            safeIdx === totalSpreads - 1
-                              ? 'border-[#2D1F1D] bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] font-black'
-                              : 'border-[#2D1F1D]/20 bg-white hover:bg-[#FAF5EC] text-[#2D1F1D] font-bold',
-                          )}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-lg">🌸</span>
-                            <div>
-                              <p className="font-sans text-xs font-black">Grand Finale: My Teaching Promise</p>
-                              <p className="text-[0.62rem] font-medium text-[#6B5550]">Workshop &amp; Atelier Booking</p>
-                            </div>
-                          </div>
-                          <span className="rounded-md border border-[#2D1F1D]/30 bg-white/90 px-2 py-0.5 text-[0.65rem] font-black text-[#2D1F1D]">
-                            Open →
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Keyboard shortcuts footer */}
-                      <div className="flex items-center justify-between border-t border-[#2D1F1D]/15 pt-2 text-[0.65rem] font-bold text-[#6B5550]">
-                        <span>⌨️ Keys: <strong className="text-[#2D1F1D]">1-4</strong> for chapters, <strong className="text-[#2D1F1D]">← →</strong> for pages</span>
-                        <span className="text-[#FF7D6B]">Press Esc to close</span>
                       </div>
                     </div>
                   )}
 
-                  {/* ARIA Live Region for Screen Readers */}
-                  <div className="sr-only" role="status" aria-live="polite">
-                    {currentSpread.type === 'milestone'
-                      ? `Storybook: Chapter ${currentSpread.chapter.chapterNum} ${currentSpread.chapter.title}, Page ${currentSpread.pageInChapter} of ${currentSpread.totalInChapter}: ${currentSpread.milestone?.title}`
-                      : currentSpread.type === 'chapter-transition'
-                        ? `Storybook: Chapter ${currentSpread.completedChapter.chapterNum} Complete, next is Chapter ${currentSpread.nextChapter.chapterNum}`
-                        : 'Storybook Finale: Teaching Promise and Atelier Booking'}
+                  {/* ----------------------------------------------------------------- */}
+                  {/* MOBILE / TABLET VIEW: AUTHENTIC 3D SINGLE-PAGE BOOK WITH PAGE FLIP */}
+                  {/* ----------------------------------------------------------------- */}
+                  <div
+                    style={{ perspective: '1200px' }}
+                    className="block lg:hidden relative rounded-[1.4rem_1.4rem_1.1rem_1.1rem] border border-[#2D1F1D]/30 bg-[#FCF9F2] shadow-[inset_0_0_20px_rgba(180,150,110,0.1),0_8px_20px_rgba(45,31,29,0.1)] overflow-hidden w-full"
+                  >
+                    {/* Top Decorative Washi Tape on mobile */}
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 h-4 w-20 bg-[#FFC837]/90 border border-[#2D1F1D]/30 rotate-[-1deg] rounded-xs shadow-2xs pointer-events-none z-35" />
+
+                    {/* BASE STATIC LAYER (Target page or current spread) */}
+                    <div className="w-full">
+                      {renderMobilePageContent(
+                        flipState.isFlipping ? toSpread : currentSpread,
+                        flipState.isFlipping ? flipState.toIdx : safeIdx,
+                        !flipState.isFlipping,
+                      )}
+                    </div>
+
+                    {/* 3D FLIPPING LEAF (FORWARD on mobile) */}
+                    {flipState.isFlipping && flipState.direction === 'forward' && (
+                      <div
+                        onAnimationEnd={() => finishFlip(flipState.toIdx)}
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          transformOrigin: 'left center',
+                          transformStyle: 'preserve-3d',
+                          animation: 'mobilePageFlipForward 0.44s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                          zIndex: 30,
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                          }}
+                          className="bg-[#FCF9F2] border-l-2 border-[#2D1F1D]/30 shadow-[-10px_0_25px_rgba(0,0,0,0.22)]"
+                        >
+                          {renderMobilePageContent(fromSpread, flipState.fromIdx, false)}
+                          <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/5 to-transparent pointer-events-none" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 3D FLIPPING LEAF (BACKWARD on mobile) */}
+                    {flipState.isFlipping && flipState.direction === 'backward' && (
+                      <div
+                        onAnimationEnd={() => finishFlip(flipState.toIdx)}
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          transformOrigin: 'right center',
+                          transformStyle: 'preserve-3d',
+                          animation: 'mobilePageFlipBackward 0.44s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                          zIndex: 30,
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                          }}
+                          className="bg-[#FCF9F2] border-r-2 border-[#2D1F1D]/30 shadow-[10px_0_25px_rgba(0,0,0,0.22)]"
+                        >
+                          {renderMobilePageContent(fromSpread, flipState.fromIdx, false)}
+                          <div className="absolute inset-0 bg-gradient-to-l from-black/25 via-black/5 to-transparent pointer-events-none" />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* ----------------------------------------------------------------- */}
-                  {/* DESKTOP VIEW: AUTHENTIC 3D PHYSICAL BOOK SPREAD WITH TURNING LEAF */}
+                  {/* DESKTOP 2-PAGE SPREAD WITH 3D TURNING PAGE LEAF                   */}
                   {/* ----------------------------------------------------------------- */}
                   <div
                     style={{ perspective: '1600px' }}
-                    className="hidden lg:block relative rounded-[1.1rem] border border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[420px] xl:h-[435px]"
+                    className="hidden lg:block relative h-[440px] xl:h-[460px] rounded-[1.4rem_1.4rem_1.1rem_1.1rem] border border-[#2D1F1D]/30 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.12),0_10px_25px_rgba(45,31,29,0.15)] overflow-hidden"
                   >
+                    {/* Top Decorative Vintage Tape */}
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 h-5 w-28 bg-[#FFC837]/90 border border-[#2D1F1D]/30 rotate-[-1deg] rounded-xs shadow-xs pointer-events-none z-35" />
 
-                    {/* BASE LAYER (Underneath): Left Page Base + Right Page Base */}
-                    <div className="absolute inset-0 grid grid-cols-2 bg-[#FCF9F2]">
-                      {/* Left Static Base */}
-                      <div className="h-full overflow-hidden">
+                    {/* BASE STATIC LAYER (Target spread or current spread) */}
+                    <div className="grid h-full grid-cols-2">
+                      <div className="h-full">
                         {renderLeftPageContent(
-                          flipState.isFlipping && flipState.direction === 'backward'
-                            ? toSpread
-                            : currentSpread,
-                          flipState.isFlipping && flipState.direction === 'backward'
-                            ? flipState.toIdx
-                            : safeIdx,
+                          flipState.isFlipping ? toSpread : currentSpread,
+                          flipState.isFlipping ? flipState.toIdx : safeIdx,
                           !flipState.isFlipping,
                         )}
                       </div>
-
-                      {/* Right Static Base */}
-                      <div className="h-full overflow-hidden">
+                      <div className="h-full">
                         {renderRightPageContent(
-                          flipState.isFlipping && flipState.direction === 'forward'
-                            ? toSpread
-                            : currentSpread,
-                          flipState.isFlipping && flipState.direction === 'forward'
-                            ? flipState.toIdx
-                            : safeIdx,
+                          flipState.isFlipping ? toSpread : currentSpread,
+                          flipState.isFlipping ? flipState.toIdx : safeIdx,
                           !flipState.isFlipping,
                         )}
                       </div>
                     </div>
 
-                    {/* 3D FLIPPING LEAF (FORWARD: Right Leaf flips to Left) */}
+                    {/* Book Center Binding Crease & Realistic Fold Shadow */}
+                    <div className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-transparent via-[#2D1F1D]/15 to-transparent z-25" />
+                    <div className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-[1px] bg-[#2D1F1D]/30 z-25" />
+
+                    {/* 3D FLIPPING LEAF (FORWARD) */}
                     {flipState.isFlipping && flipState.direction === 'forward' && (
                       <div
                         onAnimationEnd={() => finishFlip(flipState.toIdx)}
@@ -1308,11 +1607,11 @@ export function About() {
                           width: '50%',
                           transformOrigin: 'left center',
                           transformStyle: 'preserve-3d',
-                          animation: 'pageFlipForward 0.48s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                          animation: 'pageFlipForward 0.52s cubic-bezier(0.4, 0, 0.2, 1) forwards',
                           zIndex: 30,
                         }}
                       >
-                        {/* FRONT FACE (Turning Old Right Page) */}
+                        {/* FRONT of the turning leaf (Current Right Page) */}
                         <div
                           style={{
                             position: 'absolute',
@@ -1320,32 +1619,30 @@ export function About() {
                             backfaceVisibility: 'hidden',
                             WebkitBackfaceVisibility: 'hidden',
                           }}
-                          className="border-l border-[#2D1F1D]/20 bg-[#FCF9F2] shadow-[-10px_0_25px_rgba(0,0,0,0.18)]"
+                          className="bg-[#FCF9F2] border-r border-[#2D1F1D]/20 shadow-[10px_0_30px_rgba(0,0,0,0.25)]"
                         >
                           {renderRightPageContent(fromSpread, flipState.fromIdx, false)}
-                          {/* Shading overlay during lift */}
                           <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/5 to-transparent pointer-events-none" />
                         </div>
 
-                        {/* BACK FACE (Incoming New Left Page) */}
+                        {/* BACK of the turning leaf (Target Left Page) */}
                         <div
                           style={{
                             position: 'absolute',
                             inset: 0,
-                            transform: 'rotateY(180deg)',
                             backfaceVisibility: 'hidden',
                             WebkitBackfaceVisibility: 'hidden',
+                            transform: 'rotateY(180deg)',
                           }}
-                          className="border-r border-[#2D1F1D]/20 bg-[#FCF9F2] shadow-[10px_0_25px_rgba(0,0,0,0.18)]"
+                          className="bg-[#FCF9F2] border-l border-[#2D1F1D]/20 shadow-[-10px_0_30px_rgba(0,0,0,0.25)]"
                         >
                           {renderLeftPageContent(toSpread, flipState.toIdx, false)}
-                          {/* Shading overlay landing */}
-                          <div className="absolute inset-0 bg-gradient-to-l from-black/20 via-black/5 to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-l from-black/25 via-black/5 to-transparent pointer-events-none" />
                         </div>
                       </div>
                     )}
 
-                    {/* 3D FLIPPING LEAF (BACKWARD: Left Leaf flips to Right) */}
+                    {/* 3D FLIPPING LEAF (BACKWARD) */}
                     {flipState.isFlipping && flipState.direction === 'backward' && (
                       <div
                         onAnimationEnd={() => finishFlip(flipState.toIdx)}
@@ -1353,257 +1650,44 @@ export function About() {
                           position: 'absolute',
                           top: 0,
                           bottom: 0,
-                          left: '0',
+                          left: 0,
                           width: '50%',
                           transformOrigin: 'right center',
                           transformStyle: 'preserve-3d',
-                          animation: 'pageFlipBackward 0.48s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                          animation: 'pageFlipBackward 0.52s cubic-bezier(0.4, 0, 0.2, 1) forwards',
                           zIndex: 30,
                         }}
                       >
-                        {/* FRONT FACE (Turning Old Left Page) */}
+                        {/* FRONT of turning leaf (Target Right Page) */}
                         <div
                           style={{
                             position: 'absolute',
                             inset: 0,
                             backfaceVisibility: 'hidden',
                             WebkitBackfaceVisibility: 'hidden',
+                            transform: 'rotateY(180deg)',
                           }}
-                          className="border-r border-[#2D1F1D]/20 bg-[#FCF9F2] shadow-[10px_0_25px_rgba(0,0,0,0.18)]"
-                        >
-                          {renderLeftPageContent(fromSpread, flipState.fromIdx, false)}
-                          {/* Shading overlay during lift */}
-                          <div className="absolute inset-0 bg-gradient-to-l from-black/25 via-black/5 to-transparent pointer-events-none" />
-                        </div>
-
-                        {/* BACK FACE (Incoming New Right Page) */}
-                        <div
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            transform: 'rotateY(-180deg)',
-                            backfaceVisibility: 'hidden',
-                            WebkitBackfaceVisibility: 'hidden',
-                          }}
-                          className="border-l border-[#2D1F1D]/20 bg-[#FCF9F2] shadow-[-10px_0_25px_rgba(0,0,0,0.18)]"
+                          className="bg-[#FCF9F2] border-r border-[#2D1F1D]/20 shadow-[10px_0_30px_rgba(0,0,0,0.25)]"
                         >
                           {renderRightPageContent(toSpread, flipState.toIdx, false)}
-                          {/* Shading overlay landing */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-black/5 to-transparent pointer-events-none" />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* CENTRAL SPINE CREASE & SHADOW (Deep 3D paper trough) */}
-                    <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-7 z-35 pointer-events-none bg-gradient-to-r from-black/16 via-transparent to-black/16">
-                      <div className="h-full w-full border-r border-dashed border-[#2D1F1D]/25 flex flex-col justify-around items-center py-3">
-                        <span className="size-1 rounded-full bg-[#2D1F1D]/35" />
-                        <span className="size-1 rounded-full bg-[#2D1F1D]/35" />
-                        <span className="size-1 rounded-full bg-[#2D1F1D]/35" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ----------------------------------------------------------------- */}
-                  {/* MOBILE / TABLET VIEW: CLEAN RESPONSIVE JOURNAL SPREAD             */}
-                  {/* ----------------------------------------------------------------- */}
-                  <div className="block lg:hidden relative rounded-[1.4rem] border-2 border-[#2D1F1D]/25 bg-[#FCF9F2] p-4 sm:p-5 space-y-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),2.5px_2.5px_0px_rgba(45,31,29,0.5)]">
-                    {/* Top Decorative Washi Tape on mobile */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 h-5 w-24 bg-[#FFC837]/90 border border-[#2D1F1D]/30 rotate-[-1deg] rounded-xs shadow-xs pointer-events-none z-10" />
-
-                    {currentSpread.type === 'milestone' ? (
-                      <>
-                        {/* Header */}
-                        <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2 gap-2 flex-wrap">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="shrink-0 rounded-full border border-[#2D1F1D]/50 bg-[#A7F3D0] px-2.5 py-0.5 text-xs font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
-                              {currentSpread.milestone?.badgeEmoji || currentSpread.chapter.icon}{' '}
-                              {currentSpread.milestone?.categoryLabel || currentSpread.chapter.title}
-                            </span>
-                            {currentSpread.milestone?.period && (
-                              <span className="shrink-0 rounded-md border border-[#2D1F1D]/30 bg-white px-2 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D]">
-                                🗓️ {currentSpread.milestone.period}
-                              </span>
-                            )}
-                          </div>
-                          <span className="shrink-0 text-[0.68rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
-                            Ch. {currentSpread.chapter.chapterNum} • {currentSpread.pageInChapter}/
-                            {currentSpread.totalInChapter}
-                          </span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/5 to-transparent pointer-events-none" />
                         </div>
 
-                        {/* Organization and Title without truncation */}
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-[#55403C]">
-                            <MapPin className="size-3.5 text-[#FF7D6B] shrink-0" />
-                            <span className="font-bold text-[#2D1F1D]">{currentSpread.milestone?.organization}</span>
-                          </div>
-                          <h3 className="font-sans text-base sm:text-lg font-black text-[#2D1F1D] leading-snug">
-                            {currentSpread.milestone?.title}
-                          </h3>
-                        </div>
-
-                        {/* Spotlight Photo */}
-                        {(() => {
-                          const photos =
-                            currentSpread.milestone?.images && currentSpread.milestone.images.length > 0
-                              ? currentSpread.milestone.images
-                              : [currentSpread.milestone?.image || '/images/farah-portrait.png']
-                          const spotlightImg = photos[0]
-
-                          return (
-                            <div
-                              onClick={() =>
-                                setLightboxData({
-                                  milestone: currentSpread.milestone,
-                                  photoIndex: 0,
-                                })
-                              }
-                              className="group/mobphoto relative aspect-[16/10] w-full overflow-hidden rounded-2xl border-2 border-[#2D1F1D] bg-white p-1 shadow-[3px_3px_0px_#2D1F1D] cursor-pointer"
-                            >
-                              <div className="relative size-full overflow-hidden rounded-xl bg-[#FAF5EC]">
-                                <Image
-                                  src={spotlightImg}
-                                  alt={currentSpread.milestone?.title || 'Milestone photo'}
-                                  fill
-                                  sizes="(max-width: 1024px) 100vw, 400px"
-                                  className="object-cover transition-transform duration-500 group-hover/mobphoto:scale-105"
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/mobphoto:opacity-100 transition-opacity">
-                                  <span className="flex size-8 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-sm">
-                                    <Maximize2 className="size-4" />
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          )
-                        })()}
-
-                        {/* Story Narrative */}
-                        <p className="font-sans text-xs sm:text-sm font-medium leading-relaxed text-[#2D1F1D]/90 text-pretty">
-                          {currentSpread.milestone?.description}
-                        </p>
-
-                        {/* Highlights */}
-                        {currentSpread.milestone?.highlights && currentSpread.milestone.highlights.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {currentSpread.milestone.highlights.map((h, hIdx) => (
-                              <span
-                                key={hIdx}
-                                className="inline-flex items-center gap-1 rounded-xl border border-[#2D1F1D]/40 bg-white px-2.5 py-1 text-[0.68rem] font-black text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]"
-                              >
-                                <CheckCircle2 className="size-3 text-[#10B981] stroke-[2.5]" />
-                                <span>{h}</span>
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    ) : currentSpread.type === 'chapter-transition' ? (
-                      /* Mobile Chapter Transition Card */
-                      <div className="space-y-3.5 rounded-2xl border-2 border-[#2D1F1D] bg-white p-4 sm:p-5 shadow-[3px_3px_0px_#2D1F1D]">
-                        <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2">
-                          <span className="rounded-full bg-[#A7F3D0] border border-[#2D1F1D] px-2.5 py-0.5 text-[0.68rem] font-black text-[#065F46]">
-                            ✨ Chapter {currentSpread.completedChapter.chapterNum} Complete
-                          </span>
-                          <span className="text-xs font-bold text-[#6B5550]">
-                            Up Next: {currentSpread.nextChapter.icon}
-                          </span>
-                        </div>
-
-                        <div className="text-center space-y-1.5 py-2">
-                          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#2D1F1D] bg-[#FFE68C] text-2xl shadow-[2px_2px_0px_#2D1F1D]">
-                            {currentSpread.nextChapter.icon}
-                          </div>
-                          <h4 className="font-sans text-base font-black text-[#2D1F1D]">
-                            Chapter {currentSpread.nextChapter.chapterNum}: {currentSpread.nextChapter.title}
-                          </h4>
-                          <p className="text-xs font-medium text-[#6B5550]">
-                            {currentSpread.nextChapter.teaser}
-                          </p>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => turnToSpread(safeIdx + 1)}
-                          className="w-full rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] py-2.5 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] flex items-center justify-center gap-1.5 cursor-pointer hover:bg-[#6EE7B7]"
+                        {/* BACK of turning leaf (Current Left Page) */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                          }}
+                          className="bg-[#FCF9F2] border-l border-[#2D1F1D]/20 shadow-[-10px_0_30px_rgba(0,0,0,0.25)]"
                         >
-                          <span>Open Chapter {currentSpread.nextChapter.chapterNum}: {currentSpread.nextChapter.title} ➔</span>
-                        </button>
-                      </div>
-                    ) : (
-                      /* Mobile Finale Card */
-                      <div className="space-y-3.5 rounded-2xl border-2 border-[#2D1F1D] bg-[#FFF8E7] p-4 sm:p-5 shadow-[3px_3px_0px_#2D1F1D] text-center">
-                        <PartyPopper className="mx-auto size-8 text-[#FF7D6B]" />
-                        <h4 className="font-sans text-base font-black text-[#2D1F1D]">
-                          Full Journey Story Completed!
-                        </h4>
-                        <p className="text-xs text-[#6B5550]">
-                          Ready to bring interactive props &amp; workshops to your school?
-                        </p>
-                        <div className="space-y-2 pt-1">
-                          <a
-                            href="#contact"
-                            className="block w-full rounded-xl border-2 border-[#2D1F1D] bg-[#FF7D6B] py-2.5 text-xs font-black text-white shadow-[2px_2px_0px_#2D1F1D]"
-                          >
-                            Book a Workshop / Commission 🌸
-                          </a>
-                          <a
-                            href="#shop"
-                            className="block w-full rounded-xl border-2 border-[#2D1F1D] bg-white py-2.5 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]"
-                          >
-                            Explore Props Atelier ✂️
-                          </a>
+                          {renderLeftPageContent(fromSpread, flipState.fromIdx, false)}
+                          <div className="absolute inset-0 bg-gradient-to-l from-black/25 via-black/5 to-transparent pointer-events-none" />
                         </div>
                       </div>
                     )}
-
-                    {/* Mobile Navigation Buttons */}
-                    <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/15">
-                      <button
-                        type="button"
-                        disabled={safeIdx === 0}
-                        onClick={() => turnToSpread(safeIdx - 1)}
-                        className={cn(
-                          'flex items-center gap-1 rounded-xl border-2 border-[#2D1F1D] px-3.5 py-2 text-xs font-black transition-all cursor-pointer',
-                          safeIdx > 0
-                            ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFD952]'
-                            : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
-                        )}
-                      >
-                        <ChevronLeft className="size-4 stroke-[2.5]" />
-                        <span>Previous</span>
-                      </button>
-
-                      <div className="flex items-center gap-1.5">
-                        {bookSpreads.map((_, dotIdx) => (
-                          <button
-                            key={dotIdx}
-                            type="button"
-                            onClick={() => turnToSpread(dotIdx)}
-                            aria-label={`Go to spread ${dotIdx + 1}`}
-                            className={cn(
-                              'size-2.5 rounded-full border border-[#2D1F1D] transition-all cursor-pointer',
-                              dotIdx === safeIdx ? 'bg-[#FF7D6B] scale-125 shadow-[1px_1px_0px_#2D1F1D]' : 'bg-white hover:bg-[#FFE68C]',
-                            )}
-                          />
-                        ))}
-                      </div>
-
-                      <button
-                        type="button"
-                        disabled={safeIdx === totalSpreads - 1}
-                        onClick={() => turnToSpread(safeIdx + 1)}
-                        className={cn(
-                          'flex items-center gap-1 rounded-xl border-2 border-[#2D1F1D] px-3.5 py-2 text-xs font-black transition-all cursor-pointer',
-                          safeIdx < totalSpreads - 1
-                            ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#6EE7B7]'
-                            : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
-                        )}
-                      >
-                        <span>Next ➔</span>
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>

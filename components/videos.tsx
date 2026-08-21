@@ -102,44 +102,46 @@ export function Videos() {
           </Reveal>
         </div>
 
-        {/* Video Category Filter Tabs */}
-        <Reveal delay={80}>
-          <div className="scrollbar-hide flex gap-2.5 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible">
-            {VIDEO_FILTERS.map((f) => {
-              const isSelected = activeCategory === f.id
-              const count =
-                f.id === 'all'
-                  ? videos.length
-                  : videos.filter((v) => v.category === f.id).length
-              return (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setActiveCategory(f.id)}
-                  className={cn(
-                    'group inline-flex shrink-0 items-center gap-2 rounded-2xl border-[1.5px] border-[#2D1F1D]/50 px-4 py-2 text-xs font-black transition-all duration-150 cursor-pointer',
-                    isSelected
-                      ? `${f.color} text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] -translate-y-0.5`
-                      : 'bg-white text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
-                  )}
-                >
-                  <span>{f.label}</span>
-                  <span
+        {/* Video Category Filter Tabs with Horizontal Scroll Fade */}
+        <Reveal delay={80} className="w-full">
+          <div className="relative -mx-4 sm:mx-0 px-4 sm:px-0">
+            <div className="scroll-fade-r sm:[mask-image:none] scrollbar-hide flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 snap-x snap-mandatory sm:flex-wrap sm:overflow-visible pr-8 sm:pr-0">
+              {VIDEO_FILTERS.map((f) => {
+                const isSelected = activeCategory === f.id
+                const count =
+                  f.id === 'all'
+                    ? videos.length
+                    : videos.filter((v) => v.category === f.id).length
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setActiveCategory(f.id)}
                     className={cn(
-                      'rounded-full border border-[#2D1F1D]/40 px-1.5 py-0.2 text-[0.65rem] font-black',
-                      isSelected ? 'bg-white text-[#2D1F1D]' : 'bg-[#FAF5EC] text-[#2D1F1D]',
+                      'group inline-flex shrink-0 snap-start items-center gap-1.5 sm:gap-2 rounded-2xl border-[1.5px] border-[#2D1F1D]/50 px-3.5 py-2 text-xs font-black transition-all duration-150 cursor-pointer min-h-[44px] touch-manipulation',
+                      isSelected
+                        ? `${f.color} text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] -translate-y-0.5`
+                        : 'bg-white text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
                     )}
                   >
-                    {count}
-                  </span>
-                </button>
-              )
-            })}
+                    <span>{f.label}</span>
+                    <span
+                      className={cn(
+                        'rounded-full border border-[#2D1F1D]/40 px-1.5 py-0.2 text-[0.65rem] font-black',
+                        isSelected ? 'bg-white text-[#2D1F1D]' : 'bg-[#FAF5EC] text-[#2D1F1D]',
+                      )}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </Reveal>
 
         {/* Video Cards Grid — featured first item spans full width on large screens */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredVideos.map((video, i) => {
             const isFeatured = i === 0 && filteredVideos.length > 1
             const pinColors: ('red' | 'purple' | 'yellow' | 'mint' | 'coral')[] = [
@@ -153,16 +155,16 @@ export function Videos() {
 
             return (
               <Reveal key={video.id} delay={i * 60} className={cn(isFeatured && 'sm:col-span-2 lg:col-span-3')}>
-                <div className="group relative h-full w-full">
-                  {/* 3D PushPin on unclipped outer container */}
-                  <PushPin color={pinColor} className="left-1/2 -top-1" />
+                <div className="group relative h-full w-full pt-3">
+                  {/* 3D PushPin piercing directly into card's top edge */}
+                  <PushPin color={pinColor} size={22} className="left-1/2 top-3 z-30" />
 
                   <button
                     type="button"
                     onClick={() => setActiveVideo(video)}
                     className={cn(
-                      'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
-                      isFeatured ? 'rounded-[2.8rem_1.6rem_2.6rem_1.8rem] lg:grid lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch' : (i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]'),
+                      'relative flex h-full w-full flex-col overflow-hidden rounded-[1.6rem_1.2rem_1.8rem_1.4rem] sm:rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer touch-manipulation',
+                      isFeatured ? 'rounded-[1.8rem_1.4rem_1.8rem_1.4rem] sm:rounded-[2.8rem_1.6rem_2.6rem_1.8rem] lg:grid lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch' : (i % 2 === 0 ? 'rotate-0 sm:rotate-[-0.4deg]' : 'rotate-0 sm:rotate-[0.4deg]'),
                     )}
                   >
                     {/* Video Thumbnail Screen */}
@@ -181,31 +183,31 @@ export function Videos() {
 
                       {/* Pulsing Play Button */}
                       <span
-                        className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] transition-transform duration-200 group-hover:scale-110 group-hover:bg-[#FFD54F]"
+                        className="absolute left-1/2 top-1/2 flex size-11 sm:size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] transition-transform duration-200 group-hover:scale-110 group-hover:bg-[#FFD54F]"
                         aria-hidden="true"
                       >
-                        <Play className="ml-1 size-6 fill-[#2D1F1D]" />
+                        <Play className="ml-0.5 sm:ml-1 size-4.5 sm:size-6 fill-[#2D1F1D]" />
                       </span>
 
                       {/* Duration Badge */}
                       {video.duration && (
-                        <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
-                          <span className="flex items-center gap-1 rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D] shadow-xs">
-                            <Clock className="size-3 text-[#FF7D6B]" />
+                        <div className="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 flex items-center gap-1.5">
+                          <span className="flex items-center gap-1 rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 sm:px-2.5 text-[0.62rem] sm:text-[0.68rem] font-bold text-[#2D1F1D] shadow-xs">
+                            <Clock className="size-2.5 sm:size-3 text-[#FF7D6B]" />
                             {video.duration}
                           </span>
                         </div>
                       )}
 
                       {/* Category & Level pills */}
-                      <div className="absolute left-3 top-3 flex items-center gap-1.5 flex-wrap">
+                      <div className="absolute left-2.5 top-2.5 sm:left-3 sm:top-3 flex items-center gap-1.5 flex-wrap">
                         {video.level && (
-                          <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                          <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2 py-0.5 sm:px-2.5 text-[0.62rem] sm:text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                             {video.level}
                           </span>
                         )}
                         {video.category && (
-                          <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.62rem] font-bold text-[#2D1F1D] shadow-xs capitalize">
+                          <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.6rem] sm:text-[0.62rem] font-bold text-[#2D1F1D] shadow-xs capitalize">
                             {video.category}
                           </span>
                         )}
@@ -213,11 +215,11 @@ export function Videos() {
                     </div>
 
                     {/* Video Info Content */}
-                    <div className={cn('flex flex-1 flex-col justify-between p-5 space-y-3', isFeatured && 'lg:p-7')}>
+                    <div className={cn('flex flex-1 flex-col justify-between p-3.5 sm:p-5 space-y-2.5 sm:space-y-3', isFeatured && 'lg:p-7')}>
                       <div>
                         {isFeatured && (
-                          <div className="mb-2 flex items-center gap-2">
-                            <span className="inline-flex w-fit items-center rounded-full border border-[#2D1F1D]/30 bg-[#FFC837] px-3 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
+                          <div className="mb-1.5 sm:mb-2 flex items-center gap-2">
+                            <span className="inline-flex w-fit items-center rounded-full border border-[#2D1F1D]/30 bg-[#FFC837] px-2.5 py-0.5 sm:px-3 text-[0.62rem] sm:text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                               Featured 🌟
                             </span>
                           </div>
@@ -225,13 +227,13 @@ export function Videos() {
 
                         <h3 className={cn(
                           'font-sans font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B]',
-                          isFeatured ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg',
+                          isFeatured ? 'text-base sm:text-2xl' : 'text-sm sm:text-lg',
                         )}>
                           {video.title}
                         </h3>
 
                         {video.description && (
-                          <p className="mt-2 text-xs sm:text-[0.82rem] font-medium leading-relaxed text-[#6B5550]">
+                          <p className="mt-1 sm:mt-2 text-xs sm:text-[0.82rem] font-medium leading-relaxed text-[#6B5550] line-clamp-2 sm:line-clamp-none">
                             {video.description}
                           </p>
                         )}
@@ -239,8 +241,8 @@ export function Videos() {
 
                       {/* Key Takeaways Badges (editable in Admin) */}
                       {video.takeaways && video.takeaways.length > 0 && (
-                        <div className="space-y-1.5 border-t border-[#2D1F1D]/10 pt-2.5">
-                          <p className="text-[0.65rem] font-black uppercase tracking-wider text-[#2D1F1D] flex items-center gap-1">
+                        <div className="space-y-1 sm:space-y-1.5 border-t border-[#2D1F1D]/10 pt-2 sm:pt-2.5">
+                          <p className="text-[0.62rem] sm:text-[0.65rem] font-black uppercase tracking-wider text-[#2D1F1D] flex items-center gap-1">
                             <Sparkles className="size-2.5 text-[#FF7D6B]" />
                             <span>Key Takeaways:</span>
                           </p>
@@ -248,10 +250,10 @@ export function Videos() {
                             {video.takeaways.slice(0, isFeatured ? 3 : 2).map((t) => (
                               <span
                                 key={t}
-                                className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
+                                className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-1.5 py-0.5 sm:px-2 text-[0.62rem] sm:text-[0.65rem] font-bold text-[#2D1F1D]"
                               >
                                 <CheckCircle2 className="size-2.5 text-[#10B981] shrink-0" />
-                                <span className="truncate max-w-[210px]">{t}</span>
+                                <span className="truncate max-w-[190px] sm:max-w-[210px]">{t}</span>
                               </span>
                             ))}
                           </div>
@@ -259,8 +261,8 @@ export function Videos() {
                       )}
 
                       {/* Action Footer */}
-                      <div className="flex items-center justify-between border-t border-[#2D1F1D]/10 pt-2.5">
-                        <span className="text-[0.7rem] font-bold text-[#6B5550]">
+                      <div className="flex items-center justify-between border-t border-[#2D1F1D]/10 pt-2 sm:pt-2.5">
+                        <span className="text-[0.65rem] sm:text-[0.7rem] font-bold text-[#6B5550]">
                           {video.ageGroup ? video.ageGroup : (video.level || '')}
                         </span>
                         <span className="inline-flex items-center gap-1 text-xs font-black text-[#FF7D6B] group-hover:underline">

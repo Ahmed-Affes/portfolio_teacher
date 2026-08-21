@@ -169,36 +169,38 @@ export function WorkShowcase() {
           </Reveal>
         </div>
 
-        {/* Category Filter Chips with Live Counts */}
-        <Reveal delay={80}>
-          <div className="scrollbar-hide flex gap-2.5 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible">
-            {FILTERS.map((f) => {
-              const isSelected = filter === f.id
-              const count = categoryCounts[f.id] || 0
-              return (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setFilter(f.id)}
-                  className={cn(
-                    'group inline-flex shrink-0 items-center gap-2 rounded-2xl border-[1.5px] border-[#2D1F1D]/50 px-4 py-2 text-xs font-black transition-all duration-150 cursor-pointer',
-                    isSelected
-                      ? `${f.color} text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] -translate-y-0.5`
-                      : 'bg-white text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
-                  )}
-                >
-                  <span>{f.label}</span>
-                  <span
+        {/* Category Filter Chips with Live Counts & Horizontal Scroll Fade */}
+        <Reveal delay={80} className="w-full">
+          <div className="relative -mx-4 sm:mx-0 px-4 sm:px-0">
+            <div className="scroll-fade-r sm:[mask-image:none] scrollbar-hide flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 snap-x snap-mandatory sm:flex-wrap sm:overflow-visible pr-8 sm:pr-0">
+              {FILTERS.map((f) => {
+                const isSelected = filter === f.id
+                const count = categoryCounts[f.id] || 0
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFilter(f.id)}
                     className={cn(
-                      'rounded-full border border-[#2D1F1D]/40 px-1.5 py-0.2 text-[0.65rem] font-black',
-                      isSelected ? 'bg-white text-[#2D1F1D]' : 'bg-[#FAF5EC] text-[#2D1F1D]',
+                      'group inline-flex shrink-0 snap-start items-center gap-1.5 sm:gap-2 rounded-2xl border-[1.5px] border-[#2D1F1D]/50 px-3.5 py-2 text-xs font-black transition-all duration-150 cursor-pointer min-h-[44px] touch-manipulation',
+                      isSelected
+                        ? `${f.color} text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] -translate-y-0.5`
+                        : 'bg-white text-[#6B5550] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FFE68C]/30 hover:text-[#2D1F1D]',
                     )}
                   >
-                    {count}
-                  </span>
-                </button>
-              )
-            })}
+                    <span>{f.label}</span>
+                    <span
+                      className={cn(
+                        'rounded-full border border-[#2D1F1D]/40 px-1.5 py-0.2 text-[0.65rem] font-black',
+                        isSelected ? 'bg-white text-[#2D1F1D]' : 'bg-[#FAF5EC] text-[#2D1F1D]',
+                      )}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </Reveal>
 
@@ -223,7 +225,7 @@ export function WorkShowcase() {
             </div>
           </Reveal>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 auto-rows-fr">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 auto-rows-fr">
             {displayedItems.map((item, i) => {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
               const pinColor = PIN_COLORS[i % PIN_COLORS.length]
@@ -232,52 +234,52 @@ export function WorkShowcase() {
               const mod = i % 7
               let spanClass = 'col-span-1 md:col-span-1 lg:col-span-1'
               let variant: 'hero-large' | 'tall-portrait' | 'wide-horizontal' | 'compact' = 'compact'
-              let rotationClass = 'rotate-[-0.3deg]'
+              let rotationClass = 'rotate-0 sm:rotate-[-0.3deg]'
 
               if (mod === 0) {
                 spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-2'
                 variant = 'hero-large'
-                rotationClass = 'rotate-[-0.4deg]'
+                rotationClass = 'rotate-0 sm:rotate-[-0.4deg]'
               } else if (mod === 1) {
                 spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2'
                 variant = 'tall-portrait'
-                rotationClass = 'rotate-[0.5deg]'
+                rotationClass = 'rotate-0 sm:rotate-[0.5deg]'
               } else if (mod === 2 || mod === 3) {
                 spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
                 variant = 'compact'
-                rotationClass = mod === 2 ? 'rotate-[-0.4deg]' : 'rotate-[0.3deg]'
+                rotationClass = mod === 2 ? 'rotate-0 sm:rotate-[-0.4deg]' : 'rotate-0 sm:rotate-[0.3deg]'
               } else if (mod === 4) {
                 spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-1'
                 variant = 'wide-horizontal'
-                rotationClass = 'rotate-[-0.2deg]'
+                rotationClass = 'rotate-0 sm:rotate-[-0.2deg]'
               } else if (mod === 5) {
                 spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
                 variant = 'compact'
-                rotationClass = 'rotate-[0.4deg]'
+                rotationClass = 'rotate-0 sm:rotate-[0.4deg]'
               } else {
                 spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
                 variant = 'compact'
-                rotationClass = 'rotate-[-0.5deg]'
+                rotationClass = 'rotate-0 sm:rotate-[-0.5deg]'
               }
 
               return (
-                <div key={item.id} className={cn('relative w-full', spanClass)}>
+                <div key={item.id} className={cn('relative w-full max-w-full', spanClass)}>
                   <Reveal delay={(i % 6) * 45} className="h-full">
-                    <div className="group relative h-full w-full pt-2">
-                      {/* Scrapbook Pushpin / Washi Tape Accent */}
+                    <div className="group relative w-full h-full pt-3">
+                      {/* Scrapbook Pushpin / Washi Tape Accent - Piercing directly into the card top edge */}
                       {mod === 0 || mod === 4 ? (
                         <WashiTape
                           color={mod === 0 ? '#FFC837' : '#A7F3D0'}
-                          className="left-8 -top-2 w-24 z-20"
+                          className="left-6 sm:left-8 top-1 w-20 sm:w-24 z-30"
                           pattern={mod === 0 ? 'stripes' : 'dots'}
                         />
                       ) : (
-                        <PushPin color={pinColor} size={22} className="left-1/2 -top-1 z-20" />
+                        <PushPin color={pinColor} size={22} className="left-1/2 top-3 z-30" />
                       )}
 
                       <div
                         className={cn(
-                          'relative flex h-full w-full flex-col overflow-hidden rounded-[2.2rem_1.4rem_2.4rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_32px_rgba(45,31,29,0.12),4.5px_4.5px_0px_rgba(45,31,29,0.8)]',
+                          'relative flex w-full h-full flex-col overflow-hidden rounded-[1.6rem_1.2rem_1.8rem_1.4rem] sm:rounded-[2.2rem_1.4rem_2.4rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_6px_16px_rgba(45,31,29,0.05),2.5px_2.5px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_32px_rgba(45,31,29,0.12),4.5px_4.5px_0px_rgba(45,31,29,0.8)]',
                           rotationClass,
                         )}
                       >
@@ -285,10 +287,10 @@ export function WorkShowcase() {
                         {/* 1. HERO LARGE BENTO TILE (2x2 Expansive Workbench View)   */}
                         {/* ========================================================= */}
                         {variant === 'hero-large' && (
-                          <div className="flex h-full flex-col justify-between p-4 sm:p-6 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0]">
+                          <div className="flex h-full flex-col justify-between p-3.5 sm:p-5 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0]">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
-                              className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
+                              className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full overflow-hidden rounded-xl sm:rounded-2xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
                             >
                               <Image
                                 src={item.image || '/placeholder.svg'}
@@ -297,67 +299,67 @@ export function WorkShowcase() {
                                 sizes="(max-width: 1024px) 100vw, 600px"
                                 className="object-cover transition-transform duration-500 group-hover/img:scale-105"
                               />
-                              <div className="absolute left-3 top-3 flex items-center gap-2 flex-wrap">
-                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFC837] px-3 py-1 text-xs font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
+                              <div className="absolute left-2.5 top-2.5 sm:left-3 sm:top-3 flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFC837] px-2.5 py-0.5 sm:px-3 sm:py-1 text-[0.65rem] sm:text-xs font-black uppercase text-[#2D1F1D] shadow-xs">
                                   Featured Masterpiece ✂️
                                 </span>
-                                <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2.5 py-0.5 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.62rem] sm:text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                                   {item.tag}
                                 </span>
                               </div>
-                              <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-all group-hover/img:scale-110">
-                                <Maximize2 className="size-4" />
+                              <span className="absolute right-2.5 top-2.5 sm:right-3 sm:top-3 flex size-7 sm:size-8 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs transition-all group-hover/img:scale-110">
+                                <Maximize2 className="size-3.5 sm:size-4" />
                               </span>
                               {item.year && (
-                                <div className="absolute bottom-2.5 right-2.5 rounded-md border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]">
+                                <div className="absolute bottom-2 right-2 rounded-md border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.62rem] font-bold text-[#2D1F1D]">
                                   🗓️ {item.year}
                                 </div>
                               )}
                             </div>
 
-                            <div className="space-y-3 pt-3 flex-1 flex flex-col justify-between">
+                            <div className="space-y-2 pt-2.5 flex-1 flex flex-col justify-between">
                               <div>
                                 <div
                                   onClick={() => setActiveItemIndex(actualIndex)}
                                   className="flex items-start justify-between gap-2 cursor-pointer group/title"
                                 >
-                                  <h3 className="font-sans text-lg sm:text-xl font-black text-[#2D1F1D] leading-snug transition-colors group-hover/title:text-[#FF7D6B]">
+                                  <h3 className="font-sans text-base sm:text-lg font-black text-[#2D1F1D] leading-snug transition-colors group-hover/title:text-[#FF7D6B]">
                                     {item.title}
                                   </h3>
-                                  <ArrowUpRight className="size-5 shrink-0 text-[#2D1F1D] transition-transform group-hover/title:translate-x-1 group-hover/title:-translate-y-1" />
+                                  <ArrowUpRight className="size-4.5 sm:size-5 shrink-0 text-[#2D1F1D] transition-transform group-hover/title:translate-x-1 group-hover/title:-translate-y-1" />
                                 </div>
-                                <p className="mt-2 text-xs sm:text-sm font-medium leading-relaxed text-[#6B5550]">
+                                <p className="mt-1 text-xs sm:text-sm font-medium leading-relaxed text-[#6B5550]">
                                   {item.description}
                                 </p>
                               </div>
 
                               {item.highlights && item.highlights.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                <div className="flex flex-wrap gap-1 sm:gap-1.5 pt-0.5">
                                   {item.highlights.map((h) => (
                                     <span
                                       key={h}
-                                      className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/30 bg-[#FAF5EC] px-2.5 py-1 text-xs font-bold text-[#2D1F1D]"
+                                      className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/30 bg-[#FAF5EC] px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.65rem] sm:text-xs font-bold text-[#2D1F1D]"
                                     >
-                                      <Sparkles className="size-3 text-[#FF7D6B]" />
+                                      <Sparkles className="size-2.5 sm:size-3 text-[#FF7D6B]" />
                                       <span>{h}</span>
                                     </span>
                                   ))}
                                 </div>
                               )}
 
-                              <div className="flex items-center justify-between gap-3 border-t border-[#2D1F1D]/12 pt-3">
+                              <div className="flex flex-row items-center justify-between gap-2 border-t border-[#2D1F1D]/12 pt-2.5">
                                 <button
                                   type="button"
                                   onClick={() => setActiveItemIndex(actualIndex)}
-                                  className="cute-btn bg-[#FFE68C] px-4 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] cursor-pointer"
+                                  className="cute-btn flex-1 sm:flex-initial bg-[#FFE68C] px-3 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] cursor-pointer min-h-[38px] touch-manipulation"
                                 >
                                   <span>Inspect Lightbox 🔍</span>
                                 </button>
                                 <a
                                   href="#contact"
-                                  className="cute-btn bg-white px-4 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer"
+                                  className="cute-btn flex-1 sm:flex-initial bg-white px-3 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer min-h-[38px] touch-manipulation"
                                 >
-                                  <span>Order Custom Kit 💌</span>
+                                  <span>Order Custom 💌</span>
                                 </a>
                               </div>
                             </div>
@@ -368,10 +370,10 @@ export function WorkShowcase() {
                         {/* 2. TALL PORTRAIT BENTO TILE (1x2 Vertical Poster View)    */}
                         {/* ========================================================= */}
                         {variant === 'tall-portrait' && (
-                          <div className="flex h-full flex-col justify-between p-4 sm:p-5 bg-white">
+                          <div className="flex h-full flex-col justify-between p-3.5 sm:p-4 bg-white">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
-                              className="relative aspect-[3/4] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
+                              className="relative aspect-[16/10] sm:aspect-[3/4] lg:aspect-[4/5] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
                             >
                               <Image
                                 src={item.image || '/placeholder.svg'}
@@ -380,35 +382,35 @@ export function WorkShowcase() {
                                 sizes="(max-width: 1024px) 100vw, 350px"
                                 className="object-cover transition-transform duration-500 group-hover/img:scale-105"
                               />
-                              <div className="absolute left-2.5 top-2.5">
-                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
+                              <div className="absolute left-2 top-2">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                                   {item.tag}
                                 </span>
                               </div>
-                              <span className="absolute right-2.5 top-2.5 flex size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
-                                <Maximize2 className="size-3.5" />
+                              <span className="absolute right-2 top-2 flex size-6.5 sm:size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
+                                <Maximize2 className="size-3 sm:size-3.5" />
                               </span>
                             </div>
 
-                            <div className="space-y-2 pt-3 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1.5 pt-2 flex-1 flex flex-col justify-between">
                               <div>
                                 <h4
                                   onClick={() => setActiveItemIndex(actualIndex)}
-                                  className="font-sans text-base font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors"
+                                  className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors"
                                 >
                                   {item.title}
                                 </h4>
-                                <p className="mt-1.5 text-xs font-medium leading-relaxed text-[#6B5550]">
+                                <p className="mt-1 text-xs font-medium leading-relaxed text-[#6B5550]">
                                   {item.description}
                                 </p>
                               </div>
 
                               {item.highlights && item.highlights.length > 0 && (
-                                <div className="flex flex-wrap gap-1 pt-1 border-t border-[#2D1F1D]/10">
+                                <div className="flex flex-wrap gap-1 pt-0.5">
                                   {item.highlights.slice(0, 2).map((h) => (
                                     <span
                                       key={h}
-                                      className="rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
+                                      className="rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-1.5 py-0.5 text-[0.62rem] font-bold text-[#2D1F1D]"
                                     >
                                       {h}
                                     </span>
@@ -416,16 +418,16 @@ export function WorkShowcase() {
                                 </div>
                               )}
 
-                              <div className="flex items-center justify-between pt-1 border-t border-[#2D1F1D]/10">
+                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10">
                                 <button
                                   type="button"
                                   onClick={() => setActiveItemIndex(actualIndex)}
-                                  className="text-xs font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer"
+                                  className="text-xs font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer min-h-[36px] flex items-center touch-manipulation"
                                 >
                                   Inspect 🔍
                                 </button>
                                 {item.format && (
-                                  <span className="text-[0.65rem] font-bold text-[#6B5550]">
+                                  <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-[#6B5550]">
                                     {item.format}
                                   </span>
                                 )}
@@ -438,7 +440,7 @@ export function WorkShowcase() {
                         {/* 3. WIDE HORIZONTAL BENTO TILE (2x1 Panoramic Row View)   */}
                         {/* ========================================================= */}
                         {variant === 'wide-horizontal' && (
-                          <div className="flex h-full flex-col sm:flex-row gap-4 p-4 sm:p-5 bg-white">
+                          <div className="flex h-full flex-col sm:flex-row gap-3 sm:gap-4 p-3.5 sm:p-4 bg-white">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
                               className="relative aspect-[16/10] sm:aspect-[4/3] sm:w-2/5 shrink-0 overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
@@ -450,27 +452,27 @@ export function WorkShowcase() {
                                 sizes="(max-width: 1024px) 100vw, 300px"
                                 className="object-cover transition-transform duration-500 group-hover/img:scale-105"
                               />
-                              <div className="absolute left-2.5 top-2.5">
-                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                              <div className="absolute left-2 top-2">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
                                   {item.tag}
                                 </span>
                               </div>
-                              <span className="absolute right-2.5 top-2.5 flex size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
-                                <Maximize2 className="size-3.5" />
+                              <span className="absolute right-2 top-2 flex size-6.5 sm:size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
+                                <Maximize2 className="size-3 sm:size-3.5" />
                               </span>
                             </div>
 
-                            <div className="flex-1 flex flex-col justify-between space-y-2">
+                            <div className="flex-1 flex flex-col justify-between space-y-1.5">
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="rounded-md border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.2 text-[0.65rem] font-black text-[#065F46]">
+                                  <span className="rounded-md border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.2 text-[0.62rem] font-black text-[#065F46]">
                                     Atelier Spotlight
                                   </span>
-                                  {item.year && <span className="text-[0.65rem] font-bold text-[#6B5550]">🗓️ {item.year}</span>}
+                                  {item.year && <span className="text-[0.62rem] font-bold text-[#6B5550]">🗓️ {item.year}</span>}
                                 </div>
                                 <h4
                                   onClick={() => setActiveItemIndex(actualIndex)}
-                                  className="mt-1 font-sans text-base sm:text-lg font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors"
+                                  className="mt-1 font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors"
                                 >
                                   {item.title}
                                 </h4>
@@ -480,11 +482,11 @@ export function WorkShowcase() {
                               </div>
 
                               {item.highlights && item.highlights.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                <div className="flex flex-wrap gap-1 sm:gap-1.5 pt-0.5">
                                   {item.highlights.map((h) => (
                                     <span
                                       key={h}
-                                      className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
+                                      className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-1.5 py-0.5 text-[0.62rem] font-bold text-[#2D1F1D]"
                                     >
                                       <Sparkles className="size-2.5 text-[#FF7D6B]" />
                                       <span>{h}</span>
@@ -493,17 +495,17 @@ export function WorkShowcase() {
                                 </div>
                               )}
 
-                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10">
+                              <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/10">
                                 <button
                                   type="button"
                                   onClick={() => setActiveItemIndex(actualIndex)}
-                                  className="text-xs font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer"
+                                  className="text-xs font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer min-h-[36px] flex items-center touch-manipulation"
                                 >
                                   Inspect Lightbox 🔍
                                 </button>
                                 <a
                                   href="#contact"
-                                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] transition-transform hover:translate-x-0.5"
+                                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] transition-transform hover:translate-x-0.5 min-h-[36px] touch-manipulation"
                                 >
                                   <span>Inquire</span>
                                   <ArrowRight className="size-3" />
@@ -517,7 +519,7 @@ export function WorkShowcase() {
                         {/* 4. COMPACT BENTO TILE (1x1 Standard Craft Tile)          */}
                         {/* ========================================================= */}
                         {variant === 'compact' && (
-                          <div className="flex h-full flex-col justify-between p-4 bg-white">
+                          <div className="flex h-full flex-col justify-between p-3.5 sm:p-4 bg-white">
                             <div
                               onClick={() => setActiveItemIndex(actualIndex)}
                               className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
@@ -539,24 +541,24 @@ export function WorkShowcase() {
                               </span>
                             </div>
 
-                            <div className="space-y-1.5 pt-2.5 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1.5 pt-2 flex-1 flex flex-col justify-between">
                               <div>
                                 <h4
                                   onClick={() => setActiveItemIndex(actualIndex)}
-                                  className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug line-clamp-1 cursor-pointer hover:text-[#FF7D6B] transition-colors"
+                                  className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors"
                                 >
                                   {item.title}
                                 </h4>
-                                <p className="mt-1 text-[0.72rem] sm:text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-2">
+                                <p className="mt-1 text-xs font-medium leading-relaxed text-[#6B5550]">
                                   {item.description}
                                 </p>
                               </div>
 
-                              <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/10 text-xs">
+                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10 text-xs">
                                 <button
                                   type="button"
                                   onClick={() => setActiveItemIndex(actualIndex)}
-                                  className="text-[0.72rem] font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer"
+                                  className="text-[0.72rem] font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer min-h-[36px] flex items-center touch-manipulation"
                                 >
                                   Inspect 🔍
                                 </button>

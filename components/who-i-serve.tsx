@@ -68,25 +68,28 @@ export function WhoIServe() {
         </Reveal>
 
         {/* Tab Buttons */}
-        <Reveal delay={60}>
-          <div className="mx-auto flex w-full max-w-xl flex-wrap items-center justify-center gap-2.5 rounded-3xl border-[1.5px] border-[#3E251E]/40 bg-white p-2 shadow-[0_8px_20px_rgba(45,31,29,0.06),2.5px_2.5px_0px_rgba(45,31,29,0.6)]">
+        <Reveal delay={60} className="w-full">
+          <div className="mx-auto w-full max-w-md grid grid-cols-3 gap-1 rounded-2xl sm:rounded-full border-[1.5px] border-[#3E251E]/40 bg-white p-1.5 shadow-[0_6px_16px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.6)]">
             {activeAudiences.map((a) => {
               const TabIcon = ICONS[a.id as keyof typeof ICONS] || GraduationCap
               const isSelected = active === a.id
+              const shortLabel =
+                a.id === 'students' ? 'Students' : a.id === 'parents' ? 'Parents' : 'Teachers'
+
               return (
                 <button
                   key={a.id}
                   type="button"
                   onClick={() => setActive(a.id)}
                   className={cn(
-                    'flex flex-1 items-center justify-center gap-2 rounded-2xl border-[1.5px] border-transparent px-4 py-2.5 text-xs font-black whitespace-nowrap transition-all duration-200 cursor-pointer sm:px-5 sm:text-sm',
+                    'flex items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-full px-2 py-2 text-xs font-black transition-all duration-200 cursor-pointer min-h-[44px] touch-manipulation',
                     isSelected
-                      ? 'border-[#2D1F1D]/50 bg-[#FFC837] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)] -translate-y-0.5'
+                      ? 'border border-[#2D1F1D]/40 bg-[#FFC837] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)] -translate-y-0.5'
                       : 'text-[#6B5550] hover:text-[#2D1F1D] hover:bg-[#FFE68C]/30',
                   )}
                 >
-                  <TabIcon className="size-4 shrink-0" />
-                  {a.title}
+                  <TabIcon className="size-3.5 sm:size-4 shrink-0" />
+                  <span className="truncate">{shortLabel}</span>
                 </button>
               )
             })}
@@ -94,46 +97,45 @@ export function WhoIServe() {
         </Reveal>
 
         {/* Active Content Card — slides in when tab changes */}
-        <Reveal delay={100} key={current.id}>
-          <div className="group relative">
-            {/* 3D PushPin on unclipped outer container */}
-            <PushPin color="yellow" className="left-1/2 -top-1" />
+        <Reveal delay={100} key={current.id} className="w-full">
+          <div className="group relative pt-3">
+            {/* 3D PushPin piercing directly into the card's top edge (no floating gap) */}
+            <PushPin color="yellow" size={24} className="left-1/2 top-3 z-30" />
 
-            <div className="relative overflow-hidden rounded-[2.8rem_1.6rem_2.6rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_14px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)] animate-pop-in">
+            <div className="relative overflow-hidden rounded-[1.6rem_1.3rem_1.8rem_1.4rem] sm:rounded-[2.8rem_1.6rem_2.6rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_8px_24px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.6)] sm:shadow-[0_14px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.6)] animate-pop-in">
               <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
                 {/* Left Column: Playful Pastel Panel */}
-                <div className={`relative flex flex-col justify-between gap-5 p-5 sm:p-7 ${theme.bg} border-b lg:border-b-0 lg:border-r border-[#2D1F1D]/20`}>
+                <div className={`relative flex flex-col justify-between gap-4 sm:gap-5 p-4 sm:p-7 ${theme.bg} border-b lg:border-b-0 lg:border-r border-[#2D1F1D]/20`}>
                   <div>
-                    <div className="flex size-12 items-center justify-center rounded-2xl border-[1.5px] border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.4)]">
-                      <Icon className="size-6" />
+                    <div className="flex size-10 sm:size-12 items-center justify-center rounded-xl sm:rounded-2xl border-[1.5px] border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.4)]">
+                      <Icon className="size-5 sm:size-6" />
                     </div>
-                    <h3 className="mt-4 font-sans text-xl font-black text-[#2D1F1D] sm:text-2xl">
+                    <h3 className="mt-3 sm:mt-4 font-sans text-lg sm:text-2xl font-black text-[#2D1F1D]">
                       {current.title}
                     </h3>
-                    <p className="mt-2 text-xs font-bold leading-relaxed text-[#6B5550] sm:text-sm">
+                    <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-bold leading-relaxed text-[#6B5550]">
                       {current.intro}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs font-black text-[#2D1F1D] bg-white/80 rounded-xl border border-[#2D1F1D]/30 px-3 py-1.5 shadow-xs">
-                    <Sparkles className="size-3.5 text-[#FF7D6B] fill-[#FF7D6B]" />
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-[0.68rem] sm:text-xs font-black text-[#2D1F1D] bg-white/80 rounded-xl border border-[#2D1F1D]/30 px-2.5 sm:px-3 py-1.5 shadow-xs">
+                    <Sparkles className="size-3 sm:size-3.5 text-[#FF7D6B] fill-[#FF7D6B] shrink-0" />
                     <span>Personalized &amp; Structured Hands-on Crafting</span>
                   </div>
                 </div>
 
                 {/* Right Column: Key Offerings & CTA */}
-                <div className="flex flex-col justify-between gap-5 p-5 sm:p-7 bg-white">
-
+                <div className="flex flex-col justify-between gap-4 sm:gap-5 p-4 sm:p-7 bg-white">
                   <div>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-[#2D1F1D] flex items-center gap-2">
+                    <h4 className="text-[0.68rem] sm:text-xs font-black uppercase tracking-wider text-[#2D1F1D] flex items-center gap-1.5">
                       <span>What You Receive</span>
-                      <Star className="size-3.5 fill-[#FFC837] text-[#2D1F1D]" />
+                      <Star className="size-3 sm:size-3.5 fill-[#FFC837] text-[#2D1F1D]" />
                     </h4>
-                    <ul className="mt-4 space-y-3.5">
+                    <ul className="mt-3 sm:mt-4 space-y-2.5 sm:space-y-3.5">
                       {current.points.map((point) => (
-                        <li key={point} className="flex items-start gap-3 text-sm font-bold text-[#2D1F1D]">
-                          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#10B981] text-white">
-                            <CheckCircle2 className="size-3.5 stroke-[3]" />
+                        <li key={point} className="flex items-start gap-2.5 sm:gap-3 text-xs sm:text-sm font-bold text-[#2D1F1D]">
+                          <span className="flex size-4.5 sm:size-5 shrink-0 items-center justify-center rounded-full bg-[#10B981] text-white mt-0.5">
+                            <CheckCircle2 className="size-3 sm:size-3.5 stroke-[3]" />
                           </span>
                           <span>{point}</span>
                         </li>
@@ -141,13 +143,13 @@ export function WhoIServe() {
                     </ul>
                   </div>
 
-                  <div className="border-t-2 border-[#2D1F1D]/10 pt-5">
+                  <div className="border-t border-[#2D1F1D]/10 pt-4 sm:pt-5">
                     <a
                       href="#contact"
-                      className="cute-btn bg-[#FF7D6B] px-7 py-3.5 text-sm font-black text-white hover:bg-[#FF6B6B]"
+                      className="cute-btn w-full sm:w-auto bg-[#FF7D6B] px-5 sm:px-7 py-3 text-xs sm:text-sm font-black text-white hover:bg-[#FF6B6B] min-h-[44px] flex items-center justify-center gap-2 touch-manipulation"
                     >
                       <span>Start a Conversation with Farah 🌸</span>
-                      <ArrowRight className="size-4.5 stroke-[2.5]" />
+                      <ArrowRight className="size-4 stroke-[2.5]" />
                     </a>
                   </div>
                 </div>
