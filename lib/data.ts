@@ -211,9 +211,12 @@ export const VIDEOS: Video[] = [
     title: 'Mastering the /th/ Sound: Voiced vs. Voiceless',
     duration: '2:14',
     level: 'Beginner',
+    ageGroup: 'Primary (6–11 yrs)',
     category: 'pronunciation',
     thumbnail: '/images/video-lesson.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    description:
+      'Step-by-step physical articulation cues and audio drills to help young learners speak naturally with high confidence.',
     takeaways: [
       'Tongue-between-teeth physical placement technique',
       'Vocal chord vibration testing with fingers on throat',
@@ -225,9 +228,12 @@ export const VIDEOS: Video[] = [
     title: 'Irregular Verbs Made Visual & Effortless',
     duration: '3:41',
     level: 'Intermediate',
+    ageGroup: 'Middle (11–15 yrs)',
     category: 'grammar',
     thumbnail: '/images/video-grammar.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+    description:
+      'Visual analogies and contextual rhyme groupings to make sentence patterns stick without rote memorization.',
     takeaways: [
       'Grouping irregular verbs by rhyme vowel shifts (sing/sang/sung)',
       'Avoiding rote memorization with contextual sentences',
@@ -239,9 +245,12 @@ export const VIDEOS: Video[] = [
     title: 'Interactive Storytelling in the Classroom',
     duration: '4:05',
     level: 'All levels',
+    ageGroup: 'All Ages',
     category: 'storytelling',
     thumbnail: '/images/classroom-1.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+    description:
+      'Dynamic voice inflection and tactile prop prompts to turn story time into active communicative immersion.',
     takeaways: [
       'Using vocal inflection and suspense pauses',
       'Physical prop integration to spark questions',
@@ -253,9 +262,12 @@ export const VIDEOS: Video[] = [
     title: 'Crafting Tactile Phonics Wheels on a Budget',
     duration: '3:15',
     level: 'Educators',
+    ageGroup: 'Teachers & Parents',
     category: 'workshop',
     thumbnail: '/images/classroom-2.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    description:
+      'Hands-on DIY craft guide for crafting durable, high-impact English classroom aids on an everyday budget.',
     takeaways: [
       'Materials needed: cardboard, split pins, laminating sheets',
       'Choosing high-utility word family rimes (-at, -op, -in)',
@@ -267,9 +279,12 @@ export const VIDEOS: Video[] = [
     title: 'Past Continuous vs. Simple Past with Visual Timelines',
     duration: '2:50',
     level: 'Intermediate',
+    ageGroup: 'Middle (11–15 yrs)',
     category: 'grammar',
     thumbnail: '/images/hero-classroom.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    description:
+      'Using visual timeline ropes and interruption cards to clarify the distinction between past simple and continuous.',
     takeaways: [
       'The "interrupted action" visual metaphor',
       'Key trigger words: "while" vs "when"',
@@ -281,9 +296,12 @@ export const VIDEOS: Video[] = [
     title: 'Phonemic Awareness: Short Vowel Discrimination',
     duration: '3:05',
     level: 'Beginner',
+    ageGroup: 'Primary (6–11 yrs)',
     category: 'pronunciation',
     thumbnail: '/images/video-lesson.png',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+    description:
+      'Kinesthetic mouth positioning games to help primary students clearly distinguish between tricky short vowel sounds.',
     takeaways: [
       'Jaw drop and lip shape visual cues',
       'Sorting games for /æ/ (cat) vs /e/ (bed)',

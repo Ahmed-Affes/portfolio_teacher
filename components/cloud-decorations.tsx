@@ -1405,5 +1405,137 @@ export function FloatingTweety({
   )
 }
 
+/**
+ * Cute Blooming Smiling Flower with rosy blush cheeks
+ */
+export function SmilingFlower({
+  color = '#FFB5B5',
+  size = 44,
+  className = '',
+  style,
+}: {
+  color?: string
+  size?: number
+  className?: string
+  style?: React.CSSProperties
+}) {
+  return (
+    <div
+      className={`pointer-events-none absolute z-0 select-none animate-float opacity-90 ${className}`}
+      style={{ width: size, height: size, ...style }}
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-full drop-shadow-[0_4px_10px_rgba(255,181,181,0.3)]">
+        {/* 6 Petals */}
+        <circle cx="25" cy="10" r="8.5" fill={color} stroke="#2D1F1D" strokeWidth="1.8" />
+        <circle cx="38" cy="17.5" r="8.5" fill={color} stroke="#2D1F1D" strokeWidth="1.8" />
+        <circle cx="38" cy="32.5" r="8.5" fill={color} stroke="#2D1F1D" strokeWidth="1.8" />
+        <circle cx="25" cy="40" r="8.5" fill={color} stroke="#2D1F1D" strokeWidth="1.8" />
+        <circle cx="12" cy="32.5" r="8.5" fill={color} stroke="#2D1F1D" strokeWidth="1.8" />
+        <circle cx="12" cy="17.5" r="8.5" fill={color} stroke="#2D1F1D" strokeWidth="1.8" />
 
+        {/* Center Golden Core */}
+        <circle cx="25" cy="25" r="11.5" fill="#FFC837" stroke="#2D1F1D" strokeWidth="2" />
 
+        {/* Rosy Blush Cheeks */}
+        <circle cx="18.5" cy="27" r="2.2" fill="#FF7D6B" opacity="0.8" />
+        <circle cx="31.5" cy="27" r="2.2" fill="#FF7D6B" opacity="0.8" />
+
+        {/* Smiling Eyes */}
+        <circle cx="21" cy="22" r="1.6" fill="#2D1F1D" />
+        <circle cx="29" cy="22" r="1.6" fill="#2D1F1D" />
+
+        {/* Happy Smile Arc */}
+        <path d="M22 26Q25 30 28 26" stroke="#2D1F1D" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+      </svg>
+    </div>
+  )
+}
+
+/**
+ * Cheerful Smiling Gold Doodle Star with rosy cheeks
+ */
+export function SmilingStar({
+  color = '#FFC837',
+  size = 38,
+  className = '',
+  style,
+}: {
+  color?: string
+  size?: number
+  className?: string
+  style?: React.CSSProperties
+}) {
+  return (
+    <div
+      className={`pointer-events-none absolute z-0 select-none animate-twinkle opacity-90 ${className}`}
+      style={{ width: size, height: size, ...style }}
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-full drop-shadow-[0_4px_8px_rgba(255,200,55,0.3)]">
+        {/* Star Shape */}
+        <path
+          d="M22 2L26.5 14.5L39.5 17L29.5 25.5L32.5 38.5L22 32L11.5 38.5L14.5 25.5L4.5 17L17.5 14.5L22 2Z"
+          fill={color}
+          stroke="#2D1F1D"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        {/* Rosy Cheeks */}
+        <circle cx="16" cy="25" r="2.2" fill="#FF8787" opacity="0.85" />
+        <circle cx="28" cy="25" r="2.2" fill="#FF8787" opacity="0.85" />
+        {/* Smiling Eyes */}
+        <circle cx="18" cy="20" r="1.6" fill="#2D1F1D" />
+        <circle cx="26" cy="20" r="1.6" fill="#2D1F1D" />
+        {/* Smile */}
+        <path d="M19 24Q22 27.5 25 24" stroke="#2D1F1D" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      </svg>
+    </div>
+  )
+}
+
+/**
+ * Cheerful Floating Pastel Balloon
+ */
+export function PastelBalloon({
+  color = '#FF7D6B',
+  size = 46,
+  className = '',
+  style,
+}: {
+  color?: string
+  size?: number
+  className?: string
+  style?: React.CSSProperties
+}) {
+  return (
+    <div
+      className={`pointer-events-none absolute z-0 select-none animate-float opacity-90 ${className}`}
+      style={{ width: size, height: size * 1.6, ...style }}
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 48 76" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-full drop-shadow-[0_6px_14px_rgba(255,125,107,0.25)]">
+        {/* Balloon Body */}
+        <path
+          d="M24 6C12 6 4 16 4 30C4 44 18 52 24 54C30 52 44 44 44 30C44 16 36 6 24 6Z"
+          fill={color}
+          stroke="#2D1F1D"
+          strokeWidth="2.2"
+        />
+        {/* Highlight Curve */}
+        <path d="M14 14C10 18 10 24 10 28" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" opacity="0.75" />
+        {/* Rosy Cheeks */}
+        <circle cx="15" cy="34" r="2.5" fill="#FF8787" opacity="0.75" />
+        <circle cx="33" cy="34" r="2.5" fill="#FF8787" opacity="0.75" />
+        {/* Cute Face */}
+        <circle cx="19" cy="28" r="1.8" fill="#2D1F1D" />
+        <circle cx="29" cy="28" r="1.8" fill="#2D1F1D" />
+        <path d="M21 33Q24 37 27 33" stroke="#2D1F1D" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+        {/* Knot */}
+        <path d="M21 54L27 54L24 58Z" fill="#2D1F1D" />
+        {/* Swirly Ribbon String */}
+        <path d="M24 58Q30 64 22 68Q16 72 24 76" stroke="#2D1F1D" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      </svg>
+    </div>
+  )
+}

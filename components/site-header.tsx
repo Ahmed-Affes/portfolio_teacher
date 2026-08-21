@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Menu, ShoppingBag, Sparkles, X, Heart } from 'lucide-react'
+import { ShoppingBag, Sparkles, Heart } from 'lucide-react'
 import { NAV_ITEMS } from '@/lib/data'
 import { useCart } from '@/components/cart-provider'
 import { HeaderMusicButton } from '@/components/ambient-music'
@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils'
 export function SiteHeader() {
   const [active, setActive] = useState('home')
   const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const { count, openCart } = useCart()
   const { state } = usePortfolio()
 
@@ -48,17 +47,9 @@ export function SiteHeader() {
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [menuOpen])
-
   const handleNav = (id: string, e?: React.MouseEvent) => {
     if (e) e.preventDefault()
     setActive(id)
-    setMenuOpen(false)
     const target = document.getElementById(id)
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -71,7 +62,7 @@ export function SiteHeader() {
       <nav
         className={cn(
           'mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 rounded-full border-[1.5px] border-[#2D1F1D]/35 px-4 py-2 transition-all duration-300 sm:h-16 sm:px-6',
-          scrolled || menuOpen
+          scrolled
             ? 'bg-white/95 shadow-[0_10px_25px_rgba(45,31,29,0.08),2.5px_2.5px_0px_rgba(45,31,29,0.5)] backdrop-blur-md'
             : 'bg-white/85 shadow-[0_4px_16px_rgba(45,31,29,0.05),2px_2px_0px_rgba(45,31,29,0.4)] backdrop-blur-sm',
         )}
@@ -127,7 +118,7 @@ export function SiteHeader() {
           })}
         </ul>
 
-        {/* Action Buttons: Cart + Ambient Music + Contact + Mobile Menu */}
+        {/* Action Buttons: Cart + Ambient Music + Contact */}
         <div className="flex shrink-0 items-center gap-2">
           <HeaderMusicButton />
 
@@ -139,7 +130,7 @@ export function SiteHeader() {
           >
             <ShoppingBag className="size-4" />
             {count > 0 && (
-              <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-[#FF7D6B] px-1 py-0.5 text-[0.65rem] font-black text-white shadow-xs animate-bounce">
+              <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-[#FF7D6B] px-1 py-0.5 text-[0.65rem] font-black text-white shadow-xs animate-pulse-gentle">
                 {count}
               </span>
             )}
@@ -152,42 +143,8 @@ export function SiteHeader() {
           >
             Say Hello! 🌸
           </a>
-
-          <button
-            type="button"
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((o) => !o)}
-            className="flex size-9 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] xl:hidden sm:size-10 cursor-pointer"
-          >
-            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
         </div>
       </nav>
-
-      {/* Mobile Menu Drawer */}
-      {menuOpen && (
-        <div className="fixed inset-x-3 top-20 z-40 rounded-3xl border-[1.5px] border-[#2D1F1D]/40 bg-white p-4 shadow-[0_16px_36px_rgba(45,31,29,0.18),3px_3px_0px_rgba(45,31,29,0.5)] xl:hidden">
-          <ul className="grid grid-cols-2 gap-2">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  onClick={(e) => handleNav(item.id, e)}
-                  className={cn(
-                    'block rounded-2xl border border-[#2D1F1D]/30 px-3 py-2.5 text-center text-xs font-black transition-all shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.25)] active:shadow-none active:translate-y-[1px]',
-                    active === item.id
-                      ? 'bg-[#FFC837] text-[#2D1F1D] border-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
-                      : 'bg-[#FAF5EC] text-[#2D1F1D] hover:bg-[#FFE68C]/50',
-                  )}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </header>
   )
 }

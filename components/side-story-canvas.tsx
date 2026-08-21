@@ -16,21 +16,92 @@ const palette = {
 
 type Particle = { x: number; y: number; size: number; speed: number; phase: number; color: string }
 
-function cloud(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, alpha: number) {
+function cloud(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  scale: number,
+  alpha: number,
+  mood: 'smiling' | 'laughing' = 'smiling',
+) {
   ctx.save()
   ctx.globalAlpha = alpha
   ctx.fillStyle = palette.white
   ctx.strokeStyle = palette.ink
-  ctx.lineWidth = 2.2
+  ctx.lineWidth = 2.2 * scale
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+
+  // Cloud Body outline and soft cream gradient fill
   ctx.beginPath()
   ctx.arc(x, y + 12 * scale, 22 * scale, Math.PI, 0)
   ctx.arc(x + 28 * scale, y, 30 * scale, Math.PI, 0)
   ctx.arc(x + 64 * scale, y + 12 * scale, 21 * scale, Math.PI, 0)
   ctx.lineTo(x + 85 * scale, y + 30 * scale)
-  ctx.lineTo(x, y + 30 * scale)
+  ctx.lineTo(x - 22 * scale, y + 30 * scale)
   ctx.closePath()
   ctx.fill()
   ctx.stroke()
+
+  // Cute rosy pink blush cheeks
+  ctx.fillStyle = '#FF8787'
+  ctx.globalAlpha = alpha * 0.75
+  ctx.beginPath()
+  ctx.arc(x + 10 * scale, y + 20 * scale, 4.5 * scale, 0, Math.PI * 2)
+  ctx.arc(x + 55 * scale, y + 20 * scale, 4.5 * scale, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.globalAlpha = alpha
+  ctx.fillStyle = palette.ink
+  ctx.strokeStyle = palette.ink
+
+  if (mood === 'laughing') {
+    // Happy laughing ^ ^ eyes
+    ctx.lineWidth = 2.2 * scale
+    ctx.beginPath()
+    ctx.arc(x + 20 * scale, y + 14 * scale, 4.5 * scale, Math.PI, 0)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(x + 45 * scale, y + 14 * scale, 4.5 * scale, Math.PI, 0)
+    ctx.stroke()
+
+    // Open laughing mouth with tongue
+    ctx.fillStyle = '#FF7D6B'
+    ctx.beginPath()
+    ctx.moveTo(x + 26 * scale, y + 18 * scale)
+    ctx.quadraticCurveTo(x + 32.5 * scale, y + 27 * scale, x + 39 * scale, y + 18 * scale)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+
+    // Tongue blush curve
+    ctx.strokeStyle = '#FFB5B5'
+    ctx.lineWidth = 1.8 * scale
+    ctx.beginPath()
+    ctx.arc(x + 32.5 * scale, y + 22.5 * scale, 2.2 * scale, 0, Math.PI)
+    ctx.stroke()
+  } else {
+    // Smiling: Sparkling open anime eyes
+    ctx.beginPath()
+    ctx.arc(x + 20 * scale, y + 13 * scale, 3 * scale, 0, Math.PI * 2)
+    ctx.arc(x + 45 * scale, y + 13 * scale, 3 * scale, 0, Math.PI * 2)
+    ctx.fill()
+
+    // White eye shine dots
+    ctx.fillStyle = palette.white
+    ctx.beginPath()
+    ctx.arc(x + 21.2 * scale, y + 11.8 * scale, 1 * scale, 0, Math.PI * 2)
+    ctx.arc(x + 46.2 * scale, y + 11.8 * scale, 1 * scale, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Joyful curved smile
+    ctx.strokeStyle = palette.ink
+    ctx.lineWidth = 2.2 * scale
+    ctx.beginPath()
+    ctx.arc(x + 32.5 * scale, y + 16 * scale, 6.5 * scale, 0.15, Math.PI - 0.15)
+    ctx.stroke()
+  }
+
   ctx.restore()
 }
 
@@ -209,9 +280,31 @@ export function SideStoryCanvas() {
 
       // Keep most decoration in the gutters, with a few large pieces crossing behind sections.
       const drift = time * 0.22
-      // One quiet cloud lane and a few hero objects keep the page alive without competing with content.
-      cloud(ctx, ((width * 0.03 + drift * 35 + progress * width * 0.35) % (width + 220)) - 120, height * 0.14 + Math.sin(time * 0.35) * 12, 1.35, 0.58)
-      cloud(ctx, ((width * 0.69 - drift * 24 - progress * width * 0.3) % (width + 260)) - 130, height * 0.69 + Math.sin(time * 0.28 + 2) * 14, 1.05, 0.48)
+      // Smiling and Laughing cloud lanes floating across the canvas
+      cloud(
+        ctx,
+        ((width * 0.04 + drift * 32 + progress * width * 0.35) % (width + 240)) - 120,
+        height * 0.14 + Math.sin(time * 0.35) * 12,
+        1.35,
+        0.62,
+        'smiling',
+      )
+      cloud(
+        ctx,
+        ((width * 0.72 - drift * 24 - progress * width * 0.3) % (width + 260)) - 130,
+        height * 0.69 + Math.sin(time * 0.28 + 2) * 14,
+        1.15,
+        0.58,
+        'laughing',
+      )
+      cloud(
+        ctx,
+        ((width * 0.38 + drift * 18) % (width + 220)) - 100,
+        height * 0.42 + Math.sin(time * 0.38 + 1) * 10,
+        0.92,
+        0.50,
+        'laughing',
+      )
 
       balloon(ctx, width * 0.11 + Math.sin(progress * 8) * 34, height * 0.34 + Math.sin(time * 0.3) * 16 - progress * height * 0.12, 0.92, palette.coral, time * 1.2)
       bird(ctx, width * (0.22 + ((progress * 0.75 + time * 0.018) % 0.62)), height * 0.22 + Math.sin(time * 0.8) * 18, 0.82, time * 5)

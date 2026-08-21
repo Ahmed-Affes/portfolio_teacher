@@ -7,7 +7,14 @@ import { SectionHeading } from '@/components/section-heading'
 import { SectionScene } from '@/components/section-scene'
 import { usePortfolio } from '@/lib/portfolio-context'
 import { useToast } from '@/components/toast-provider'
-import { WoodenPeg, ClotheslineRope } from '@/components/cloud-decorations'
+import {
+  WoodenPeg,
+  ClotheslineRope,
+  FloatingCloud,
+  SmilingStar,
+  SmilingFlower,
+  PastelBalloon,
+} from '@/components/cloud-decorations'
 import { cn } from '@/lib/utils'
 
 export function Testimonials() {
@@ -74,6 +81,12 @@ export function Testimonials() {
 
   return (
     <section id="testimonials" className="section-shell relative overflow-hidden bg-[#FFFDF9] py-10 sm:py-14 lg:py-16">
+      {/* Happy Stationary Decorations */}
+      <FloatingCloud mood="laughing" size="md" className="top-6 left-8 opacity-60 hidden md:block" />
+      <SmilingStar size={34} color="#FFC837" className="top-14 right-10 opacity-75 hidden sm:block" />
+      <SmilingFlower size={42} color="#FFB5B5" className="bottom-12 left-6 opacity-70 hidden md:block" />
+      <PastelBalloon color="#C084FC" size={44} className="bottom-20 right-8 opacity-70 hidden xl:block" />
+
       <SectionScene theme="testimonials" pattern="dots" />
 
       <div className="section-inner section-stack">

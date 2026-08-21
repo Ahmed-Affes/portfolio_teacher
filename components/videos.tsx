@@ -22,6 +22,10 @@ import { cn } from '@/lib/utils'
 import {
   CuteSticker,
   PushPin,
+  FloatingCloud,
+  DoodleMusicNotes,
+  SmilingStar,
+  SmilingFlower,
 } from '@/components/cloud-decorations'
 
 const VIDEO_FILTERS: { id: VideoCategory; label: string; color: string }[] = [
@@ -69,6 +73,12 @@ export function Videos() {
       id="videos"
       className="section-shell relative overflow-hidden bg-gradient-to-b from-[#FFFDF9] to-[#FAF5EC] py-10 sm:py-14 lg:py-16"
     >
+      {/* Happy Stationary Decorations */}
+      <FloatingCloud mood="laughing" size="md" className="top-8 left-8 opacity-60 hidden md:block" />
+      <DoodleMusicNotes size={52} className="top-12 right-12 opacity-75 hidden sm:block" />
+      <SmilingStar size={34} color="#FFC837" className="bottom-16 left-12 opacity-75 hidden md:block" />
+      <SmilingFlower size={40} color="#C084FC" className="bottom-20 right-8 opacity-70 hidden lg:block" />
+
       <SectionScene theme="videos" pattern="dots" />
 
       <div className="section-inner section-stack relative">
@@ -152,13 +162,13 @@ export function Videos() {
                     onClick={() => setActiveVideo(video)}
                     className={cn(
                       'relative flex h-full w-full flex-col overflow-hidden rounded-[2.4rem_1.4rem_2.6rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(45,31,29,0.1),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
-                      isFeatured ? 'rounded-[2.8rem_1.6rem_2.6rem_1.8rem] lg:grid lg:grid-cols-[1.2fr_0.8fr] lg:items-stretch' : (i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]'),
+                      isFeatured ? 'rounded-[2.8rem_1.6rem_2.6rem_1.8rem] lg:grid lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch' : (i % 2 === 0 ? 'rotate-[-0.4deg]' : 'rotate-[0.4deg]'),
                     )}
                   >
                     {/* Video Thumbnail Screen */}
                     <div className={cn(
-                      'relative aspect-video w-full overflow-hidden bg-[#2D1F1D] border-b border-[#2D1F1D]/20',
-                      isFeatured && 'lg:border-b-0 lg:border-r lg:aspect-auto lg:min-h-[280px]',
+                      'relative aspect-video w-full overflow-hidden bg-[#2D1F1D] border-b border-[#2D1F1D]/20 group-hover:brightness-95 transition-all',
+                      isFeatured && 'lg:border-b-0 lg:border-r lg:aspect-auto lg:min-h-[290px]',
                     )}>
                       <Image
                         src={video.thumbnail || '/placeholder.svg'}
@@ -167,49 +177,91 @@ export function Videos() {
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-[#2D1F1D]/30" />
+                      <div className="absolute inset-0 bg-[#2D1F1D]/25" />
 
                       {/* Pulsing Play Button */}
                       <span
-                        className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] transition-transform duration-200 group-hover:scale-110"
+                        className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.6)] transition-transform duration-200 group-hover:scale-110 group-hover:bg-[#FFD54F]"
                         aria-hidden="true"
                       >
                         <Play className="ml-1 size-6 fill-[#2D1F1D]" />
                       </span>
 
                       {/* Duration Badge */}
-                      <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D] shadow-xs">
-                        <Clock className="size-3 text-[#FF7D6B]" />
-                        {video.duration}
-                      </span>
+                      {video.duration && (
+                        <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
+                          <span className="flex items-center gap-1 rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D] shadow-xs">
+                            <Clock className="size-3 text-[#FF7D6B]" />
+                            {video.duration}
+                          </span>
+                        </div>
+                      )}
 
-                      {/* Level pill */}
-                      <span className="absolute left-3 top-3 rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
-                        {video.level}
-                      </span>
+                      {/* Category & Level pills */}
+                      <div className="absolute left-3 top-3 flex items-center gap-1.5 flex-wrap">
+                        {video.level && (
+                          <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                            {video.level}
+                          </span>
+                        )}
+                        {video.category && (
+                          <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.62rem] font-bold text-[#2D1F1D] shadow-xs capitalize">
+                            {video.category}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Video Info Content */}
-                    <div className={cn('flex flex-1 flex-col p-5', isFeatured && 'lg:justify-center lg:p-8')}>
-                      {isFeatured && (
-                        <span className="mb-2 inline-flex w-fit items-center rounded-full border border-[#2D1F1D]/30 bg-[#FFE68C] px-3 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)] animate-wiggle-in">
-                          Featured Lesson 🌟
-                        </span>
+                    <div className={cn('flex flex-1 flex-col justify-between p-5 space-y-3', isFeatured && 'lg:p-7')}>
+                      <div>
+                        {isFeatured && (
+                          <div className="mb-2 flex items-center gap-2">
+                            <span className="inline-flex w-fit items-center rounded-full border border-[#2D1F1D]/30 bg-[#FFC837] px-3 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
+                              Featured 🌟
+                            </span>
+                          </div>
+                        )}
+
+                        <h3 className={cn(
+                          'font-sans font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B]',
+                          isFeatured ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg',
+                        )}>
+                          {video.title}
+                        </h3>
+
+                        {video.description && (
+                          <p className="mt-2 text-xs sm:text-[0.82rem] font-medium leading-relaxed text-[#6B5550]">
+                            {video.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Key Takeaways Badges (editable in Admin) */}
+                      {video.takeaways && video.takeaways.length > 0 && (
+                        <div className="space-y-1.5 border-t border-[#2D1F1D]/10 pt-2.5">
+                          <p className="text-[0.65rem] font-black uppercase tracking-wider text-[#2D1F1D] flex items-center gap-1">
+                            <Sparkles className="size-2.5 text-[#FF7D6B]" />
+                            <span>Key Takeaways:</span>
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {video.takeaways.slice(0, isFeatured ? 3 : 2).map((t) => (
+                              <span
+                                key={t}
+                                className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
+                              >
+                                <CheckCircle2 className="size-2.5 text-[#10B981] shrink-0" />
+                                <span className="truncate max-w-[210px]">{t}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       )}
-                      <h3 className={cn(
-                        'font-sans font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B]',
-                        isFeatured ? 'text-xl sm:text-2xl' : 'text-base',
-                      )}>
-                        {video.title}
-                      </h3>
 
-                      <p className="mt-2 text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-3">
-                        {video.description}
-                      </p>
-
-                      <div className="mt-4 flex items-center justify-between border-t border-[#2D1F1D]/10 pt-3">
+                      {/* Action Footer */}
+                      <div className="flex items-center justify-between border-t border-[#2D1F1D]/10 pt-2.5">
                         <span className="text-[0.7rem] font-bold text-[#6B5550]">
-                          {video.ageGroup ? `Target: ${video.ageGroup}` : `Level: ${video.level || 'All Levels'}`}
+                          {video.ageGroup ? video.ageGroup : (video.level || '')}
                         </span>
                         <span className="inline-flex items-center gap-1 text-xs font-black text-[#FF7D6B] group-hover:underline">
                           Watch Video <ChevronRight className="size-3.5" />

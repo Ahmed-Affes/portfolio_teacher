@@ -9,7 +9,17 @@ import { SectionScene } from '@/components/section-scene'
 import { type Product } from '@/lib/data'
 import { useCart } from '@/components/cart-provider'
 import { usePortfolio } from '@/lib/portfolio-context'
-import { CraftPriceTag, MarketAwning, MarketShelfLedge, CuteSticker } from '@/components/cloud-decorations'
+import {
+  CraftPriceTag,
+  MarketAwning,
+  MarketShelfLedge,
+  CuteSticker,
+  FloatingCloud,
+  DoodleRainbow,
+  SmilingFlower,
+  SmilingStar,
+  PastelBalloon,
+} from '@/components/cloud-decorations'
 import { cn } from '@/lib/utils'
 
 const SHOP_CATEGORIES = [
@@ -45,6 +55,13 @@ export function ResourceShop() {
 
   return (
     <section id="shop" className="section-shell relative bg-[#FFFDF9] py-10 sm:py-14 lg:py-16 overflow-hidden">
+      {/* Happy Stationary Decorations */}
+      <FloatingCloud mood="smiling" size="md" className="top-6 right-10 opacity-60 hidden md:block" />
+      <DoodleRainbow size={64} className="top-16 left-8 opacity-70 hidden lg:block" />
+      <SmilingStar size={34} color="#FFC837" className="bottom-12 right-12 opacity-75 hidden sm:block" />
+      <SmilingFlower size={42} color="#FFB5B5" className="bottom-20 left-6 opacity-70 hidden md:block" />
+      <PastelBalloon color="#FF7D6B" size={44} className="top-1/2 right-4 opacity-70 hidden xl:block" />
+
       <SectionScene theme="shop" pattern="dots" />
 
       <div className="section-inner section-stack">

@@ -13,7 +13,12 @@ import {
   Mail,
   Menu,
   X,
+  Music,
+  Disc3,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
+import { useMusic } from '@/components/ambient-music'
 import { cn } from '@/lib/utils'
 
 export const ALL_NAV_ITEMS = [
@@ -31,6 +36,7 @@ export const ALL_NAV_ITEMS = [
 export function MobileBottomNav() {
   const [active, setActive] = useState('home')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isPlaying, isMuted, currentTrack, togglePlay, toggleMute } = useMusic()
 
   useEffect(() => {
     const sectionIds = ALL_NAV_ITEMS.map((item) => item.id)
@@ -137,6 +143,41 @@ export function MobileBottomNav() {
                   </button>
                 )
               })}
+            </div>
+
+            {/* Mobile Ambient Music Controller */}
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-[#FAF5EC]/20 bg-[#2D1F1D] p-3 text-[#FAF5EC]">
+              <div className="flex items-center gap-2.5">
+                <span className="flex size-8 items-center justify-center rounded-xl bg-[#FFE68C] text-[#2D1F1D]">
+                  {isPlaying ? (
+                    <Disc3 className="size-4 text-[#FF7D6B] animate-spin" style={{ animationDuration: '3s' }} />
+                  ) : (
+                    <Music className="size-4" />
+                  )}
+                </span>
+                <div>
+                  <p className="text-xs font-black text-[#FAF5EC]">Atelier Ambient Music</p>
+                  <p className="text-[0.62rem] text-[#FAF5EC]/70">{currentTrack.name} • {isPlaying ? 'Playing 🎵' : 'Paused'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  aria-label={isMuted ? 'Unmute music' : 'Mute music'}
+                  className="flex size-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 cursor-pointer"
+                >
+                  {isMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  className="rounded-xl border border-[#2D1F1D] bg-[#FFC837] px-3 py-1.5 text-xs font-black text-[#2D1F1D] shadow-xs hover:bg-[#FFB800] cursor-pointer"
+                >
+                  {isPlaying ? 'Pause' : 'Play 🎵'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -27,7 +27,15 @@ import { TypewriterText } from '@/components/typewriter-text'
 import { usePortfolio, type CareerMilestone, type MilestoneCategory } from '@/lib/portfolio-context'
 import { CAREER_MILESTONES } from '@/lib/data'
 import { cn } from '@/lib/utils'
-import { WashiTape, CuteSticker, PushPin } from '@/components/cloud-decorations'
+import {
+  WashiTape,
+  CuteSticker,
+  PushPin,
+  FloatingCloud,
+  SmilingFlower,
+  SmilingStar,
+  PastelBalloon,
+} from '@/components/cloud-decorations'
 
 const CHAPTER_CONFIG: {
   id: MilestoneCategory
@@ -224,6 +232,7 @@ export function About() {
 
   // Current active spread index
   const [activeIdx, setActiveIdx] = useState(0)
+  const [isTocOpen, setIsTocOpen] = useState(false)
 
   // 3D Flip Animation State
   const [flipState, setFlipState] = useState<FlipState>({
@@ -296,14 +305,14 @@ export function About() {
   )
 
   // Switch category tab -> jump to the first milestone spread of that category
-  const handleCategoryClick = (catId: MilestoneCategory) => {
+  const handleCategoryClick = useCallback((catId: MilestoneCategory) => {
     const targetIdx = bookSpreads.findIndex(
       (s) => s.type === 'milestone' && s.chapter.id === catId,
     )
     if (targetIdx !== -1 && targetIdx !== safeIdx) {
       turnToSpread(targetIdx)
     }
-  }
+  }, [bookSpreads, safeIdx, turnToSpread])
 
   // Cleanup timer on unmount only
   useEffect(() => {
@@ -312,21 +321,30 @@ export function About() {
     }
   }, [])
 
-  // Keyboard navigation for turning book pages
+  // Keyboard navigation for turning book pages & chapter shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (lightboxData) return
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
       if (e.key === 'ArrowRight' && safeIdx < totalSpreads - 1) {
         turnToSpread(safeIdx + 1)
       } else if (e.key === 'ArrowLeft' && safeIdx > 0) {
         turnToSpread(safeIdx - 1)
+      } else if (e.key === 't' || e.key === 'T') {
+        setIsTocOpen((prev) => !prev)
+      } else if (e.key === 'Escape' && isTocOpen) {
+        setIsTocOpen(false)
+      } else if (['1', '2', '3', '4'].includes(e.key)) {
+        const num = parseInt(e.key, 10)
+        const chap = CHAPTER_CONFIG.find((c) => c.chapterNum === num)
+        if (chap) handleCategoryClick(chap.id)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [safeIdx, totalSpreads, lightboxData, turnToSpread])
+  }, [safeIdx, totalSpreads, lightboxData, isTocOpen, turnToSpread, handleCategoryClick])
 
   // Helpers for 3D flip layers
   const fromSpread = bookSpreads[flipState.fromIdx] || currentSpread
@@ -348,30 +366,33 @@ export function About() {
           : [milestone?.image || '/images/farah-portrait.png']
       const spotlightImg = photos[0]
 
-
       return (
-        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
+        <div className="size-full flex flex-col justify-between pl-4 pr-6 py-3.5 sm:pl-5 sm:pr-7 sm:py-4 bg-[#FCF9F2] select-none shadow-[inset_0_0_18px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6] relative">
+          {/* Inner spine shadow gradient along right edge */}
+          <div className="absolute inset-y-0 right-0 w-6 bg-gradient-to-r from-transparent to-[#2D1F1D]/8 pointer-events-none" />
+
           {/* Top Chapter Header */}
           <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0 gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-black uppercase tracking-wider font-sans text-[#FF7D6B] shrink-0">
-                Chapter {chapter.chapterNum}: {chapter.title}
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-xs font-black font-sans text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]">
+                <span>{chapter.icon}</span>
+                <span>Ch. {chapter.chapterNum}: {chapter.title}</span>
               </span>
               {totalInChapter > 1 && (
-                <span className="rounded-full border border-[#2D1F1D]/60 bg-[#FFE68C] px-2 py-0.5 text-[0.65rem] font-bold font-sans text-[#2D1F1D] shrink-0">
-                  Part {pageInChapter}/{totalInChapter}
+                <span className="rounded-md border border-[#2D1F1D]/30 bg-white px-2 py-0.5 text-[0.65rem] font-bold font-sans text-[#6B5550] shrink-0">
+                  {pageInChapter}/{totalInChapter}
                 </span>
               )}
             </div>
 
-            <span className="text-xs font-bold text-[#6B5550] font-sans shrink-0 whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
+            <span className="text-[0.68rem] font-bold text-[#6B5550] font-sans shrink-0 whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2 - 1}
             </span>
           </div>
 
-          {/* Chapter Spotlight Photo Pinned with 3D Pushpin */}
-          <div className="relative mx-auto w-full max-w-[190px] h-[138px] flex items-center justify-center my-auto pt-1">
-            <PushPin color="red" size={24} className="left-1/2 top-0" />
+          {/* Chapter Spotlight Photo Pinned with 3D Pushpin (Scaled up for rich visual presence) */}
+          <div className="relative mx-auto w-full max-w-[215px] h-[138px] sm:h-[144px] flex items-center justify-center my-1 pt-0.5">
+            <PushPin color="red" size={24} className="left-1/2 -top-1.5" />
 
             <div
               onClick={() =>
@@ -381,15 +402,15 @@ export function About() {
                   photoIndex: 0,
                 })
               }
-              className="group/spotlight relative aspect-[4/3] h-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2.5px_2.5px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#2D1F1D] rotate-[-0.6deg]"
+              className="group/spotlight relative aspect-[16/11] h-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-1 shadow-[2.5px_2.5px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_#2D1F1D] rotate-[-0.6deg]"
             >
-              <div className="relative size-full overflow-hidden rounded-lg">
+              <div className="relative size-full overflow-hidden rounded-lg bg-[#FAF5EC]">
                 <Image
                   src={spotlightImg}
                   alt={milestone?.title || 'Milestone photo'}
                   fill
-                  sizes="(max-width: 768px) 180px, 220px"
-                  className="object-cover"
+                  sizes="(max-width: 768px) 200px, 240px"
+                  className="object-cover transition-transform duration-300 group-hover/spotlight:scale-105"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/spotlight:opacity-100 transition-opacity">
                   <span className="flex size-6 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-xs">
@@ -400,40 +421,41 @@ export function About() {
             </div>
           </div>
 
-          {/* Highlights / Skills Stickers (Large, Clear & High Legibility) */}
-          <div className="flex flex-wrap gap-1.5 items-center my-auto py-1 shrink-0">
-            {milestone?.highlights &&
-              milestone.highlights.length > 0 &&
-              milestone.highlights.slice(0, 3).map((h, hIdx) => (
-                <span
-                  key={hIdx}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/60 bg-white px-2.5 py-1 text-[0.72rem] font-bold font-sans text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]"
-                >
-                  <CheckCircle2 className="size-3 stroke-[2.5] text-[#10B981] shrink-0" />
-                  <span className="truncate max-w-[145px]">{h}</span>
-                </span>
-              ))}
+          {/* Highlights / Skills Stickers (Scaled up with date tag to fill page evenly) */}
+          <div className="space-y-1.5 my-1 shrink-0">
+            <div className="flex flex-wrap gap-1.5 items-center justify-center">
+              {milestone?.highlights &&
+                milestone.highlights.map((h, hIdx) => (
+                  <span
+                    key={hIdx}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/40 bg-white px-2 py-0.5 text-[0.72rem] font-bold font-sans text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.25)]"
+                  >
+                    <CheckCircle2 className="size-3 stroke-[2.5] text-[#10B981] shrink-0" />
+                    <span>{h}</span>
+                  </span>
+                ))}
+            </div>
           </div>
 
           {/* BOTTOM-LEFT CORNER: Turn Back Navigation Button */}
-          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
+          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/12 shrink-0">
             <button
               type="button"
               disabled={idx === 0 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx - 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2.5 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
                 idx > 0 && isStatic
                   ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:-translate-x-0.5 hover:bg-[#FFD952]'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
-              <ChevronLeft className="size-3.5" />
+              <ChevronLeft className="size-3.5 stroke-[2.5]" />
               <span>‹ Previous</span>
             </button>
 
-            <span className="text-xs font-bold text-[#6B5550] font-sans">
-              {idx + 1} of {totalSpreads}
+            <span className="text-[0.68rem] font-bold text-[#6B5550] font-sans">
+              Spread {idx + 1} of {totalSpreads}
             </span>
           </div>
         </div>
@@ -444,28 +466,30 @@ export function About() {
       const { completedChapter } = spread
 
       return (
-        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
+        <div className="size-full flex flex-col justify-between pl-4 pr-6 py-3.5 sm:pl-5 sm:pr-7 sm:py-4 bg-[#FCF9F2] select-none shadow-[inset_0_0_18px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6] relative">
+          <div className="absolute inset-y-0 right-0 w-6 bg-gradient-to-r from-transparent to-[#2D1F1D]/8 pointer-events-none" />
+
           {/* Top Header */}
           <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0">
-            <span className="rounded-full border border-[#2D1F1D]/60 bg-[#A7F3D0] px-3 py-0.5 text-xs font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
+            <span className="rounded-full border border-[#2D1F1D]/50 bg-[#A7F3D0] px-2.5 py-0.5 text-xs font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
               ✨ Chapter {completedChapter.chapterNum} Complete
             </span>
-            <span className="text-xs font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
+            <span className="text-[0.68rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2 - 1}
             </span>
           </div>
 
           {/* Center Achievement Certificate Card */}
-          <div className="my-auto space-y-2.5 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-[#FFF8E7] p-3.5 shadow-[2.5px_2.5px_0px_#2D1F1D]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex size-9 items-center justify-center rounded-xl border border-[#2D1F1D] bg-white text-lg shadow-xs">
+          <div className="my-auto space-y-2 rounded-xl border-[1.5px] border-[#2D1F1D] bg-[#FFF8E7] p-3 shadow-[2px_2px_0px_#2D1F1D]">
+            <div className="flex items-center gap-2">
+              <div className="flex size-8 items-center justify-center rounded-lg border border-[#2D1F1D] bg-white text-base shadow-xs">
                 {completedChapter.icon}
               </div>
               <div>
-                <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
+                <h4 className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D]">
                   Chapter {completedChapter.chapterNum}: {completedChapter.title}
                 </h4>
-                <p className="text-xs font-bold text-[#6B5550]">
+                <p className="text-[0.68rem] font-bold text-[#6B5550]">
                   {completedChapter.subtitle}
                 </p>
               </div>
@@ -473,8 +497,8 @@ export function About() {
 
             <div className="space-y-1.5 border-t border-[#2D1F1D]/15 pt-2">
               {completedChapter.summaryBullets.map((bullet, bIdx) => (
-                <div key={bIdx} className="flex items-start gap-2 text-xs font-medium text-[#2D1F1D] leading-snug">
-                  <CheckCircle2 className="size-3.5 text-[#10B981] shrink-0 mt-0.5" />
+                <div key={bIdx} className="flex items-start gap-1.5 text-xs font-medium text-[#2D1F1D] leading-snug">
+                  <CheckCircle2 className="size-3.5 text-[#10B981] shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>{bullet}</span>
                 </div>
               ))}
@@ -482,23 +506,23 @@ export function About() {
           </div>
 
           {/* Bottom Left Button */}
-          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
+          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/12 shrink-0">
             <button
               type="button"
               disabled={idx === 0 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx - 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2.5 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
                 idx > 0 && isStatic
                   ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:-translate-x-0.5'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
-              <ChevronLeft className="size-3.5" />
-              <span>‹ Previous Page</span>
+              <ChevronLeft className="size-3.5 stroke-[2.5]" />
+              <span>‹ Previous</span>
             </button>
-            <span className="text-xs font-bold text-[#6B5550]">
-              {idx + 1} of {totalSpreads}
+            <span className="text-[0.68rem] font-bold text-[#6B5550]">
+              Spread {idx + 1} of {totalSpreads}
             </span>
           </div>
         </div>
@@ -507,53 +531,55 @@ export function About() {
 
     // Finale Left Page (Timeline Recap)
     return (
-      <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6]/80">
+      <div className="size-full flex flex-col justify-between pl-4 pr-6 py-3.5 sm:pl-5 sm:pr-7 sm:py-4 bg-[#FCF9F2] select-none shadow-[inset_0_0_18px_rgba(180,150,110,0.06)] border-r border-[#E5DAC6] relative">
+        <div className="absolute inset-y-0 right-0 w-6 bg-gradient-to-r from-transparent to-[#2D1F1D]/8 pointer-events-none" />
+
         <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0">
-          <span className="rounded-full border border-[#2D1F1D]/60 bg-[#FFE68C] px-3 py-0.5 text-xs font-black text-[#2D1F1D]">
+          <span className="rounded-full border border-[#2D1F1D]/50 bg-[#FFE68C] px-2.5 py-0.5 text-xs font-black text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]">
             🌟 Farah’s Journey Recap
           </span>
-          <span className="text-xs font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
+          <span className="text-[0.68rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
             Page {(idx + 1) * 2 - 1}
           </span>
         </div>
 
-        <div className="my-auto space-y-2 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-white p-3.5 shadow-[2.5px_2.5px_0px_#2D1F1D]">
+        <div className="my-auto space-y-2 rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-3 shadow-[2px_2px_0px_#2D1F1D]">
           <div className="flex items-center gap-1.5 text-xs font-black text-[#2D1F1D]">
             <Sparkles className="size-3.5 text-[#FF7D6B]" />
             <span>4 Chapters of Dedication</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#F0FDF4] p-2">
-              <span className="font-black text-[#059669]">🎓 Linguistics</span>
+          <div className="grid grid-cols-2 gap-1.5 pt-0.5 text-xs">
+            <div className="rounded-md border border-[#2D1F1D]/15 bg-[#F0FDF4] p-1.5">
+              <span className="font-black text-[#059669] text-[0.72rem]">🎓 Linguistics</span>
               <p className="text-[0.65rem] text-[#6B5550]">Phonetics &amp; CLT</p>
             </div>
-            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#FAF5FF] p-2">
-              <span className="font-black text-[#7C3AED]">💼 Classroom</span>
+            <div className="rounded-md border border-[#2D1F1D]/15 bg-[#FAF5FF] p-1.5">
+              <span className="font-black text-[#7C3AED] text-[0.72rem]">💼 Classroom</span>
               <p className="text-[0.65rem] text-[#6B5550]">900+ ESL Learners</p>
             </div>
-            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#FFF1F2] p-2">
-              <span className="font-black text-[#E11D48]">✂️ Atelier</span>
+            <div className="rounded-md border border-[#2D1F1D]/15 bg-[#FFF1F2] p-1.5">
+              <span className="font-black text-[#E11D48] text-[0.72rem]">✂️ Atelier</span>
               <p className="text-[0.65rem] text-[#6B5550]">100+ Custom Props</p>
             </div>
-            <div className="rounded-lg border border-[#2D1F1D]/15 bg-[#FFF7ED] p-2">
-              <span className="font-black text-[#EA580C]">🏆 Workshops</span>
+            <div className="rounded-md border border-[#2D1F1D]/15 bg-[#FFF7ED] p-1.5">
+              <span className="font-black text-[#EA580C] text-[0.72rem]">🏆 Workshops</span>
               <p className="text-[0.65rem] text-[#6B5550]">Teacher Seminars</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
+        <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/12 shrink-0">
           <button
             type="button"
             disabled={idx === 0 || !isStatic}
             onClick={() => isStatic && turnToSpread(idx - 1)}
-            className="flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-3 py-1.5 text-xs font-black shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer"
+            className="flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer"
           >
-            <ChevronLeft className="size-3.5" />
-            <span>‹ Previous Page</span>
+            <ChevronLeft className="size-3.5 stroke-[2.5]" />
+            <span>‹ Previous</span>
           </button>
-          <span className="text-xs font-bold text-[#6B5550]">
-            {idx + 1} of {totalSpreads}
+          <span className="text-[0.68rem] font-bold text-[#6B5550]">
+            Spread {idx + 1} of {totalSpreads}
           </span>
         </div>
       </div>
@@ -576,52 +602,60 @@ export function About() {
           : [milestone?.image || '/images/farah-portrait.png']
 
       return (
-        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6]/80">
-          {/* Right Page Top Header */}
+        <div className="size-full flex flex-col justify-between pl-6 pr-4 py-3.5 sm:pl-7 sm:pr-5 sm:py-4 bg-[#FCF9F2] select-none shadow-[inset_0_0_18px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6] relative">
+          {/* Inner spine shadow gradient along left edge */}
+          <div className="absolute inset-y-0 left-0 w-6 bg-gradient-to-l from-transparent to-[#2D1F1D]/8 pointer-events-none" />
+
+          {/* Right Page Top Header with Category Badge & Date Pill in clean horizontal layout */}
           <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0 gap-2">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-[#2D1F1D]/60 bg-[#A7F3D0] px-2.5 py-0.5 text-[0.72rem] font-black font-sans text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+              <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-[#2D1F1D]/40 bg-[#A7F3D0] px-2.5 py-0.5 text-xs font-black font-sans text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
                 <span>{milestone?.badgeEmoji || chapter.icon}</span>
-                <span className="truncate max-w-[100px] sm:max-w-none">
-                  {milestone?.categoryLabel || chapter.title}
-                </span>
+                <span>{milestone?.categoryLabel || chapter.title}</span>
               </span>
 
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-[#55403C] font-sans truncate min-w-0">
-                <MapPin className="size-3 text-[#FF7D6B] shrink-0" />
-                <span className="truncate">{milestone?.organization}</span>
-              </span>
+              {milestone?.period && (
+                <span className="shrink-0 inline-flex items-center rounded-md border border-[#2D1F1D]/30 bg-white px-2 py-0.5 text-[0.68rem] font-bold font-sans text-[#2D1F1D] shadow-[0.5px_0.5px_0px_rgba(45,31,29,0.2)]">
+                  🗓️ {milestone.period}
+                </span>
+              )}
             </div>
 
-            <span className="shrink-0 text-xs font-bold text-[#6B5550] font-sans whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
+            <span className="shrink-0 text-[0.68rem] font-bold text-[#6B5550] font-sans whitespace-nowrap bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2}
             </span>
           </div>
 
-          {/* Title & Narrative Section (Large, Crisp & Easy to Read) */}
-          <div className="space-y-1.5 my-auto">
-            <h3 className="font-sans text-[1.02rem] sm:text-[1.12rem] font-black text-[#2D1F1D] leading-tight tracking-tight line-clamp-2">
+          {/* Title, Organization & Full Narrative Section (No cut off, tight gap to snapshots) */}
+          <div className="space-y-1 my-auto">
+            {/* Organization / Location on its own prominent line */}
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#55403C] font-sans">
+              <MapPin className="size-3.5 text-[#FF7D6B] shrink-0" />
+              <span className="font-bold text-[#2D1F1D]">{milestone?.organization}</span>
+            </div>
+
+            <h3 className="font-sans text-[1.05rem] sm:text-[1.12rem] font-black text-[#2D1F1D] leading-snug tracking-tight">
               {milestone?.title}
             </h3>
 
-            <p className="font-sans text-[0.82rem] sm:text-[0.86rem] font-medium leading-relaxed text-[#2D1F1D]/90 line-clamp-3 overflow-hidden">
+            <p className="font-sans text-[0.8rem] sm:text-[0.84rem] font-medium leading-relaxed text-[#2D1F1D]/90 text-pretty">
               {milestone?.description}
             </p>
           </div>
 
-          {/* Multi-Photo Snapshots Strip (Clean & Uncrowded) */}
+          {/* Multi-Photo Snapshots Strip (Directly below narrative with tight clean gap) */}
           <div className="pt-1.5 border-t border-[#2D1F1D]/12 shrink-0">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-black uppercase font-sans text-[#2D1F1D] flex items-center gap-1">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[0.7rem] font-black uppercase font-sans text-[#2D1F1D] flex items-center gap-1">
                 <Sparkles className="size-3 text-[#FF7D6B]" />
                 <span>Snapshots ({photos.length})</span>
               </span>
-              <span className="text-[0.68rem] font-bold text-[#6B5550] font-sans">
+              <span className="text-[0.65rem] font-bold text-[#6B5550] font-sans">
                 Click to zoom 🔍
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 h-[64px]">
+            <div className="grid grid-cols-3 gap-2 h-[56px] sm:h-[58px]">
               {photos.slice(0, 3).map((photoUrl, pIdx) => {
                 const pinColors: ('mint' | 'purple' | 'coral')[] = ['mint', 'purple', 'coral']
                 const pinColor = pinColors[pIdx % pinColors.length]
@@ -636,11 +670,11 @@ export function About() {
                         photoIndex: pIdx,
                       })
                     }
-                    className="group/photo relative h-full rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-0.5 shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#2D1F1D] select-none"
+                    className="group/photo relative h-full rounded-lg border border-[#2D1F1D] bg-white p-0.5 shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[2.5px_2.5px_0px_#2D1F1D] select-none"
                   >
-                    <PushPin color={pinColor} size={16} className="left-1/2 top-0" />
+                    <PushPin color={pinColor} size={15} className="left-1/2 -top-1" />
 
-                    <div className="relative size-full overflow-hidden rounded-lg border border-[#2D1F1D]/10 bg-[#2D1F1D]/5">
+                    <div className="relative size-full overflow-hidden rounded-md border border-[#2D1F1D]/10 bg-[#2D1F1D]/5">
                       <Image
                         src={photoUrl}
                         alt={`${milestone?.title} ${pIdx + 1}`}
@@ -650,7 +684,7 @@ export function About() {
                       />
 
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity duration-200 group-hover/photo:opacity-100">
-                        <span className="flex size-5 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D]">
+                        <span className="flex size-5 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-xs">
                           <Maximize2 className="size-2.5" />
                         </span>
                       </div>
@@ -665,20 +699,21 @@ export function About() {
             </div>
           </div>
 
-          {/* BOTTOM-RIGHT CORNER: Turn Page Forward Navigation Button */}
-          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
+          {/* BOTTOM-RIGHT CORNER: Simplified clean navigation button & indicator */}
+          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/12 shrink-0">
+            {/* Simplified 4 Chapter segment pips */}
             <div className="flex items-center gap-1">
-              {bookSpreads.map((_, dotIdx) => (
+              {CHAPTER_CONFIG.map((chap, cIdx) => (
                 <button
-                  key={dotIdx}
+                  key={chap.id}
                   type="button"
-                  onClick={() => turnToSpread(dotIdx)}
-                  aria-label={`Go to spread ${dotIdx + 1}`}
+                  onClick={() => handleCategoryClick(chap.id)}
+                  title={`Go to Chapter ${cIdx + 1}: ${chap.title}`}
                   className={cn(
-                    'size-2 rounded-full border border-[#2D1F1D] transition-all cursor-pointer',
-                    dotIdx === idx
-                      ? 'bg-[#FF7D6B] scale-125 shadow-xs'
-                      : 'bg-white hover:bg-[#FFE68C]',
+                    'h-1.5 rounded-full transition-all cursor-pointer border border-[#2D1F1D]/40',
+                    activeCategory === chap.id
+                      ? 'w-4 bg-[#FF7D6B] border-[#2D1F1D]'
+                      : 'w-2 bg-[#E5DAC6] hover:bg-[#FFE68C]',
                   )}
                 />
               ))}
@@ -689,14 +724,13 @@ export function About() {
               disabled={idx === totalSpreads - 1 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3.5 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
                 idx < totalSpreads - 1 && isStatic
-                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:translate-x-0.5 hover:bg-[#6EE7B7]'
+                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:translate-x-0.5 hover:bg-[#6EE7B7]'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
-              <span>Turn Page 📄</span>
-              <ChevronRight className="size-3.5" />
+              <span>Next ➔</span>
             </button>
           </div>
         </div>
@@ -707,33 +741,35 @@ export function About() {
       const { nextChapter } = spread
 
       return (
-        <div className="size-full flex flex-col justify-between p-4 sm:p-5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6]/80">
+        <div className="size-full flex flex-col justify-between pl-6 pr-4 py-3.5 sm:pl-7 sm:pr-5 sm:py-4 bg-[#FCF9F2] select-none shadow-[inset_0_0_18px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6] relative">
+          <div className="absolute inset-y-0 left-0 w-6 bg-gradient-to-l from-transparent to-[#2D1F1D]/8 pointer-events-none" />
+
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[#2D1F1D]/12 pb-2 shrink-0">
-            <span className="rounded-full border border-[#2D1F1D]/60 bg-[#DDD6FE] px-3 py-0.5 text-xs font-black text-[#5B21B6] shadow-[1px_1px_0px_#2D1F1D]">
+            <span className="rounded-full border border-[#2D1F1D]/50 bg-[#DDD6FE] px-2.5 py-0.5 text-xs font-black text-[#5B21B6] shadow-[1px_1px_0px_#2D1F1D]">
               🚀 Up Next: Chapter {nextChapter.chapterNum}
             </span>
-            <span className="text-xs font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
+            <span className="text-[0.68rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
               Page {(idx + 1) * 2}
             </span>
           </div>
 
           {/* Big Next Chapter Invitation Card */}
-          <div className="my-auto space-y-3 rounded-2xl border-[1.5px] border-[#2D1F1D] bg-white p-4 shadow-[3px_3px_0px_#2D1F1D] text-center">
-            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#2D1F1D] bg-[#FFE68C] text-2xl shadow-[2px_2px_0px_#2D1F1D] animate-bounce">
+          <div className="my-auto space-y-2 rounded-xl border-[1.5px] border-[#2D1F1D] bg-white p-3 shadow-[2px_2px_0px_#2D1F1D] text-center">
+            <div className="mx-auto flex size-10 items-center justify-center rounded-xl border border-[#2D1F1D] bg-[#FFE68C] text-xl shadow-[1.5px_1.5px_0px_#2D1F1D] animate-pulse-gentle">
               {nextChapter.icon}
             </div>
 
             <div>
-              <h3 className="font-sans text-base sm:text-lg font-black text-[#2D1F1D]">
+              <h3 className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D]">
                 Chapter {nextChapter.chapterNum}: {nextChapter.title}
               </h3>
-              <p className="text-xs font-bold text-[#6B5550]">
+              <p className="text-[0.68rem] font-bold text-[#6B5550]">
                 {nextChapter.subtitle}
               </p>
             </div>
 
-            <p className="text-xs font-medium leading-relaxed text-[#2D1F1D]/80">
+            <p className="text-[0.74rem] font-medium leading-snug text-[#2D1F1D]/80">
               {nextChapter.teaser}
             </p>
 
@@ -741,24 +777,22 @@ export function About() {
               type="button"
               disabled={!isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
-              className="w-full rounded-xl border border-[#2D1F1D] bg-[#A7F3D0] hover:bg-[#6EE7B7] py-2.5 px-3 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:translate-y-[-1px]"
+              className="w-full rounded-lg border border-[#2D1F1D] bg-[#A7F3D0] hover:bg-[#6EE7B7] py-1.5 px-2.5 text-xs font-black text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D] flex items-center justify-center gap-1 cursor-pointer transition-all hover:translate-y-[-1px]"
             >
               <span>Open Chapter {nextChapter.chapterNum}: {nextChapter.title}</span>
-              <ArrowRight className="size-3.5" />
+              <ArrowRight className="size-3" />
             </button>
           </div>
 
           {/* Bottom Right Page Turn Button */}
-          <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/12 shrink-0">
+          <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/12 shrink-0">
             <div className="flex items-center gap-1">
-              {bookSpreads.map((_, dotIdx) => (
-                <button
-                  key={dotIdx}
-                  type="button"
-                  onClick={() => turnToSpread(dotIdx)}
+              {CHAPTER_CONFIG.map((chap) => (
+                <span
+                  key={chap.id}
                   className={cn(
-                    'size-2 rounded-full border border-[#2D1F1D] transition-all cursor-pointer',
-                    dotIdx === idx ? 'bg-[#FF7D6B] scale-125' : 'bg-white',
+                    'h-1.5 rounded-full border border-[#2D1F1D]/40',
+                    chap.id === nextChapter.id ? 'w-4 bg-[#FF7D6B] border-[#2D1F1D]' : 'w-2 bg-[#E5DAC6]',
                   )}
                 />
               ))}
@@ -769,14 +803,13 @@ export function About() {
               disabled={idx === totalSpreads - 1 || !isStatic}
               onClick={() => isStatic && turnToSpread(idx + 1)}
               className={cn(
-                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3.5 py-1.5 text-xs font-black font-sans transition-all cursor-pointer select-none',
+                'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-3 py-1 text-xs font-black font-sans transition-all cursor-pointer select-none',
                 idx < totalSpreads - 1 && isStatic
-                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:translate-x-0.5'
+                  ? 'bg-[#A7F3D0] text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:translate-x-0.5'
                   : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
               )}
             >
-              <span>Turn Page 📄</span>
-              <ChevronRight className="size-3.5" />
+              <span>Next ➔</span>
             </button>
           </div>
         </div>
@@ -785,20 +818,22 @@ export function About() {
 
     // Finale Right Page (Action Hub)
     return (
-      <div className="size-full flex flex-col justify-between p-3.5 sm:p-4.5 bg-[#FCF9F2] select-none shadow-[inset_0_0_20px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6]/80">
+      <div className="size-full flex flex-col justify-between pl-6 pr-4 py-3.5 sm:pl-7 sm:pr-5 sm:py-4 bg-[#FCF9F2] select-none shadow-[inset_0_0_18px_rgba(180,150,110,0.06)] border-l border-[#E5DAC6] relative">
+        <div className="absolute inset-y-0 left-0 w-6 bg-gradient-to-l from-transparent to-[#2D1F1D]/8 pointer-events-none" />
+
         <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-1.5 shrink-0">
-          <span className="rounded-full border border-[#2D1F1D] bg-[#FFB5B5] px-2.5 py-0.5 text-[0.65rem] font-black text-[#881337] shadow-[1px_1px_0px_#2D1F1D]">
+          <span className="rounded-full border border-[#2D1F1D] bg-[#FFB5B5] px-2.5 py-0.5 text-[0.68rem] font-black text-[#881337] shadow-[1px_1px_0px_#2D1F1D]">
             🎉 Story Completed!
           </span>
-          <span className="text-[0.62rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.2">
+          <span className="text-[0.65rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.2">
             Page {(idx + 1) * 2}
           </span>
         </div>
 
-        <div className="my-auto space-y-2 rounded-2xl border-3 border-[#2D1F1D] bg-[#FFF8E7] p-3 shadow-[4px_4px_0px_#2D1F1D] text-center">
-          <PartyPopper className="mx-auto size-7 text-[#FF7D6B]" />
+        <div className="my-auto space-y-1.5 rounded-xl border-2 border-[#2D1F1D] bg-[#FFF8E7] p-2.5 shadow-[2.5px_2.5px_0px_#2D1F1D] text-center">
+          <PartyPopper className="mx-auto size-6 text-[#FF7D6B]" />
           <div>
-            <h3 className="font-sans text-sm font-black text-[#2D1F1D]">
+            <h3 className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D]">
               Ready to Collaborate?
             </h3>
             <p className="text-[0.65rem] font-bold text-[#6B5550]">
@@ -806,20 +841,20 @@ export function About() {
             </p>
           </div>
 
-          <div className="space-y-1.5 pt-1">
+          <div className="space-y-1 pt-0.5">
             <a
               href="#contact"
-              className="w-full rounded-xl border-2 border-[#2D1F1D] bg-[#FFB5B5] hover:bg-[#FF8A8A] py-1.5 px-3 text-xs font-black text-[#881337] shadow-[2px_2px_0px_#2D1F1D] flex items-center justify-center gap-1.5 transition-all"
+              className="w-full rounded-lg border border-[#2D1F1D] bg-[#FF7D6B] hover:bg-[#FF6B6B] py-1.5 px-2.5 text-[0.72rem] font-black text-white shadow-[1.5px_1.5px_0px_#2D1F1D] flex items-center justify-center gap-1 transition-all"
             >
-              <Mail className="size-3.5" />
-              <span>Book a Workshop / Commission</span>
+              <Mail className="size-3" />
+              <span>Book a Workshop / Commission 🌸</span>
             </a>
             <a
-              href="#materials"
-              className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white hover:bg-[#FFE68C] py-1.5 px-3 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] flex items-center justify-center gap-1.5 transition-all"
+              href="#shop"
+              className="w-full rounded-lg border border-[#2D1F1D] bg-white hover:bg-[#FFE68C] py-1.5 px-2.5 text-[0.72rem] font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] flex items-center justify-center gap-1 transition-all"
             >
-              <ShoppingBag className="size-3.5 text-[#059669]" />
-              <span>Explore Prop Atelier &amp; Rentals</span>
+              <ShoppingBag className="size-3 text-[#059669]" />
+              <span>Explore Prop Atelier &amp; Rentals ✂️</span>
             </a>
           </div>
         </div>
@@ -828,12 +863,12 @@ export function About() {
           <button
             type="button"
             onClick={() => turnToSpread(0)}
-            className="rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer"
+            className="rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] cursor-pointer hover:bg-[#FFD952]"
           >
             ↺ Read From Start
           </button>
-          <span className="text-[0.62rem] font-bold text-[#6B5550]">
-            The End ✨
+          <span className="text-[0.68rem] font-bold text-[#6B5550]">
+            End of Storybook 🌸
           </span>
         </div>
       </div>
@@ -845,6 +880,12 @@ export function About() {
       id="about"
       className="section-shell relative overflow-hidden bg-[#FAF6F0] py-8 sm:py-12 lg:py-14"
     >
+      {/* Happy Stationary Decorations */}
+      <FloatingCloud mood="laughing" size="md" className="-top-4 right-10 opacity-60 hidden md:block" />
+      <SmilingStar size={34} color="#FFC837" className="top-12 left-8 opacity-75 hidden sm:block" />
+      <SmilingFlower size={40} color="#FFB5B5" className="bottom-10 left-6 opacity-70 hidden md:block" />
+      <PastelBalloon color="#A7F3D0" size={42} className="bottom-20 right-4 opacity-70 hidden xl:block" />
+
       <SectionScene theme="about" pattern="dots" />
 
       <div className="section-inner section-stack">
@@ -978,7 +1019,7 @@ export function About() {
           {/* ========================================================================= */}
           {/* RIGHT COLUMN: REALISTIC PHYSICAL HARDCOVER BOOK WITH STACKED PAGES & TABS */}
           {/* ========================================================================= */}
-          <div className="relative lg:pr-10 xl:pr-12">
+          <div className="relative lg:pr-28 xl:pr-32">
             <Reveal delay={80}>
               {/* MOBILE / TABLET TOP CHAPTER TABS (lg:hidden) */}
               <div className="grid grid-cols-4 gap-1 sm:gap-2 px-3 sm:px-5 mb-0 select-none lg:hidden">
@@ -1024,8 +1065,8 @@ export function About() {
                 {/* Hardcover Perimeter Gold Stitched Line */}
                 <div className="absolute inset-1.5 rounded-[1.8rem_1.8rem_1.4rem_1.4rem] border border-dashed border-[#F3DF9C]/40 pointer-events-none" />
 
-                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Completely Outside the Book Cover) */}
-                <div className="hidden lg:flex absolute left-[calc(100%-2px)] top-6 bottom-6 flex-col justify-around z-30 pointer-events-auto">
+                {/* DESKTOP VERTICAL RIGHT-SIDE CHAPTER DIVIDER TABS (Tightened stack with natural notebook spacing) */}
+                <div className="hidden lg:flex absolute left-[calc(100%-2px)] top-8 flex-col gap-2 z-30 pointer-events-auto">
                   {CHAPTER_CONFIG.map((tab) => {
                     const isSelected = activeCategory === tab.id
                     const count = allMilestones.filter((m) => m.category === tab.id).length
@@ -1039,24 +1080,24 @@ export function About() {
                         aria-selected={isSelected}
                         role="tab"
                         className={cn(
-                          'group relative flex items-center gap-1.5 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D]/40 text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-[2px_3px_8px_rgba(45,31,29,0.12)]',
+                          'group relative flex items-center gap-1.5 rounded-r-2xl border-[1.5px] border-l-0 border-[#2D1F1D] text-left font-sans font-black transition-all duration-300 cursor-pointer select-none origin-left shadow-[2px_3px_8px_rgba(45,31,29,0.12)] whitespace-nowrap overflow-visible',
                           tab.color,
                           isSelected
-                            ? 'w-36 py-2.5 px-3 translate-x-1.5 shadow-[3px_5px_15px_rgba(45,31,29,0.2)] z-40 ring-2 ring-[#FFC837]/80 text-[#2D1F1D] text-xs'
-                            : 'w-26 py-2 px-2.5 translate-x-0 opacity-85 hover:opacity-100 hover:w-30 hover:translate-x-1 text-[#2D1F1D] z-20 text-[0.72rem]',
+                            ? 'w-28 xl:w-32 py-2 px-3 translate-x-1.5 shadow-[3px_5px_15px_rgba(45,31,29,0.2)] z-40 ring-2 ring-[#FFC837] text-[#2D1F1D] text-xs'
+                            : 'w-24 xl:w-28 py-1.5 px-2.5 translate-x-0 opacity-90 hover:opacity-100 hover:w-28 hover:translate-x-1 text-[#2D1F1D] z-20 text-[0.72rem]',
                         )}
                       >
-                        <span className={cn('shrink-0 transition-transform', isSelected ? 'text-base scale-110' : 'text-sm')}>
+                        <span className={cn('shrink-0 transition-transform', isSelected ? 'text-sm scale-110' : 'text-xs')}>
                           {tab.icon}
                         </span>
-                        <span className="font-black whitespace-nowrap pr-1 tracking-tight truncate">
+                        <span className="font-black whitespace-nowrap tracking-tight text-[#2D1F1D]">
                           {tab.title}
                         </span>
                         {count > 0 && (
                           <span
                             className={cn(
-                              'rounded-full bg-white/95 border border-[#2D1F1D]/25 font-black text-[#2D1F1D] shrink-0 ml-auto',
-                              isSelected ? 'px-2 py-0.5 text-[0.62rem]' : 'px-1.5 py-0.2 text-[0.56rem]',
+                              'rounded-full bg-white/95 border border-[#2D1F1D]/30 font-black text-[#2D1F1D] shrink-0 ml-auto',
+                              isSelected ? 'px-1.5 py-0.2 text-[0.58rem]' : 'px-1 py-0.2 text-[0.52rem]',
                             )}
                           >
                             {count}
@@ -1088,11 +1129,134 @@ export function About() {
                   <div className="absolute inset-y-3 right-1 w-1 border-l border-[#B8AA94] pointer-events-none" />
                   <div className="absolute inset-y-4 right-1.5 w-1 border-l border-[#A89880] pointer-events-none" />
 
-                  {/* Hanging Crimson Silk Bookmark Ribbon from Center Spine */}
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none drop-shadow-md">
-                    <div className="h-7 w-3.5 bg-gradient-to-b from-[#DC2626] to-[#B91C1C] border border-[#2D1F1D] rounded-t-xs relative">
-                      <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-[#B91C1C] clip-ribbon-v" />
+                  {/* Hanging Crimson Silk Bookmark Ribbon from Center Spine (Interactive Quick Index TOC) */}
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-40 drop-shadow-md">
+                    <button
+                      type="button"
+                      onClick={() => setIsTocOpen(!isTocOpen)}
+                      title="Table of Contents & Quick Chapter Index (Press T)"
+                      aria-label="Toggle storybook table of contents"
+                      aria-expanded={isTocOpen}
+                      className="group flex flex-col items-center cursor-pointer transition-transform duration-150 hover:translate-y-0.5 active:translate-y-1 focus:outline-none"
+                    >
+                      <div className="h-7 w-3.5 bg-gradient-to-b from-[#DC2626] to-[#B91C1C] border border-[#2D1F1D] rounded-t-xs relative shadow-xs group-hover:from-[#EF4444]">
+                        <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-[#B91C1C] clip-ribbon-v" />
+                      </div>
+                      <span className="sr-only">Table of Contents</span>
+                    </button>
+                  </div>
+
+                  {/* Storybook Quick-Jump Table of Contents Popover Modal */}
+                  {isTocOpen && (
+                    <div
+                      role="dialog"
+                      aria-label="Storybook Chapters Index"
+                      className="absolute top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md rounded-2xl border-2 border-[#2D1F1D] bg-[#FCF9F2] p-4 shadow-[0_16px_36px_rgba(45,31,29,0.3),4px_4px_0px_#2D1F1D] animate-pop-in"
+                    >
+                      <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <span className="flex size-7 items-center justify-center rounded-lg bg-[#FFE68C] border border-[#2D1F1D] text-sm">
+                            📖
+                          </span>
+                          <div>
+                            <h4 className="font-sans text-xs sm:text-sm font-black text-[#2D1F1D]">
+                              Storybook Index &amp; Chapters
+                            </h4>
+                            <p className="text-[0.62rem] font-bold text-[#6B5550]">
+                              Jump to any chapter or spread directly
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsTocOpen(false)}
+                          className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5] hover:bg-[#FF8A8A] text-[#2D1F1D] cursor-pointer"
+                          aria-label="Close table of contents"
+                        >
+                          <X className="size-3.5 stroke-[2.5]" />
+                        </button>
+                      </div>
+
+                      {/* Chapter Jump List */}
+                      <div className="my-3 space-y-1.5 max-h-[50vh] overflow-y-auto pr-1">
+                        {CHAPTER_CONFIG.map((chap) => {
+                          const isCurrent = activeCategory === chap.id
+                          const chapMilestones = allMilestones.filter((m) => m.category === chap.id)
+                          return (
+                            <button
+                              key={chap.id}
+                              type="button"
+                              onClick={() => {
+                                handleCategoryClick(chap.id)
+                                setIsTocOpen(false)
+                              }}
+                              className={cn(
+                                'flex w-full items-center justify-between rounded-xl border p-2.5 text-left transition-all cursor-pointer',
+                                isCurrent
+                                  ? 'border-[#2D1F1D] bg-[#FFC837] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] font-black'
+                                  : 'border-[#2D1F1D]/20 bg-white hover:bg-[#FAF5EC] text-[#2D1F1D] font-bold',
+                              )}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <span className="text-lg">{chap.icon}</span>
+                                <div>
+                                  <p className="font-sans text-xs font-black">
+                                    Chapter {chap.chapterNum}: {chap.title}
+                                  </p>
+                                  <p className="text-[0.62rem] font-medium text-[#6B5550]">
+                                    {chap.subtitle} • {chapMilestones.length} spread{chapMilestones.length > 1 ? 's' : ''}
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="rounded-md border border-[#2D1F1D]/30 bg-white/90 px-2 py-0.5 text-[0.65rem] font-black text-[#2D1F1D]">
+                                Open →
+                              </span>
+                            </button>
+                          )
+                        })}
+
+                        {/* Finale Jump */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            turnToSpread(totalSpreads - 1)
+                            setIsTocOpen(false)
+                          }}
+                          className={cn(
+                            'flex w-full items-center justify-between rounded-xl border p-2.5 text-left transition-all cursor-pointer',
+                            safeIdx === totalSpreads - 1
+                              ? 'border-[#2D1F1D] bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] font-black'
+                              : 'border-[#2D1F1D]/20 bg-white hover:bg-[#FAF5EC] text-[#2D1F1D] font-bold',
+                          )}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-lg">🌸</span>
+                            <div>
+                              <p className="font-sans text-xs font-black">Grand Finale: My Teaching Promise</p>
+                              <p className="text-[0.62rem] font-medium text-[#6B5550]">Workshop &amp; Atelier Booking</p>
+                            </div>
+                          </div>
+                          <span className="rounded-md border border-[#2D1F1D]/30 bg-white/90 px-2 py-0.5 text-[0.65rem] font-black text-[#2D1F1D]">
+                            Open →
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* Keyboard shortcuts footer */}
+                      <div className="flex items-center justify-between border-t border-[#2D1F1D]/15 pt-2 text-[0.65rem] font-bold text-[#6B5550]">
+                        <span>⌨️ Keys: <strong className="text-[#2D1F1D]">1-4</strong> for chapters, <strong className="text-[#2D1F1D]">← →</strong> for pages</span>
+                        <span className="text-[#FF7D6B]">Press Esc to close</span>
+                      </div>
                     </div>
+                  )}
+
+                  {/* ARIA Live Region for Screen Readers */}
+                  <div className="sr-only" role="status" aria-live="polite">
+                    {currentSpread.type === 'milestone'
+                      ? `Storybook: Chapter ${currentSpread.chapter.chapterNum} ${currentSpread.chapter.title}, Page ${currentSpread.pageInChapter} of ${currentSpread.totalInChapter}: ${currentSpread.milestone?.title}`
+                      : currentSpread.type === 'chapter-transition'
+                        ? `Storybook: Chapter ${currentSpread.completedChapter.chapterNum} Complete, next is Chapter ${currentSpread.nextChapter.chapterNum}`
+                        : 'Storybook Finale: Teaching Promise and Atelier Booking'}
                   </div>
 
                   {/* ----------------------------------------------------------------- */}
@@ -1100,7 +1264,7 @@ export function About() {
                   {/* ----------------------------------------------------------------- */}
                   <div
                     style={{ perspective: '1600px' }}
-                    className="hidden lg:block relative rounded-[1.1rem] border border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[475px] xl:h-[495px]"
+                    className="hidden lg:block relative rounded-[1.1rem] border border-[#2D1F1D]/25 bg-[#FCF9F2] shadow-[inset_0_0_25px_rgba(180,150,110,0.08)] overflow-hidden h-[420px] xl:h-[435px]"
                   >
 
                     {/* BASE LAYER (Underneath): Left Page Base + Right Page Base */}
@@ -1243,30 +1407,41 @@ export function About() {
                   {/* ----------------------------------------------------------------- */}
                   {/* MOBILE / TABLET VIEW: CLEAN RESPONSIVE JOURNAL SPREAD             */}
                   {/* ----------------------------------------------------------------- */}
-                  <div className="block lg:hidden rounded-[1.1rem] border-2 border-[#2D1F1D]/20 bg-[#FCF9F2] p-4 space-y-4">
+                  <div className="block lg:hidden relative rounded-[1.4rem] border-2 border-[#2D1F1D]/25 bg-[#FCF9F2] p-4 sm:p-5 space-y-4 shadow-[0_8px_20px_rgba(45,31,29,0.06),2.5px_2.5px_0px_rgba(45,31,29,0.5)]">
+                    {/* Top Decorative Washi Tape on mobile */}
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 h-5 w-24 bg-[#FFC837]/90 border border-[#2D1F1D]/30 rotate-[-1deg] rounded-xs shadow-xs pointer-events-none z-10" />
+
                     {currentSpread.type === 'milestone' ? (
                       <>
                         {/* Header */}
-                        <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2 gap-2">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="shrink-0 rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2.5 py-0.5 text-[0.65rem] font-black text-[#2D1F1D]">
+                        <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2 gap-2 flex-wrap">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="shrink-0 rounded-full border border-[#2D1F1D]/50 bg-[#A7F3D0] px-2.5 py-0.5 text-xs font-black text-[#065F46] shadow-[1px_1px_0px_#2D1F1D]">
                               {currentSpread.milestone?.badgeEmoji || currentSpread.chapter.icon}{' '}
                               {currentSpread.milestone?.categoryLabel || currentSpread.chapter.title}
                             </span>
-                            <span className="text-[0.62rem] font-bold text-[#6B5550] truncate">
-                              {currentSpread.milestone?.organization}
-                            </span>
+                            {currentSpread.milestone?.period && (
+                              <span className="shrink-0 rounded-md border border-[#2D1F1D]/30 bg-white px-2 py-0.5 text-[0.68rem] font-bold text-[#2D1F1D]">
+                                🗓️ {currentSpread.milestone.period}
+                              </span>
+                            )}
                           </div>
-                          <span className="shrink-0 text-[0.62rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-1.5 py-0.5">
+                          <span className="shrink-0 text-[0.68rem] font-bold text-[#6B5550] bg-[#FAF5EC] border border-[#2D1F1D]/15 rounded-md px-2 py-0.5">
                             Ch. {currentSpread.chapter.chapterNum} • {currentSpread.pageInChapter}/
                             {currentSpread.totalInChapter}
                           </span>
                         </div>
 
-                        {/* Title */}
-                        <h3 className="font-sans text-base font-black text-[#2D1F1D] leading-snug">
-                          {currentSpread.milestone?.title}
-                        </h3>
+                        {/* Organization and Title without truncation */}
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-[#55403C]">
+                            <MapPin className="size-3.5 text-[#FF7D6B] shrink-0" />
+                            <span className="font-bold text-[#2D1F1D]">{currentSpread.milestone?.organization}</span>
+                          </div>
+                          <h3 className="font-sans text-base sm:text-lg font-black text-[#2D1F1D] leading-snug">
+                            {currentSpread.milestone?.title}
+                          </h3>
+                        </div>
 
                         {/* Spotlight Photo */}
                         {(() => {
@@ -1284,37 +1459,40 @@ export function About() {
                                   photoIndex: 0,
                                 })
                               }
-                              className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border-2 border-[#2D1F1D] bg-white p-1 shadow-[3px_3px_0px_#2D1F1D] cursor-pointer"
+                              className="group/mobphoto relative aspect-[16/10] w-full overflow-hidden rounded-2xl border-2 border-[#2D1F1D] bg-white p-1 shadow-[3px_3px_0px_#2D1F1D] cursor-pointer"
                             >
-                              <Image
-                                src={spotlightImg}
-                                alt={currentSpread.milestone?.title || 'Milestone photo'}
-                                fill
-                                className="object-cover rounded-lg"
-                              />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
-                                <span className="flex size-7 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-sm">
-                                  <Maximize2 className="size-3.5" />
-                                </span>
+                              <div className="relative size-full overflow-hidden rounded-xl bg-[#FAF5EC]">
+                                <Image
+                                  src={spotlightImg}
+                                  alt={currentSpread.milestone?.title || 'Milestone photo'}
+                                  fill
+                                  sizes="(max-width: 1024px) 100vw, 400px"
+                                  className="object-cover transition-transform duration-500 group-hover/mobphoto:scale-105"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/mobphoto:opacity-100 transition-opacity">
+                                  <span className="flex size-8 items-center justify-center rounded-full bg-white text-[#2D1F1D] shadow-sm">
+                                    <Maximize2 className="size-4" />
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           )
                         })()}
 
                         {/* Story Narrative */}
-                        <p className="font-sans text-xs font-medium leading-relaxed text-[#2D1F1D]">
+                        <p className="font-sans text-xs sm:text-sm font-medium leading-relaxed text-[#2D1F1D]/90 text-pretty">
                           {currentSpread.milestone?.description}
                         </p>
 
                         {/* Highlights */}
                         {currentSpread.milestone?.highlights && currentSpread.milestone.highlights.length > 0 && (
-                          <div className="flex flex-wrap gap-1 pt-1">
+                          <div className="flex flex-wrap gap-1.5 pt-1">
                             {currentSpread.milestone.highlights.map((h, hIdx) => (
                               <span
                                 key={hIdx}
-                                className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-white px-2 py-0.5 text-[0.62rem] font-black text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]"
+                                className="inline-flex items-center gap-1 rounded-xl border border-[#2D1F1D]/40 bg-white px-2.5 py-1 text-[0.68rem] font-black text-[#2D1F1D] shadow-[1px_1px_0px_#2D1F1D]"
                               >
-                                <CheckCircle2 className="size-2.5 text-[#10B981]" />
+                                <CheckCircle2 className="size-3 text-[#10B981] stroke-[2.5]" />
                                 <span>{h}</span>
                               </span>
                             ))}
@@ -1323,9 +1501,9 @@ export function About() {
                       </>
                     ) : currentSpread.type === 'chapter-transition' ? (
                       /* Mobile Chapter Transition Card */
-                      <div className="space-y-3 rounded-2xl border-2 border-[#2D1F1D] bg-white p-4 shadow-[3px_3px_0px_#2D1F1D]">
+                      <div className="space-y-3.5 rounded-2xl border-2 border-[#2D1F1D] bg-white p-4 sm:p-5 shadow-[3px_3px_0px_#2D1F1D]">
                         <div className="flex items-center justify-between border-b border-[#2D1F1D]/15 pb-2">
-                          <span className="rounded-full bg-[#A7F3D0] border border-[#2D1F1D] px-2.5 py-0.5 text-[0.65rem] font-black text-[#065F46]">
+                          <span className="rounded-full bg-[#A7F3D0] border border-[#2D1F1D] px-2.5 py-0.5 text-[0.68rem] font-black text-[#065F46]">
                             ✨ Chapter {currentSpread.completedChapter.chapterNum} Complete
                           </span>
                           <span className="text-xs font-bold text-[#6B5550]">
@@ -1334,6 +1512,9 @@ export function About() {
                         </div>
 
                         <div className="text-center space-y-1.5 py-2">
+                          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-[#2D1F1D] bg-[#FFE68C] text-2xl shadow-[2px_2px_0px_#2D1F1D]">
+                            {currentSpread.nextChapter.icon}
+                          </div>
                           <h4 className="font-sans text-base font-black text-[#2D1F1D]">
                             Chapter {currentSpread.nextChapter.chapterNum}: {currentSpread.nextChapter.title}
                           </h4>
@@ -1345,14 +1526,14 @@ export function About() {
                         <button
                           type="button"
                           onClick={() => turnToSpread(safeIdx + 1)}
-                          className="w-full rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] py-2.5 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] flex items-center justify-center gap-1.5"
+                          className="w-full rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] py-2.5 text-xs font-black text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] flex items-center justify-center gap-1.5 cursor-pointer hover:bg-[#6EE7B7]"
                         >
                           <span>Open Chapter {currentSpread.nextChapter.chapterNum}: {currentSpread.nextChapter.title} ➔</span>
                         </button>
                       </div>
                     ) : (
                       /* Mobile Finale Card */
-                      <div className="space-y-3 rounded-2xl border-2 border-[#2D1F1D] bg-[#FFF8E7] p-4 shadow-[3px_3px_0px_#2D1F1D] text-center">
+                      <div className="space-y-3.5 rounded-2xl border-2 border-[#2D1F1D] bg-[#FFF8E7] p-4 sm:p-5 shadow-[3px_3px_0px_#2D1F1D] text-center">
                         <PartyPopper className="mx-auto size-8 text-[#FF7D6B]" />
                         <h4 className="font-sans text-base font-black text-[#2D1F1D]">
                           Full Journey Story Completed!
@@ -1363,15 +1544,15 @@ export function About() {
                         <div className="space-y-2 pt-1">
                           <a
                             href="#contact"
-                            className="block w-full rounded-xl border-2 border-[#2D1F1D] bg-[#FFB5B5] py-2 text-xs font-black text-[#881337] shadow-[2px_2px_0px_#2D1F1D]"
+                            className="block w-full rounded-xl border-2 border-[#2D1F1D] bg-[#FF7D6B] py-2.5 text-xs font-black text-white shadow-[2px_2px_0px_#2D1F1D]"
                           >
-                            Book a Workshop / Commission
+                            Book a Workshop / Commission 🌸
                           </a>
                           <a
-                            href="#materials"
-                            className="block w-full rounded-xl border-2 border-[#2D1F1D] bg-white py-2 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]"
+                            href="#shop"
+                            className="block w-full rounded-xl border-2 border-[#2D1F1D] bg-white py-2.5 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]"
                           >
-                            Explore Props Atelier
+                            Explore Props Atelier ✂️
                           </a>
                         </div>
                       </div>
@@ -1384,25 +1565,26 @@ export function About() {
                         disabled={safeIdx === 0}
                         onClick={() => turnToSpread(safeIdx - 1)}
                         className={cn(
-                          'flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] px-3 py-1.5 text-xs font-black transition-all',
+                          'flex items-center gap-1 rounded-xl border-2 border-[#2D1F1D] px-3.5 py-2 text-xs font-black transition-all cursor-pointer',
                           safeIdx > 0
-                            ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
-                            : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300',
+                            ? 'bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#FFD952]'
+                            : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
                         )}
                       >
-                        <ChevronLeft className="size-4" />
+                        <ChevronLeft className="size-4 stroke-[2.5]" />
                         <span>Previous</span>
                       </button>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         {bookSpreads.map((_, dotIdx) => (
                           <button
                             key={dotIdx}
                             type="button"
                             onClick={() => turnToSpread(dotIdx)}
+                            aria-label={`Go to spread ${dotIdx + 1}`}
                             className={cn(
-                              'size-2 rounded-full border border-[#2D1F1D] transition-all',
-                              dotIdx === safeIdx ? 'bg-[#FF7D6B] scale-125' : 'bg-white',
+                              'size-2.5 rounded-full border border-[#2D1F1D] transition-all cursor-pointer',
+                              dotIdx === safeIdx ? 'bg-[#FF7D6B] scale-125 shadow-[1px_1px_0px_#2D1F1D]' : 'bg-white hover:bg-[#FFE68C]',
                             )}
                           />
                         ))}
@@ -1413,14 +1595,13 @@ export function About() {
                         disabled={safeIdx === totalSpreads - 1}
                         onClick={() => turnToSpread(safeIdx + 1)}
                         className={cn(
-                          'flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] px-3 py-1.5 text-xs font-black transition-all',
+                          'flex items-center gap-1 rounded-xl border-2 border-[#2D1F1D] px-3.5 py-2 text-xs font-black transition-all cursor-pointer',
                           safeIdx < totalSpreads - 1
-                            ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D]'
-                            : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300',
+                            ? 'bg-[#A7F3D0] text-[#065F46] shadow-[2px_2px_0px_#2D1F1D] hover:bg-[#6EE7B7]'
+                            : 'opacity-40 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed',
                         )}
                       >
-                        <span>Next</span>
-                        <ChevronRight className="size-4" />
+                        <span>Next ➔</span>
                       </button>
                     </div>
                   </div>

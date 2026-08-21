@@ -388,12 +388,21 @@
   background-size: 24px 24px;
 }
 
+@keyframes pulse-gentle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
 @utility cute-card {
   border: 1.5px solid rgba(45, 31, 29, 0.35);
   box-shadow: 0 10px 25px rgba(45, 31, 29, 0.05), 3px 3px 0px rgba(45, 31, 29, 0.65);
   border-radius: 2rem;
   background-color: #FFFFFF;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   &:hover {
     transform: translate3d(-1.5px, -2.5px, 0);
     box-shadow: 0 14px 30px rgba(45, 31, 29, 0.08), 4.5px 4.5px 0px rgba(45, 31, 29, 0.75);
@@ -410,7 +419,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   &:hover {
     transform: translate3d(-1px, -2px, 0);
     box-shadow: 3.5px 3.5px 0px #2D1F1D;
@@ -429,7 +438,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   &:hover {
     transform: scale(1.05);
   }
@@ -485,16 +494,20 @@
   animation: typewriter-cursor 0.8s step-end infinite;
 }
 
+@utility animate-pulse-gentle {
+  animation: pulse-gentle 2.2s ease-in-out infinite;
+}
+
 @utility animate-pop-in {
-  animation: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: pop-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @utility animate-wiggle-in {
-  animation: wiggle-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: wiggle-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @utility animate-draw-underline {
-  animation: draw-underline 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: draw-underline 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transform-origin: left center;
 }
 
@@ -550,6 +563,20 @@
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .animate-marquee,
+  .animate-float,
+  .animate-float-slow,
+  .animate-sway,
+  .animate-bob,
+  .animate-spin-slow,
+  .animate-twinkle,
+  .animate-plane-glide,
+  .animate-pulse-gentle,
+  .animate-clothesline-1,
+  .animate-clothesline-2,
+  .animate-clothesline-3 {
+    animation: none !important;
   }
 }
 

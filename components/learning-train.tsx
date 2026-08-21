@@ -45,8 +45,8 @@ export function LearningExpressTrain({ items }: LearningTrainProps) {
               <div className="relative flex items-end mr-2">
                 {/* Smoke Puffs */}
                 <div className="absolute -top-4 left-6 flex gap-1 pointer-events-none">
-                  <span className="text-[0.65rem] animate-bounce opacity-75" style={{ animationDelay: '0s' }}>☁️</span>
-                  <span className="text-[0.55rem] animate-bounce opacity-60" style={{ animationDelay: '0.2s' }}>✨</span>
+                  <span className="text-[0.65rem] animate-float opacity-75">☁️</span>
+                  <span className="text-[0.55rem] animate-pulse-gentle opacity-60">✨</span>
                 </div>
 
                 <div className="relative flex flex-col items-center">

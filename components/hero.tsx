@@ -7,7 +7,17 @@ import { SplitReveal } from '@/components/split-reveal'
 import { TypewriterText } from '@/components/typewriter-text'
 import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
-import { WashiTape, CuteSticker, PushPin } from '@/components/cloud-decorations'
+import {
+  WashiTape,
+  CuteSticker,
+  PushPin,
+  FloatingCloud,
+  SmilingFlower,
+  SmilingStar,
+  PastelBalloon,
+  FloatingTweety,
+  DoodleRainbow,
+} from '@/components/cloud-decorations'
 import { LearningExpressTrain } from '@/components/learning-train'
 
 export function Hero() {
@@ -32,6 +42,16 @@ export function Hero() {
       id="home"
       className="section-shell relative flex min-h-[min(100svh,56rem)] flex-col justify-between overflow-hidden bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC] to-[#FFF9E6] pt-[calc(var(--header-h)+2rem)] lg:pt-[calc(var(--header-h)+3rem)]"
     >
+      {/* Happy Stationary Floating Decorations */}
+      <FloatingCloud mood="smiling" size="md" className="top-8 right-12 opacity-65 hidden md:block" />
+      <FloatingCloud mood="laughing" size="sm" className="top-28 left-6 opacity-60 hidden lg:block" />
+      <SmilingStar size={36} color="#FFC837" className="top-14 left-1/4 opacity-75 hidden sm:block" />
+      <SmilingFlower size={42} color="#FFB5B5" className="top-3/4 left-8 opacity-70 hidden md:block" />
+      <SmilingFlower size={38} color="#A7F3D0" className="top-1/2 right-4 opacity-70 hidden lg:block" />
+      <PastelBalloon color="#FF7D6B" size={44} className="top-1/3 right-8 opacity-75 hidden xl:block" />
+      <FloatingTweety size={46} className="bottom-20 right-16 opacity-75 hidden md:block" />
+      <DoodleRainbow size={68} className="bottom-24 left-12 opacity-70 hidden lg:block" />
+
       {/* Main Content Grid */}
       <div className="section-inner my-auto w-full">
         <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 xl:gap-16">
@@ -71,7 +91,7 @@ export function Hero() {
                   startDelay={600}
                   className="text-[#FF7D6B]"
                 />
-                <Heart className="size-4 fill-[#FF7D6B] animate-bounce" />
+                <Heart className="size-4 fill-[#FF7D6B] animate-pulse-gentle" />
               </div>
             </Reveal>
 

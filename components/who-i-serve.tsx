@@ -8,7 +8,15 @@ import { SectionScene } from '@/components/section-scene'
 import { type Audience } from '@/lib/data'
 import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
-import { PushPin } from '@/components/cloud-decorations'
+import {
+  PushPin,
+  FloatingCloud,
+  DoodleRainbow,
+  FloatingTweety,
+  SmilingFlower,
+  SmilingStar,
+  PastelBalloon,
+} from '@/components/cloud-decorations'
 
 const ICONS = {
   students: GraduationCap,
@@ -38,6 +46,13 @@ export function WhoIServe() {
 
   return (
     <section id="serve" className="section-shell relative overflow-hidden bg-[#FAF5EC] py-10 sm:py-14 lg:py-16">
+      {/* Happy Stationary Decorations */}
+      <FloatingCloud mood="laughing" size="md" className="top-6 right-8 opacity-60 hidden sm:block" />
+      <DoodleRainbow size={68} className="top-12 left-6 opacity-70 hidden md:block" />
+      <SmilingStar size={34} color="#FFC837" className="bottom-14 left-8 opacity-75 hidden sm:block" />
+      <SmilingFlower size={42} color="#A7F3D0" className="bottom-10 right-10 opacity-70 hidden md:block" />
+      <FloatingTweety size={46} className="top-1/2 left-4 opacity-75 hidden lg:block" />
+
       <SectionScene theme="serve" pattern="grid" />
 
       <div className="section-inner section-stack">

@@ -114,17 +114,21 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
 
   const selectTrack = useCallback((track: Track) => {
     setCurrentTrack(track)
+    setIsMuted(false)
+    setIsPlaying(true)
+    try {
+      localStorage.setItem('farah_music_pref', 'playing')
+      localStorage.setItem('farah_music_track', track.id)
+    } catch {}
+
     if (audioRef.current) {
       audioRef.current.src = track.src
-      audioRef.current.load()
-      audioRef.current.play().then(() => {
-        setIsPlaying(true)
-        try {
-          localStorage.setItem('farah_music_track', track.id)
-        } catch {}
-      }).catch(() => {})
+      audioRef.current.volume = volume
+      audioRef.current.play().catch(() => {
+        // Handle browser autoplay policy if needed
+      })
     }
-  }, [])
+  }, [volume])
 
   useEffect(() => {
     let savedTrackId = 'joyful-atelier'
@@ -135,14 +139,27 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     } catch {}
 
     const found = MUSIC_TRACKS.find((t) => t.id === savedTrackId)
-    if (found) {
-      setCurrentTrack(found)
+    const initialTrack = found || MUSIC_TRACKS[0]
+    setCurrentTrack(initialTrack)
+
+    if (audioRef.current) {
+      audioRef.current.src = initialTrack.src
+      audioRef.current.volume = volume
     }
 
-    if (pref === 'paused') return
+    if (pref === 'paused') {
+      setIsPlaying(false)
+      return
+    }
 
     const tryPlay = () => {
-      playAudio()
+      if (audioRef.current) {
+        audioRef.current.volume = isMuted ? 0 : volume
+        audioRef.current
+          .play()
+          .then(() => setIsPlaying(true))
+          .catch(() => setIsPlaying(false))
+      }
       window.removeEventListener('click', tryPlay)
       window.removeEventListener('keydown', tryPlay)
       window.removeEventListener('touchstart', tryPlay)
@@ -162,7 +179,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener('touchstart', tryPlay)
       window.removeEventListener('scroll', tryPlay)
     }
-  }, [playAudio])
+  }, [playAudio, volume, isMuted])
 
   return (
     <MusicContext.Provider
@@ -180,11 +197,8 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     >
       <audio
         ref={audioRef}
-        src={currentTrack.src}
         loop
         preload="auto"
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
       />
       {children}
     </MusicContext.Provider>
@@ -290,24 +304,31 @@ export function HeaderMusicButton() {
                 <button
                   key={track.id}
                   type="button"
-                  onClick={() => selectTrack(track)}
+                  onClick={() => {
+                    selectTrack(track)
+                    setIsOpen(false)
+                  }}
                   className={cn(
-                    'flex items-center justify-between rounded-xl border-2 p-2 text-left transition-all cursor-pointer',
+                    'flex items-center justify-between rounded-xl border-2 p-2.5 text-left transition-all cursor-pointer group',
                     isSelected
                       ? 'border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
-                      : 'border-transparent bg-[#FAF5EC] text-[#2D1F1D] hover:border-[#2D1F1D]/30 hover:bg-white',
+                      : 'border-transparent bg-[#FAF5EC] text-[#2D1F1D] hover:border-[#2D1F1D]/30 hover:bg-white hover:shadow-xs',
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-base">{track.icon}</span>
+                    <span className="text-base group-hover:scale-110 transition-transform">{track.icon}</span>
                     <div>
                       <p className="text-xs font-black leading-tight">{track.name}</p>
                       <p className="text-[0.62rem] font-bold text-[#6B5550]">{track.tempo} • {track.description}</p>
                     </div>
                   </div>
-                  {isSelected && (
-                    <span className="flex size-5 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#10B981] text-white">
+                  {isSelected ? (
+                    <span className="flex size-5 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#10B981] text-white shadow-xs">
                       <Check className="size-3 stroke-[3]" />
+                    </span>
+                  ) : (
+                    <span className="text-[0.65rem] font-black text-[#FF7D6B] opacity-0 group-hover:opacity-100 transition-opacity">
+                      Play ▶
                     </span>
                   )}
                 </button>
@@ -330,17 +351,6 @@ export function HeaderMusicButton() {
               onChange={(e) => setVolume(parseFloat(e.target.value))}
               className="mt-1 w-full accent-[#FFC837] cursor-pointer"
             />
-          </div>
-
-          {/* Done Button */}
-          <div className="mt-2.5 border-t border-[#2D1F1D]/10 pt-2 flex items-center justify-end">
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="rounded-lg border border-[#2D1F1D] bg-[#FAF5EC] px-3 py-1 text-[0.68rem] font-black text-[#2D1F1D] shadow-xs hover:bg-[#FFE68C] cursor-pointer"
-            >
-              Done ✨
-            </button>
           </div>
         </div>
       )}

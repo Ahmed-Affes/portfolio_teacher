@@ -20,7 +20,14 @@ import { SectionScene } from '@/components/section-scene'
 import { usePortfolio } from '@/lib/portfolio-context'
 import { useToast } from '@/components/toast-provider'
 import { cn } from '@/lib/utils'
-import { PushPin } from '@/components/cloud-decorations'
+import {
+  PushPin,
+  FloatingCloud,
+  DoodleEnvelope,
+  SmilingFlower,
+  SmilingStar,
+  PastelBalloon,
+} from '@/components/cloud-decorations'
 
 type Errors = Partial<Record<'name' | 'email' | 'message', string>>
 
@@ -39,42 +46,54 @@ export function Contact() {
   const { toast } = useToast()
   const [role, setRole] = useState(ROLES[0])
   const [topic, setTopic] = useState(TOPICS[0])
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
   const [errors, setErrors] = useState<Errors>({})
   const [sent, setSent] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const validate = (form: HTMLFormElement): Errors => {
-    const data = new FormData(form)
-    const next: Errors = {}
-    const name = String(data.get('name') ?? '').trim()
-    const email = String(data.get('email') ?? '').trim()
-    const message = String(data.get('message') ?? '').trim()
-    if (name.length < 2) next.name = 'Please enter your name.'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = 'Enter a valid email address.'
-    if (message.length < 6) next.message = 'Please enter a message.'
-    return next
+  const validateField = (field: 'name' | 'email' | 'message', val: string): string | undefined => {
+    if (field === 'name') {
+      if (!val.trim()) return 'Please enter your name.'
+      if (val.trim().length < 2) return 'Name must be at least 2 characters.'
+    }
+    if (field === 'email') {
+      if (!val.trim()) return 'Please enter your email address.'
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) return 'Please enter a valid email address (e.g. name@example.com).'
+    }
+    if (field === 'message') {
+      if (!val.trim()) return 'Please enter a message.'
+      if (val.trim().length < 6) return 'Message should be at least 6 characters.'
+    }
+    return undefined
+  }
+
+  const handleChange = (field: 'name' | 'email' | 'message', val: string) => {
+    setFormData((prev) => ({ ...prev, [field]: val }))
+    if (errors[field]) {
+      const err = validateField(field, val)
+      setErrors((prev) => ({ ...prev, [field]: err }))
+    }
+  }
+
+  const handleBlur = (field: 'name' | 'email' | 'message') => {
+    const err = validateField(field, formData[field])
+    setErrors((prev) => ({ ...prev, [field]: err }))
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const form = e.currentTarget
-    const next = validate(form)
-    setErrors(next)
-    if (Object.keys(next).length > 0) return
+    const nameErr = validateField('name', formData.name)
+    const emailErr = validateField('email', formData.email)
+    const messageErr = validateField('message', formData.message)
 
-    const fd = new FormData(form)
+    const nextErrs: Errors = {}
+    if (nameErr) nextErrs.name = nameErr
+    if (emailErr) nextErrs.email = emailErr
+    if (messageErr) nextErrs.message = messageErr
 
-    const name = String(fd.get('name') || '').trim()
-    const email = String(fd.get('email') || '').trim()
-    const message = String(fd.get('message') || '').trim()
-
-    const errs: Errors = {}
-    if (!name) errs.name = 'Please enter your name'
-    if (!email || !email.includes('@')) errs.email = 'Please enter a valid email address'
-    if (!message) errs.message = 'Please write a message'
-
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs)
+    setErrors(nextErrs)
+    if (Object.keys(nextErrs).length > 0) {
+      toast('Please check the required fields in the form ✍️')
       return
     }
 
@@ -83,18 +102,18 @@ export function Contact() {
 
     try {
       await addMessage({
-        name,
-        email,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
         role,
         topic,
-        message,
+        message: formData.message.trim(),
       })
 
+      setSent(true)
       toast('Message sent! 💌 Thank you for reaching out to Farah! She will reply within 24 hours.')
-
-      form.reset()
+      setFormData({ name: '', email: '', message: '' })
     } catch {
-      toast('Could not send message. Please try sending an email or message via WhatsApp directly.')
+      toast('Could not send message. Please try sending via WhatsApp directly!')
     } finally {
       setIsSubmitting(false)
     }
@@ -107,6 +126,13 @@ export function Contact() {
     'w-full appearance-none rounded-2xl border-[1.5px] border-[#2D1F1D]/35 bg-[#FAF5EC] p-3 text-xs font-bold text-[#2D1F1D] outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#FFC837] cursor-pointer'
   return (
     <section id="contact" className="section-shell relative bg-white py-10 sm:py-14 lg:py-16 overflow-hidden">
+      {/* Happy Stationary Decorations */}
+      <FloatingCloud mood="laughing" size="md" className="top-6 left-8 opacity-60 hidden md:block" />
+      <DoodleEnvelope size={52} className="top-12 right-12 opacity-75 hidden sm:block" />
+      <SmilingStar size={34} color="#FFC837" className="bottom-14 left-8 opacity-75 hidden sm:block" />
+      <SmilingFlower size={42} color="#FFB5B5" className="bottom-16 right-10 opacity-70 hidden md:block" />
+      <PastelBalloon color="#FF7D6B" size={44} className="top-1/2 left-4 opacity-70 hidden xl:block" />
+
       <SectionScene theme="contact" pattern="dots" />
 
       <div className="section-inner section-stack">
@@ -305,10 +331,19 @@ export function Contact() {
                         name="name"
                         type="text"
                         required
+                        value={formData.name}
+                        onChange={(e) => handleChange('name', e.target.value)}
+                        onBlur={() => handleBlur('name')}
+                        aria-invalid={!!errors.name}
+                        aria-describedby={errors.name ? 'name-error' : undefined}
                         placeholder="Mariam Ben Ali"
-                        className={cn(inputClass, errors.name && 'border-[#FF5A5A]')}
+                        className={cn(inputClass, errors.name && 'border-[#FF5A5A] bg-[#FFF5F5]')}
                       />
-                      {errors.name && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.name}</p>}
+                      {errors.name && (
+                        <p id="name-error" className="mt-1 text-xs font-bold text-[#FF5A5A] flex items-center gap-1">
+                          <span>⚠️</span> {errors.name}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="email" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
@@ -319,35 +354,59 @@ export function Contact() {
                         name="email"
                         type="email"
                         required
+                        value={formData.email}
+                        onChange={(e) => handleChange('email', e.target.value)}
+                        onBlur={() => handleBlur('email')}
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
                         placeholder="mariam@example.com"
-                        className={cn(inputClass, errors.email && 'border-[#FF5A5A]')}
+                        className={cn(inputClass, errors.email && 'border-[#FF5A5A] bg-[#FFF5F5]')}
                       />
-                      {errors.email && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.email}</p>}
+                      {errors.email && (
+                        <p id="email-error" className="mt-1 text-xs font-bold text-[#FF5A5A] flex items-center gap-1">
+                          <span>⚠️</span> {errors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
-                      Message *
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label htmlFor="message" className="block text-xs font-black uppercase tracking-wider text-[#2D1F1D]">
+                        Message *
+                      </label>
+                      <span className="text-[0.68rem] font-bold text-[#6B5550]">
+                        {formData.message.length}/500
+                      </span>
+                    </div>
                     <textarea
                       id="message"
                       name="message"
                       rows={3}
+                      maxLength={500}
                       required
+                      value={formData.message}
+                      onChange={(e) => handleChange('message', e.target.value)}
+                      onBlur={() => handleBlur('message')}
+                      aria-invalid={!!errors.message}
+                      aria-describedby={errors.message ? 'message-error' : undefined}
                       placeholder="Tell me about your students, workshop date, or material request..."
-                      className={cn('resize-none', inputClass, errors.message && 'border-[#FF5A5A]')}
+                      className={cn('resize-none', inputClass, errors.message && 'border-[#FF5A5A] bg-[#FFF5F5]')}
                     />
-                    {errors.message && <p className="mt-1 text-xs font-bold text-[#FF5A5A]">{errors.message}</p>}
+                    {errors.message && (
+                      <p id="message-error" className="mt-1 text-xs font-bold text-[#FF5A5A] flex items-center gap-1">
+                        <span>⚠️</span> {errors.message}
+                      </p>
+                    )}
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="cute-btn w-full bg-[#FF7D6B] py-3.5 text-sm font-black text-white hover:bg-[#FF6B6B]"
+                    className="cute-btn w-full bg-[#FF7D6B] py-3.5 text-sm font-black text-white hover:bg-[#FF6B6B] disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <Send className="size-4" />
-                    <span>{isSubmitting ? 'Sending Message...' : 'Send Message to Farah 🚀'}</span>
+                    <Send className={cn('size-4', isSubmitting && 'animate-spin')} />
+                    <span>{isSubmitting ? 'Sending Message to Farah...' : 'Send Message to Farah 🚀'}</span>
                   </button>
                 </form>
               </div>

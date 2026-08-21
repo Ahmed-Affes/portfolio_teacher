@@ -30,6 +30,10 @@ import {
   CuteSticker,
   PushPin,
   SwirlyArrow,
+  FloatingCloud,
+  SmilingFlower,
+  SmilingStar,
+  PastelBalloon,
 } from '@/components/cloud-decorations'
 
 const FILTERS: { id: WorkCategory; label: string; color: string }[] = [
@@ -41,7 +45,7 @@ const FILTERS: { id: WorkCategory; label: string; color: string }[] = [
   { id: 'classroom', label: 'Classroom Moments 📸', color: 'bg-[#FED7AA]' },
 ]
 
-const INITIAL_VISIBLE_COUNT = 6
+const INITIAL_VISIBLE_COUNT = 9
 const LOAD_MORE_STEP = 6
 const PIN_COLORS = ['red', 'mint', 'yellow', 'purple', 'coral'] as const
 
@@ -119,6 +123,12 @@ export function WorkShowcase() {
 
   return (
     <section id="work" className="section-shell relative bg-[#FAF5EC] py-10 sm:py-14 lg:py-16 overflow-hidden">
+      {/* Happy Stationary Decorations */}
+      <FloatingCloud mood="smiling" size="md" className="top-6 right-8 opacity-60 hidden md:block" />
+      <SmilingStar size={34} color="#FFC837" className="top-24 left-10 opacity-75 hidden sm:block" />
+      <SmilingFlower size={42} color="#FFB5B5" className="bottom-14 right-8 opacity-70 hidden md:block" />
+      <PastelBalloon color="#FFC837" size={44} className="bottom-28 left-6 opacity-70 hidden lg:block" />
+
       <SectionScene theme="work" pattern="grid" />
 
       <div className="section-inner section-stack">
@@ -192,7 +202,7 @@ export function WorkShowcase() {
           </div>
         </Reveal>
 
-        {/* Showcase Items Exhibition: Masterpiece Workbench + Masonry Scrapbook Wall */}
+        {/* Showcase Items Exhibition: Rich Multi-Size Bento Scrapbook Grid */}
         {filteredItems.length === 0 ? (
           <Reveal>
             <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-[#2D1F1D]/30 bg-white p-12 text-center shadow-[0_10px_25px_rgba(45,31,29,0.05),3px_3px_0px_rgba(45,31,29,0.5)]">
@@ -213,190 +223,358 @@ export function WorkShowcase() {
             </div>
           </Reveal>
         ) : (
-          <div className="space-y-8">
-            {/* 1. MASTERPIECE OF THE ATELIER (Featured Wide Workbench Card) */}
-            {displayedItems.length > 0 && searchQuery === '' && (
-              <Reveal>
-                <div className="group relative w-full">
-                  <PushPin color="red" size={32} className="right-10 -top-1 z-20" />
-                  <WashiTape color="#FFC837" className="left-8 -top-3 w-28" pattern="stripes" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 auto-rows-fr">
+            {displayedItems.map((item, i) => {
+              const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
+              const pinColor = PIN_COLORS[i % PIN_COLORS.length]
 
-                  <div className="relative overflow-hidden rounded-[2.8rem_1.6rem_2.6rem_1.8rem] border-[1.5px] border-[#3E251E]/40 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0] p-4 sm:p-6 shadow-[0_12px_32px_rgba(45,31,29,0.08),4px_4px_0px_rgba(45,31,29,0.7)] transition-all duration-300 hover:shadow-[0_18px_40px_rgba(45,31,29,0.12),5px_5px_0px_rgba(45,31,29,0.8)]">
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-                      {/* Left: Expansive Media Window */}
-                      <div
-                        onClick={() => setActiveItemIndex(0)}
-                        className="relative aspect-[16/10.5] w-full overflow-hidden rounded-[2rem] border-[1.5px] border-[#2D1F1D]/30 bg-[#FFF9E6] cursor-pointer group/img shadow-inner"
-                      >
-                        <Image
-                          src={displayedItems[0].image || '/placeholder.svg'}
-                          alt={displayedItems[0].title}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 650px"
-                          className="object-cover transition-transform duration-700 group-hover/img:scale-105"
+              // Bento size mapping (cycles through varied sizes: 2x2 hero, 1x2 tall, 2x1 wide, 1x1 compact)
+              const mod = i % 7
+              let spanClass = 'col-span-1 md:col-span-1 lg:col-span-1'
+              let variant: 'hero-large' | 'tall-portrait' | 'wide-horizontal' | 'compact' = 'compact'
+              let rotationClass = 'rotate-[-0.3deg]'
+
+              if (mod === 0) {
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-2'
+                variant = 'hero-large'
+                rotationClass = 'rotate-[-0.4deg]'
+              } else if (mod === 1) {
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2'
+                variant = 'tall-portrait'
+                rotationClass = 'rotate-[0.5deg]'
+              } else if (mod === 2 || mod === 3) {
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
+                variant = 'compact'
+                rotationClass = mod === 2 ? 'rotate-[-0.4deg]' : 'rotate-[0.3deg]'
+              } else if (mod === 4) {
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-1'
+                variant = 'wide-horizontal'
+                rotationClass = 'rotate-[-0.2deg]'
+              } else if (mod === 5) {
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
+                variant = 'compact'
+                rotationClass = 'rotate-[0.4deg]'
+              } else {
+                spanClass = 'col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-1'
+                variant = 'compact'
+                rotationClass = 'rotate-[-0.5deg]'
+              }
+
+              return (
+                <div key={item.id} className={cn('relative w-full', spanClass)}>
+                  <Reveal delay={(i % 6) * 45} className="h-full">
+                    <div className="group relative h-full w-full pt-2">
+                      {/* Scrapbook Pushpin / Washi Tape Accent */}
+                      {mod === 0 || mod === 4 ? (
+                        <WashiTape
+                          color={mod === 0 ? '#FFC837' : '#A7F3D0'}
+                          className="left-8 -top-2 w-24 z-20"
+                          pattern={mod === 0 ? 'stripes' : 'dots'}
                         />
+                      ) : (
+                        <PushPin color={pinColor} size={22} className="left-1/2 -top-1 z-20" />
+                      )}
 
-                        {/* Top Badge */}
-                        <div className="absolute left-4 top-4 flex items-center gap-2">
-                          <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFC837] px-3.5 py-1 text-xs font-black uppercase text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.4)]">
-                            Featured Masterpiece ✂️
-                          </span>
-                          <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-3 py-1 text-[0.7rem] font-black uppercase text-[#2D1F1D] shadow-xs">
-                            {displayedItems[0].tag}
-                          </span>
-                        </div>
-
-                        {/* Maximize Icon */}
-                        <span className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-[2px_2px_0px_rgba(45,31,29,0.3)] transition-all duration-200 group-hover/img:scale-110">
-                          <Maximize2 className="size-4" />
-                        </span>
-                      </div>
-
-                      {/* Right: Studio Craft Details */}
-                      <div className="flex flex-col justify-between space-y-4">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="flex size-6 items-center justify-center rounded-full bg-[#A7F3D0] text-[0.65rem] font-black text-[#2D1F1D] border border-[#2D1F1D]/30">
-                              ★
-                            </span>
-                            <span className="text-[0.72rem] font-black uppercase tracking-wider text-[#FF7D6B]">
-                              Atelier Craft Highlight
-                            </span>
-                          </div>
-
-                          <h3 className="mt-2 font-sans text-xl sm:text-2xl font-black text-[#2D1F1D] leading-tight">
-                            {displayedItems[0].title}
-                          </h3>
-
-                          <p className="mt-3 text-xs sm:text-sm font-bold leading-relaxed text-[#6B5550]">
-                            {displayedItems[0].description}
-                          </p>
-                        </div>
-
-                        {/* Highlights Badges */}
-                        {displayedItems[0].highlights && displayedItems[0].highlights.length > 0 && (
-                          <div className="space-y-2 border-t border-[#2D1F1D]/10 pt-3.5">
-                            <p className="text-[0.68rem] font-black uppercase tracking-wider text-[#2D1F1D]">
-                              Pedagogical Craft Highlights:
-                            </p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {displayedItems[0].highlights.map((h) => (
-                                <span
-                                  key={h}
-                                  className="inline-flex items-center gap-1 rounded-xl border border-[#2D1F1D]/30 bg-[#FAF5EC] px-3 py-1 text-xs font-bold text-[#2D1F1D]"
-                                >
-                                  <Sparkles className="size-3 text-[#FF7D6B]" />
-                                  <span>{h}</span>
+                      <div
+                        className={cn(
+                          'relative flex h-full w-full flex-col overflow-hidden rounded-[2.2rem_1.4rem_2.4rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_32px_rgba(45,31,29,0.12),4.5px_4.5px_0px_rgba(45,31,29,0.8)]',
+                          rotationClass,
+                        )}
+                      >
+                        {/* ========================================================= */}
+                        {/* 1. HERO LARGE BENTO TILE (2x2 Expansive Workbench View)   */}
+                        {/* ========================================================= */}
+                        {variant === 'hero-large' && (
+                          <div className="flex h-full flex-col justify-between p-4 sm:p-6 bg-gradient-to-br from-white via-[#FFFDF9] to-[#FFF9F0]">
+                            <div
+                              onClick={() => setActiveItemIndex(actualIndex)}
+                              className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
+                            >
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 600px"
+                                className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute left-3 top-3 flex items-center gap-2 flex-wrap">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFC837] px-3 py-1 text-xs font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
+                                  Featured Masterpiece ✂️
                                 </span>
-                              ))}
+                                <span className="rounded-full border border-[#2D1F1D]/30 bg-white/95 px-2.5 py-0.5 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                  {item.tag}
+                                </span>
+                              </div>
+                              <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-all group-hover/img:scale-110">
+                                <Maximize2 className="size-4" />
+                              </span>
+                              {item.year && (
+                                <div className="absolute bottom-2.5 right-2.5 rounded-md border border-[#2D1F1D]/30 bg-white/95 px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]">
+                                  🗓️ {item.year}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="space-y-3 pt-3 flex-1 flex flex-col justify-between">
+                              <div>
+                                <div
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="flex items-start justify-between gap-2 cursor-pointer group/title"
+                                >
+                                  <h3 className="font-sans text-lg sm:text-xl font-black text-[#2D1F1D] leading-snug transition-colors group-hover/title:text-[#FF7D6B]">
+                                    {item.title}
+                                  </h3>
+                                  <ArrowUpRight className="size-5 shrink-0 text-[#2D1F1D] transition-transform group-hover/title:translate-x-1 group-hover/title:-translate-y-1" />
+                                </div>
+                                <p className="mt-2 text-xs sm:text-sm font-medium leading-relaxed text-[#6B5550]">
+                                  {item.description}
+                                </p>
+                              </div>
+
+                              {item.highlights && item.highlights.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                  {item.highlights.map((h) => (
+                                    <span
+                                      key={h}
+                                      className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D]/30 bg-[#FAF5EC] px-2.5 py-1 text-xs font-bold text-[#2D1F1D]"
+                                    >
+                                      <Sparkles className="size-3 text-[#FF7D6B]" />
+                                      <span>{h}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex items-center justify-between gap-3 border-t border-[#2D1F1D]/12 pt-3">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="cute-btn bg-[#FFE68C] px-4 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] cursor-pointer"
+                                >
+                                  <span>Inspect Lightbox 🔍</span>
+                                </button>
+                                <a
+                                  href="#contact"
+                                  className="cute-btn bg-white px-4 py-2 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer"
+                                >
+                                  <span>Order Custom Kit 💌</span>
+                                </a>
+                              </div>
                             </div>
                           </div>
                         )}
 
-                        {/* Action CTAs */}
-                        <div className="flex flex-wrap items-center gap-3 pt-2">
-                          <button
-                            type="button"
-                            onClick={() => setActiveItemIndex(0)}
-                            className="cute-btn bg-[#FFE68C] px-5 py-2.5 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] cursor-pointer shadow-[2px_2px_0px_#2D1F1D]"
-                          >
-                            <span>Inspect Lightbox 🔍</span>
-                            <ArrowUpRight className="size-4" />
-                          </button>
-                          <a
-                            href="#contact"
-                            className="cute-btn bg-white px-5 py-2.5 text-xs font-black text-[#2D1F1D] hover:bg-[#FAF5EC] cursor-pointer shadow-[2px_2px_0px_#2D1F1D]"
-                          >
-                            <span>Order Custom Kit 💌</span>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            )}
-
-            {/* 2. MASONRY SCRAPBOOK ATELIER WALL (Gapless, Organic Dynamic Flow) */}
-            <div className="columns-1 gap-6 space-y-6 sm:columns-2 lg:columns-3">
-              {(searchQuery !== '' ? displayedItems : displayedItems.slice(1)).map((item, i) => {
-                const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
-                const pinColor = PIN_COLORS[i % PIN_COLORS.length]
-
-                return (
-                  <div key={item.id} className="break-inside-avoid">
-                    <Reveal delay={(i % 4) * 50}>
-                      <div className="group relative w-full pt-2">
-                        {/* 3D PushPin on top */}
-                        <PushPin color={pinColor} className="left-1/2 -top-1 z-10" />
-
-                        <button
-                          type="button"
-                          onClick={() => setActiveItemIndex(actualIndex)}
-                          className={cn(
-                            'relative flex h-full w-full flex-col overflow-hidden rounded-[2.2rem_1.4rem_2.4rem_1.6rem] border-[1.5px] border-[#3E251E]/40 bg-white text-left shadow-[0_8px_20px_rgba(45,31,29,0.06),3px_3px_0px_rgba(45,31,29,0.65)] transition-all duration-200 hover:-translate-y-1.5 hover:shadow-[0_14px_30px_rgba(45,31,29,0.12),4.5px_4.5px_0px_rgba(45,31,29,0.75)] cursor-pointer',
-                            i % 2 === 0 ? 'rotate-[-0.5deg]' : 'rotate-[0.5deg]',
-                          )}
-                        >
-                          {/* Media Thumbnail */}
-                          <div className="relative aspect-[16/11] w-full overflow-hidden bg-[#FFF9E6] border-b border-[#2D1F1D]/15">
-                            <Image
-                              src={item.image || '/placeholder.svg'}
-                              alt={item.title}
-                              fill
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-
-                            {/* Tag pill */}
-                            <div className="absolute left-3 top-3 flex items-center gap-1.5">
-                              <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-3 py-1 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
-                                {item.tag}
+                        {/* ========================================================= */}
+                        {/* 2. TALL PORTRAIT BENTO TILE (1x2 Vertical Poster View)    */}
+                        {/* ========================================================= */}
+                        {variant === 'tall-portrait' && (
+                          <div className="flex h-full flex-col justify-between p-4 sm:p-5 bg-white">
+                            <div
+                              onClick={() => setActiveItemIndex(actualIndex)}
+                              className="relative aspect-[3/4] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
+                            >
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 350px"
+                                className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute left-2.5 top-2.5">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-[1px_1px_0px_rgba(45,31,29,0.3)]">
+                                  {item.tag}
+                                </span>
+                              </div>
+                              <span className="absolute right-2.5 top-2.5 flex size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
+                                <Maximize2 className="size-3.5" />
                               </span>
                             </div>
 
-                            {/* Maximize Icon */}
-                            <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] opacity-0 shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] transition-all duration-200 group-hover:opacity-100 group-hover:scale-110">
-                              <Maximize2 className="size-4" />
-                            </span>
-                          </div>
-
-                          {/* Content Details */}
-                          <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
-                            <div>
-                              <div className="flex items-start justify-between gap-2">
-                                <h4 className="font-sans text-base font-black leading-snug text-[#2D1F1D] transition-colors group-hover:text-[#FF7D6B]">
+                            <div className="space-y-2 pt-3 flex-1 flex flex-col justify-between">
+                              <div>
+                                <h4
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="font-sans text-base font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors"
+                                >
                                   {item.title}
                                 </h4>
-                                <ArrowUpRight className="size-4.5 shrink-0 text-[#2D1F1D] transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                                <p className="mt-1.5 text-xs font-medium leading-relaxed text-[#6B5550]">
+                                  {item.description}
+                                </p>
                               </div>
 
-                              <p className="mt-2 text-xs font-bold leading-relaxed text-[#6B5550] line-clamp-2">
-                                {item.description}
-                              </p>
+                              {item.highlights && item.highlights.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-1 border-t border-[#2D1F1D]/10">
+                                  {item.highlights.slice(0, 2).map((h) => (
+                                    <span
+                                      key={h}
+                                      className="rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
+                                    >
+                                      {h}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex items-center justify-between pt-1 border-t border-[#2D1F1D]/10">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="text-xs font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer"
+                                >
+                                  Inspect 🔍
+                                </button>
+                                {item.format && (
+                                  <span className="text-[0.65rem] font-bold text-[#6B5550]">
+                                    {item.format}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ========================================================= */}
+                        {/* 3. WIDE HORIZONTAL BENTO TILE (2x1 Panoramic Row View)   */}
+                        {/* ========================================================= */}
+                        {variant === 'wide-horizontal' && (
+                          <div className="flex h-full flex-col sm:flex-row gap-4 p-4 sm:p-5 bg-white">
+                            <div
+                              onClick={() => setActiveItemIndex(actualIndex)}
+                              className="relative aspect-[16/10] sm:aspect-[4/3] sm:w-2/5 shrink-0 overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img"
+                            >
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 300px"
+                                className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute left-2.5 top-2.5">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2.5 py-0.5 text-[0.68rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                  {item.tag}
+                                </span>
+                              </div>
+                              <span className="absolute right-2.5 top-2.5 flex size-7 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
+                                <Maximize2 className="size-3.5" />
+                              </span>
                             </div>
 
-                            {/* Highlights */}
-                            {item.highlights && item.highlights.length > 0 && (
-                              <div className="mt-4 flex flex-wrap gap-1.5 border-t border-[#2D1F1D]/10 pt-3">
-                                {item.highlights.map((h) => (
-                                  <span
-                                    key={h}
-                                    className="rounded-xl border border-[#2D1F1D]/30 bg-[#FAF5EC] px-2.5 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
-                                  >
-                                    {h}
+                            <div className="flex-1 flex flex-col justify-between space-y-2">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="rounded-md border border-[#2D1F1D]/30 bg-[#A7F3D0] px-2 py-0.2 text-[0.65rem] font-black text-[#065F46]">
+                                    Atelier Spotlight
                                   </span>
-                                ))}
+                                  {item.year && <span className="text-[0.65rem] font-bold text-[#6B5550]">🗓️ {item.year}</span>}
+                                </div>
+                                <h4
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="mt-1 font-sans text-base sm:text-lg font-black text-[#2D1F1D] leading-snug cursor-pointer hover:text-[#FF7D6B] transition-colors"
+                                >
+                                  {item.title}
+                                </h4>
+                                <p className="mt-1 text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-2">
+                                  {item.description}
+                                </p>
                               </div>
-                            )}
+
+                              {item.highlights && item.highlights.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                  {item.highlights.map((h) => (
+                                    <span
+                                      key={h}
+                                      className="inline-flex items-center gap-1 rounded-md border border-[#2D1F1D]/25 bg-[#FAF5EC] px-2 py-0.5 text-[0.65rem] font-bold text-[#2D1F1D]"
+                                    >
+                                      <Sparkles className="size-2.5 text-[#FF7D6B]" />
+                                      <span>{h}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex items-center justify-between pt-2 border-t border-[#2D1F1D]/10">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="text-xs font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer"
+                                >
+                                  Inspect Lightbox 🔍
+                                </button>
+                                <a
+                                  href="#contact"
+                                  className="inline-flex items-center gap-1 rounded-lg border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-1 text-xs font-black text-[#2D1F1D] hover:bg-[#FFD54F] transition-transform hover:translate-x-0.5"
+                                >
+                                  <span>Inquire</span>
+                                  <ArrowRight className="size-3" />
+                                </a>
+                              </div>
+                            </div>
                           </div>
-                        </button>
+                        )}
+
+                        {/* ========================================================= */}
+                        {/* 4. COMPACT BENTO TILE (1x1 Standard Craft Tile)          */}
+                        {/* ========================================================= */}
+                        {variant === 'compact' && (
+                          <div className="flex h-full flex-col justify-between p-4 bg-white">
+                            <div
+                              onClick={() => setActiveItemIndex(actualIndex)}
+                              className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border-[1.5px] border-[#2D1F1D]/20 bg-[#FFF9E6] cursor-pointer group/img shrink-0"
+                            >
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.title}
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 300px"
+                                className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute left-2 top-2">
+                                <span className="rounded-full border border-[#2D1F1D]/40 bg-[#FFE68C] px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#2D1F1D] shadow-xs">
+                                  {item.tag}
+                                </span>
+                              </div>
+                              <span className="absolute right-2 top-2 flex size-6.5 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-white text-[#2D1F1D] shadow-xs group-hover/img:scale-110">
+                                <Maximize2 className="size-3" />
+                              </span>
+                            </div>
+
+                            <div className="space-y-1.5 pt-2.5 flex-1 flex flex-col justify-between">
+                              <div>
+                                <h4
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="font-sans text-sm sm:text-base font-black text-[#2D1F1D] leading-snug line-clamp-1 cursor-pointer hover:text-[#FF7D6B] transition-colors"
+                                >
+                                  {item.title}
+                                </h4>
+                                <p className="mt-1 text-[0.72rem] sm:text-xs font-medium leading-relaxed text-[#6B5550] line-clamp-2">
+                                  {item.description}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-1.5 border-t border-[#2D1F1D]/10 text-xs">
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveItemIndex(actualIndex)}
+                                  className="text-[0.72rem] font-black text-[#2D1F1D] hover:text-[#FF7D6B] cursor-pointer"
+                                >
+                                  Inspect 🔍
+                                </button>
+                                {item.format && (
+                                  <span className="text-[0.62rem] font-bold text-[#6B5550] truncate max-w-[110px]">
+                                    {item.format}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </Reveal>
-                  </div>
-                )
-              })}
-            </div>
+                    </div>
+                  </Reveal>
+                </div>
+              )
+            })}
           </div>
         )}
 
