@@ -230,19 +230,29 @@ export function WorkShowcase() {
               const actualIndex = filteredItems.findIndex((fi) => fi.id === item.id)
               const pinColor = PIN_COLORS[i % PIN_COLORS.length]
 
-              // Dynamic Bento sizing that tiles seamlessly across 2, 3, and 4-column screens
-              const mod = i % 6
+              // Organic Bento sizing alternating Left, Right, and Center across rows
+              const mod = i % 12
               let spanClass = 'col-span-1'
               let variant: 'hero-large' | 'wide-horizontal' | 'tall-portrait' | 'compact' = 'compact'
               const rotationClass = i % 2 === 0 ? 'rotate-0 sm:rotate-[-0.3deg]' : 'rotate-0 sm:rotate-[0.3deg]'
 
               if (mod === 0) {
+                // Row 1: Big card on the LEFT (cols 1-2)
                 spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-2'
                 variant = 'hero-large'
-              } else if (mod === 3) {
+              } else if (mod === 5) {
+                // Row 2: Big card on the RIGHT (cols 3-4)
                 spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-2'
                 variant = 'wide-horizontal'
-              } else if (mod === 1) {
+              } else if (mod === 7) {
+                // Row 3: Big card in the CENTER (cols 2-3)
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-2'
+                variant = 'hero-large'
+              } else if (mod === 9) {
+                // Row 4: Big card on the LEFT (cols 1-2)
+                spanClass = 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-2'
+                variant = 'wide-horizontal'
+              } else if (mod === 2 || mod === 8) {
                 spanClass = 'col-span-1'
                 variant = 'tall-portrait'
               } else {
