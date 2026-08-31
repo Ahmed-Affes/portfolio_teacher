@@ -1329,7 +1329,7 @@ export function About() {
           {/* ========================================================================= */}
           {/* RIGHT COLUMN: REALISTIC PHYSICAL HARDCOVER BOOK WITH STACKED PAGES & TABS */}
           {/* ========================================================================= */}
-          <div className="relative lg:pr-28 xl:pr-32 w-full max-w-full overflow-hidden">
+          <div className="relative lg:pr-32 xl:pr-36 w-full max-w-full overflow-visible">
             <Reveal delay={80} className="w-full">
               {/* MOBILE / TABLET TOP CHAPTER RIBBON TABS (attached directly to top of book) */}
               <div className="grid grid-cols-4 gap-1 sm:gap-1.5 px-2 mb-0 select-none lg:hidden w-full">
