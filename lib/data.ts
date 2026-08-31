@@ -5,7 +5,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'about', label: 'About' },
   { id: 'work', label: 'Work' },
   { id: 'videos', label: 'Videos' },
-  { id: 'shop', label: 'Shop' },
   { id: 'serve', label: 'Services' },
   { id: 'testimonials', label: 'Reviews' },
   { id: 'faq', label: 'FAQ' },
@@ -310,75 +309,7 @@ export const VIDEOS: Video[] = [
   },
 ]
 
-export type Product = {
-  id: string
-  name: string
-  title?: string
-  subtitle?: string
-  category: string
-  format?: string
-  image: string
-  description: string
-  options: ('buy' | 'rent')[]
-  buyPrice?: number
-  rentPrice?: number
-  priceBuy?: number
-  priceRent?: number
-  badge?: string
-  tags?: string[]
-  features?: string[]
-  isActive?: boolean
-}
 
-export const PRODUCTS: Product[] = [
-  {
-    id: 'p1',
-    name: 'Printable ESL Worksheet & Activity Bundle',
-    category: 'Digital Download',
-    image: '/images/product-worksheets.png',
-    description:
-      'Print-ready PDF worksheets, flashcards, and poster templates ready to download, customize, and print for unlimited classroom use.',
-    options: ['buy'],
-    buyPrice: 12,
-    features: ['60+ PDF Pages', 'Instant Digital Access', 'Answer Keys Included'],
-  },
-  {
-    id: 'p2',
-    name: 'Handmade Storytelling Felt Kit',
-    category: 'Physical DIY Prop',
-    image: '/images/product-story-kit.png',
-    description:
-      'A tactile storytelling kit with felt characters, background scenery, and prompt cards to bring English narratives to vivid life.',
-    options: ['buy', 'rent'],
-    buyPrice: 45,
-    rentPrice: 9,
-    features: ['Handcrafted Felt', '15 Character Pieces', 'Rental Available in Tunis'],
-  },
-  {
-    id: 'p3',
-    name: 'Rotating Phonics Blending Wheel',
-    category: 'Physical DIY Prop',
-    image: '/images/product-phonics-wheel.png',
-    description:
-      'A double-layer rotating phonics wheel that makes blending letter sounds playful and hands-on for early readers.',
-    options: ['buy', 'rent'],
-    buyPrice: 22,
-    rentPrice: 5,
-    features: ['Double-Disc Mechanism', '100+ Word Blends', 'Laminated Finish'],
-  },
-  {
-    id: 'p4',
-    name: 'Oversized Vocabulary Dice Set',
-    category: 'Physical DIY Prop',
-    image: '/images/product-vocab-dice.png',
-    description:
-      'Oversized vocabulary dice with words and pictures — perfect for active speaking games, warm-ups, and group challenges.',
-    options: ['buy', 'rent'],
-    buyPrice: 18,
-    rentPrice: 4,
-    features: ['Set of 4 Dice', 'Lightweight Foam Core', 'Action Verb Themes'],
-  },
-]
 
 export type Audience = {
   id: string
@@ -736,20 +667,20 @@ export const TESTIMONIALS = [
 
 export const FAQS = [
   {
-    q: 'How does renting DIY classroom materials work?',
-    a: 'Rentals are available locally in the greater Tunis area. You select a prop kit, choose your desired dates through the contact form or cart, and Farah prepares everything sanitized and ready-to-use with teacher activity guides.',
-  },
-  {
-    q: 'Are digital printable downloads reusable?',
-    a: 'Yes! Once you purchase a digital resource bundle, you receive lifetime access to high-resolution, print-ready PDF files that you can print as many times as needed for your own classroom or home learning.',
-  },
-  {
-    q: 'Can you design a custom teaching prop or poster for my class?',
+    q: 'Can you design a custom teaching prop or visual aid for my class?',
     a: 'Absolutely! Custom pedagogical design is one of Farah’s specialties. Share your target age, grammar topic or phonics goal, and timeline via the contact form to receive a tailored concept and quote.',
   },
   {
     q: 'Do you offer teacher-training workshops on DIY material creation?',
     a: 'Yes — Farah hosts hands-on workshops for school faculties and independent educators on building engaging tactile learning aids and gamifying ESL lesson plans. Inquire for dates and group bookings.',
+  },
+  {
+    q: 'What age groups and language levels do your materials target?',
+    a: 'Materials and methods are crafted primarily for primary and middle school ESL learners (ages 5–15), with specialized scaffolding for emergent bilingual readers and remedial students.',
+  },
+  {
+    q: 'Where do you offer educational consultations and seminars?',
+    a: 'In-person workshops and school seminars are conducted in Sfax and across Tunisia, with digital consulting and pedagogical masterclasses available internationally online.',
   },
 ]
 

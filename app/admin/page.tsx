@@ -48,7 +48,6 @@ import {
   Search,
   Send,
   Settings,
-  ShoppingBag,
   Smartphone,
   Sparkles,
   Star,
@@ -66,12 +65,10 @@ import {
   usePortfolio,
   type WorkItem,
   type Video as VideoType,
-  type Product,
   type Audience,
   type TestimonialItem,
   type FaqItem,
   type StatItem,
-  type StoredOrder,
   type StoredMessage,
   type AboutPillar,
   type HeroData,
@@ -90,7 +87,6 @@ import { Hero } from '@/components/hero'
 import { About } from '@/components/about'
 import { WorkShowcase } from '@/components/work-showcase'
 import { Videos } from '@/components/videos'
-import { ResourceShop } from '@/components/resource-shop'
 import { WhoIServe } from '@/components/who-i-serve'
 import { Testimonials } from '@/components/testimonials'
 import { Faq } from '@/components/faq'
@@ -121,13 +117,11 @@ type AdminTab =
   | 'about'
   | 'works'
   | 'videos'
-  | 'shop'
   | 'audiences'
   | 'testimonials'
   | 'faqs'
   | 'contact'
   | 'inbox'
-  | 'orders'
   | 'settings'
 
 type PreviewDevice = 'desktop' | 'tablet' | 'mobile'
@@ -159,10 +153,6 @@ export default function AdminPage() {
     updateVideo,
     toggleVideoActive,
     deleteVideo,
-    addProduct,
-    updateProduct,
-    toggleProductActive,
-    deleteProduct,
     addAudience,
     updateAudience,
     toggleAudienceActive,
@@ -175,8 +165,6 @@ export default function AdminPage() {
     updateFaq,
     toggleFaqActive,
     deleteFaq,
-    updateOrderStatus,
-    deleteOrder,
     markMessageRead,
     deleteMessage,
     updateAdminPin,
@@ -218,13 +206,11 @@ export default function AdminPage() {
   // Search Queries for Items
   const [workSearch, setWorkSearch] = useState('')
   const [videoSearch, setVideoSearch] = useState('')
-  const [productSearch, setProductSearch] = useState('')
   const [testSearch, setTestSearch] = useState('')
   const [faqSearch, setFaqSearch] = useState('')
   const [milestoneSearch, setMilestoneSearch] = useState('')
   const [milestoneCategoryFilter, setMilestoneCategoryFilter] = useState<'all' | MilestoneCategory>('all')
   const [messageFilter, setMessageFilter] = useState<'all' | 'unread' | 'read' | 'replied'>('all')
-  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'confirmed' | 'fulfilled'>('all')
 
   // Modals for Items CRUD
   const [editingMilestone, setEditingMilestone] = useState<CareerMilestone | null>(null)
@@ -235,9 +221,6 @@ export default function AdminPage() {
 
   const [editingVideo, setEditingVideo] = useState<VideoType | null>(null)
   const [isAddingVideo, setIsAddingVideo] = useState(false)
-
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [isAddingProduct, setIsAddingProduct] = useState(false)
 
   const [editingAudience, setEditingAudience] = useState<Audience | null>(null)
   const [isAddingAudience, setIsAddingAudience] = useState(false)
@@ -471,7 +454,6 @@ export default function AdminPage() {
               },
               { id: 'works', label: 'Craft Gallery', icon: Palette, badge: state.works.length },
               { id: 'videos', label: 'Video Lessons', icon: Video, badge: state.videos.length },
-              { id: 'shop', label: 'Resource Shop', icon: ShoppingBag, badge: state.products.length },
               { id: 'audiences', label: 'Who I Serve', icon: GraduationCap, badge: state.audiences.length },
               { id: 'testimonials', label: 'Endorsements', icon: Star, badge: state.testimonials.length },
               { id: 'faqs', label: 'Atelier FAQ', icon: HelpCircle, badge: state.faqs.length },
@@ -481,13 +463,6 @@ export default function AdminPage() {
                 label: 'Messages Inbox',
                 icon: Inbox,
                 badge: state.messages.filter((m) => m.status === 'unread').length,
-                badgeAlert: true,
-              },
-              {
-                id: 'orders',
-                label: 'Orders & Rentals',
-                icon: Package,
-                badge: state.orders.filter((o) => o.status === 'pending').length,
                 badgeAlert: true,
               },
               { id: 'settings', label: 'Studio Settings', icon: Settings, badge: null },
@@ -578,7 +553,7 @@ export default function AdminPage() {
                   {[
                     { label: 'Craft Works', value: state.works.length, icon: Palette, color: 'bg-[#A7F3D0]', tab: 'works' },
                     { label: 'Video Lessons', value: state.videos.length, icon: Video, color: 'bg-[#FFE68C]', tab: 'videos' },
-                    { label: 'Shop Products', value: state.products.length, icon: ShoppingBag, color: 'bg-[#DDD6FE]', tab: 'shop' },
+                    { label: 'Audience Paths', value: state.audiences.length, icon: GraduationCap, color: 'bg-[#DDD6FE]', tab: 'audiences' },
                     { label: 'Testimonials', value: state.testimonials.length, icon: Star, color: 'bg-[#FFB5B5]', tab: 'testimonials' },
                   ].map((stat, i) => {
                     const Icon = stat.icon
@@ -610,19 +585,19 @@ export default function AdminPage() {
                     Quick Content Jump
                   </h3>
                   <p className="font-hand text-sm font-bold text-[#6B5550]">
-                    Select any section to modify text, photos, or prices instantly:
+                    Select any section to modify text, photos, or pedagogy details instantly:
                   </p>
 
                   <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                     {[
                       { id: 'hero', title: 'Hero & Headlines', desc: 'Title, Bio, Stats, Photo' },
                       { id: 'about', title: 'About & Pedagogy', desc: 'Bio, Portrait, 4 Pillars' },
-                      { id: 'works', title: 'Craft Gallery', desc: 'Props, Dimensions, Prices' },
+                      { id: 'works', title: 'Craft Gallery', desc: 'Props, Learning Aids, Aids' },
                       { id: 'videos', title: 'Video Lessons', desc: 'Videos, YouTube links' },
-                      { id: 'shop', title: 'Resource Shop', desc: 'Buy/Rent props, PDFs' },
                       { id: 'audiences', title: 'Who I Serve', desc: 'Learners, Mentors, Kids' },
                       { id: 'testimonials', title: 'Endorsements', desc: 'Parents & Teacher reviews' },
                       { id: 'faqs', title: 'Atelier FAQ', desc: 'Questions & Answers' },
+                      { id: 'contact', title: 'Contact & Studio', desc: 'Email, WhatsApp, Location' },
                     ].map((sec) => (
                       <button
                         key={sec.id}
@@ -1558,103 +1533,7 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 6. RESOURCE SHOP (PRODUCTS) TAB */}
-            {activeTab === 'shop' && (
-              <div className="space-y-6">
-                <SectionHeaderCard
-                  title="Resource Shop (Props & Printables)"
-                  subtitle="Manage purchasable & rentable classroom materials, PDF printables, stock status, and prices."
-                  onPreview={() => setPreviewSection('shop')}
-                  actionLabel="+ Add New Product"
-                  onAction={() => setIsAddingProduct(true)}
-                />
 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {state.products.map((prod) => (
-                    <div
-                      key={prod.id}
-                      className={cn(
-                        'flex flex-col justify-between overflow-hidden rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] shadow-[4px_4px_0px_#2D1F1D] transition-all hover:-translate-y-1',
-                        prod.isActive === false && 'opacity-60 bg-gray-100',
-                      )}
-                    >
-                      <div className="relative h-44 w-full border-b-2 border-[#2D1F1D] bg-[#FAF5EC]">
-                        <Image
-                          src={prod.image || '/images/product-phonics-wheel.png'}
-                          alt={prod.title || prod.name || 'Product'}
-                          fill
-                          className="object-cover"
-                        />
-                        <span className="absolute top-2.5 left-2.5 rounded-full border border-[#2D1F1D] bg-[#A7F3D0] px-2 py-0.5 text-[0.65rem] font-black uppercase text-[#065F46]">
-                          {prod.format || prod.category}
-                        </span>
-                        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5">
-                          <span className="rounded-full border border-[#2D1F1D] bg-white px-2.5 py-0.5 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]">
-                            Buy: {prod.priceBuy || prod.buyPrice || 0} TND
-                          </span>
-                          {(prod.priceRent || prod.rentPrice) && (
-                            <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2.5 py-0.5 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]">
-                              Rent: {prod.priceRent || prod.rentPrice} TND
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="p-4 flex-1 flex flex-col justify-between">
-                        <div>
-                          <h4 className="font-sans text-sm font-black text-[#2D1F1D]">
-                            {prod.title || prod.name}
-                          </h4>
-                          <p className="mt-0.5 text-xs font-bold text-[#FF7D6B]">{prod.subtitle || prod.category}</p>
-                          <p className="mt-2 text-xs font-medium text-[#6B5550] line-clamp-2">
-                            {prod.description}
-                          </p>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-between border-t-2 border-[#2D1F1D]/10 pt-3">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              toggleProductActive(prod.id)
-                              toast(prod.isActive !== false ? 'Product hidden' : 'Product active')
-                            }}
-                            className={cn(
-                              'flex items-center gap-1 rounded-lg border border-[#2D1F1D] px-2 py-1 text-[0.65rem] font-black cursor-pointer',
-                              prod.isActive !== false ? 'bg-[#A7F3D0] text-[#065F46]' : 'bg-[#E5E7EB] text-[#6B7280]',
-                            )}
-                          >
-                            {prod.isActive !== false ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
-                            <span>{prod.isActive !== false ? 'In Shop' : 'Hidden'}</span>
-                          </button>
-
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setEditingProduct(prod)}
-                              className="flex items-center gap-1 rounded-lg border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FFD952] cursor-pointer"
-                            >
-                              <Edit3 className="size-3" /> Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm(`Delete "${prod.title || prod.name}"?`)) {
-                                  deleteProduct(prod.id)
-                                  toast('Product deleted.')
-                                }
-                              }}
-                              className="flex size-7 items-center justify-center rounded-lg border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] hover:bg-[#FF8A8A] cursor-pointer"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* 7. TARGET AUDIENCES (WHO I SERVE) TAB */}
             {activeTab === 'audiences' && (
@@ -2084,97 +1963,7 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 13. ORDERS & RENTALS TAB */}
-            {activeTab === 'orders' && (
-              <div className="space-y-6">
-                <SectionHeaderCard
-                  title="Resource Orders & Prop Rentals"
-                  subtitle="Manage customer orders, prop rental requests, and delivery confirmations."
-                />
 
-                {state.orders.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-12 text-center shadow-[4px_4px_0px_#2D1F1D]">
-                    <Package className="size-12 text-[#6B5550]" />
-                    <h3 className="mt-3 font-sans text-base font-black text-[#2D1F1D]">
-                      No orders or rental requests yet
-                    </h3>
-                    <p className="mt-1 font-hand text-sm font-bold text-[#6B5550]">
-                      When visitors request prop rentals or purchases from the shop, they appear here.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {state.orders.map((ord) => (
-                      <div
-                        key={ord.id}
-                        className="rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-5 shadow-[4px_4px_0px_#2D1F1D] space-y-3"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="font-sans text-sm font-black text-[#2D1F1D]">
-                              {ord.customer_name}
-                            </span>
-                            <p className="text-xs font-bold text-[#FF7D6B]">📞 {ord.customer_phone}</p>
-                          </div>
-                          <span className="rounded-full border-2 border-[#2D1F1D] bg-[#FFE68C] px-3 py-1 text-xs font-black">
-                            Total: {ord.subtotal} {ord.currency || 'TND'}
-                          </span>
-                        </div>
-
-                        {/* Items */}
-                        <div className="rounded-2xl border border-[#2D1F1D]/10 bg-[#FAF5EC] p-3 space-y-1">
-                          {ord.items.map((it, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-xs font-bold">
-                              <span>
-                                {it.qty}x {it.name} ({it.mode === 'rent' ? 'Rental' : 'Purchase'})
-                              </span>
-                              <span>{it.price * it.qty} TND</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2">
-                          <select
-                            value={ord.status}
-                            onChange={(e) => {
-                              updateOrderStatus(ord.id, e.target.value as StoredOrder['status'])
-                              toast(`Order status updated to ${e.target.value}`)
-                            }}
-                            className="rounded-xl border-2 border-[#2D1F1D] bg-white px-2.5 py-1 text-xs font-bold outline-none"
-                          >
-                            <option value="pending">⏳ Pending</option>
-                            <option value="confirmed">✅ Confirmed</option>
-                            <option value="fulfilled">📦 Fulfilled</option>
-                            <option value="cancelled">❌ Cancelled</option>
-                          </select>
-
-                          <div className="flex items-center gap-2">
-                            <a
-                              href={`https://wa.me/${ord.customer_phone.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(ord.customer_name)},%20this%20is%20Teacher%20Farah%20Affes%20regarding%20your%20atelier%20request!`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center gap-1 rounded-xl border-2 border-[#2D1F1D] bg-[#A7F3D0] px-3 py-1 text-xs font-black text-[#065F46] shadow-[1.5px_1.5px_0px_#2D1F1D]"
-                            >
-                              <MessageCircle className="size-3" /> WhatsApp Customer
-                            </a>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                deleteOrder(ord.id)
-                                toast('Order deleted.')
-                              }}
-                              className="flex size-7 items-center justify-center rounded-xl border-2 border-[#2D1F1D] bg-[#FFB5B5] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D]"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* 14. STUDIO SETTINGS TAB */}
             {activeTab === 'settings' && (
@@ -2316,27 +2105,7 @@ export default function AdminPage() {
         />
       )}
 
-      {/* Product Item CRUD Modal */}
-      {(editingProduct || isAddingProduct) && (
-        <ProductModal
-          item={editingProduct}
-          onClose={() => {
-            setEditingProduct(null)
-            setIsAddingProduct(false)
-          }}
-          onSave={(data) => {
-            if (editingProduct) {
-              updateProduct(editingProduct.id, data)
-              toast('✨ Product updated!')
-            } else {
-              addProduct(data as Omit<Product, 'id'>)
-              toast('✨ New product added to shop!')
-            }
-            setEditingProduct(null)
-            setIsAddingProduct(false)
-          }}
-        />
-      )}
+
 
       {/* Audience Item CRUD Modal */}
       {(editingAudience || isAddingAudience) && (
@@ -2531,7 +2300,6 @@ export default function AdminPage() {
                 {previewSection === 'about' && <About />}
                 {previewSection === 'works' && <WorkShowcase />}
                 {previewSection === 'videos' && <Videos />}
-                {previewSection === 'shop' && <ResourceShop />}
                 {previewSection === 'audiences' && <WhoIServe />}
                 {previewSection === 'testimonials' && <Testimonials />}
                 {previewSection === 'faqs' && <Faq />}
@@ -3147,161 +2915,7 @@ function VideoModal({
   )
 }
 
-function ProductModal({
-  item,
-  onClose,
-  onSave,
-}: {
-  item: Product | null
-  onClose: () => void
-  onSave: (data: Partial<Product>) => void
-}) {
-  const [title, setTitle] = useState(item?.title || item?.name || '')
-  const [subtitle, setSubtitle] = useState(item?.subtitle || '')
-  const [category, setCategory] = useState<Product['category']>(item?.category || 'props')
-  const [format, setFormat] = useState<Product['format']>(item?.format || 'Handmade Physical Prop')
-  const [priceBuy, setPriceBuy] = useState<number>(item?.priceBuy || item?.buyPrice || 30)
-  const [priceRent, setPriceRent] = useState<number | undefined>(item?.priceRent || item?.rentPrice)
-  const [badge, setBadge] = useState(item?.badge || '')
-  const [description, setDescription] = useState(item?.description || '')
-  const [image, setImage] = useState(item?.image || '/images/product-phonics-wheel.png')
-  const [features, setFeatures] = useState<string[]>(item?.features || [])
-  const [tags, setTags] = useState<string[]>(item?.tags || [])
-  const [isActive, setIsActive] = useState(item?.isActive !== false)
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSave({
-      name: title,
-      title,
-      subtitle,
-      category,
-      format,
-      options: ['buy', ...(priceRent ? ['rent' as const] : [])],
-      buyPrice: priceBuy,
-      rentPrice: priceRent,
-      priceBuy,
-      priceRent,
-      badge,
-      description,
-      image,
-      features,
-      tags,
-      isActive,
-    })
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border-3 border-[#2D1F1D] bg-[#FFFDF9] p-6 shadow-[6px_6px_0px_#2D1F1D] space-y-4">
-        <div className="flex items-center justify-between border-b-2 border-[#2D1F1D]/10 pb-3">
-          <h3 className="font-sans text-base font-black text-[#2D1F1D]">
-            {item ? 'Edit Shop Resource' : 'Add New Resource'}
-          </h3>
-          <button type="button" onClick={onClose} className="flex size-7 items-center justify-center rounded-full border border-[#2D1F1D] bg-[#FFB5B5]">
-            ✕
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Product Title</label>
-              <input
-                type="text"
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Subtitle / Tagline</label>
-              <input
-                type="text"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Format</label>
-              <input
-                type="text"
-                value={format}
-                onChange={(e) => setFormat(e.target.value as Product['format'])}
-                placeholder="e.g. Handmade Physical Prop / Digital PDF"
-                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Badge / Ribbon</label>
-              <input
-                type="text"
-                value={badge}
-                onChange={(e) => setBadge(e.target.value)}
-                placeholder="e.g. Best Seller / New"
-                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Purchase Price (TND)</label>
-              <input
-                type="number"
-                required
-                value={priceBuy}
-                onChange={(e) => setPriceBuy(Number(e.target.value))}
-                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Rental Price (TND/day)</label>
-              <input
-                type="number"
-                value={priceRent || ''}
-                onChange={(e) => setPriceRent(e.target.value ? Number(e.target.value) : undefined)}
-                placeholder="10"
-                className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-bold"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Description</label>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-xl border border-[#2D1F1D] bg-white p-2 text-xs font-medium"
-            />
-          </div>
-
-          <PhotoUploader label="Product Photo" currentValue={image} onChange={setImage} />
-
-          <div>
-            <label className="mb-1 block text-xs font-black uppercase text-[#2D1F1D]">Features Included</label>
-            <ListTagEditor tags={features} onChange={setFeatures} placeholder="e.g. 40 word strips, Laminated guide" />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#2D1F1D]/10">
-            <button type="button" onClick={onClose} className="rounded-xl border border-[#2D1F1D] px-4 py-2 text-xs font-black">
-              Cancel
-            </button>
-            <button type="submit" className="rounded-xl border-2 border-[#2D1F1D] bg-[#FFE68C] px-5 py-2 text-xs font-black shadow-[2px_2px_0px_#2D1F1D]">
-              Save Product
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
 
 function AudienceModal({
   item,

@@ -93,7 +93,7 @@ export function Testimonials() {
         <Reveal>
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
             <SectionHeading
-              number="06"
+              number="05"
               eyebrow="Kind Words &amp; Love 💖"
               title="Loved by students, parents & fellow educators"
               intro="Real feedback from families and teachers who have used Farah's props and workshops across Sfax and Tunisia."

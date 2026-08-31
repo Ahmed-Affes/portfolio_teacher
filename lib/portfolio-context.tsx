@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState, useMemo, useCall
 import {
   WORK_ITEMS as DEFAULT_WORKS,
   VIDEOS as DEFAULT_VIDEOS,
-  PRODUCTS as DEFAULT_PRODUCTS,
   STATS as DEFAULT_STATS,
   ABOUT_PILLARS as DEFAULT_PILLARS,
   CAREER_MILESTONES as DEFAULT_MILESTONES,
@@ -14,7 +13,6 @@ import {
   CONTACT as DEFAULT_CONTACT,
   type WorkItem,
   type Video,
-  type Product,
   type Audience,
   type WorkCategory,
   type VideoCategory,
@@ -31,19 +29,15 @@ import {
   syncPortfolioSettingsToDb,
   fetchPortfolioSettingsFromDb,
   fetchContactMessages,
-  fetchOrders,
   submitContactMessage,
   updateContactMessageInDb,
   deleteContactMessageInDb,
-  submitOrderRequest,
-  updateOrderInDb,
-  deleteOrderInDb,
   deleteTableItemInDb,
   isNotificationsMuted as getStoredNotificationsMuted,
   setNotificationsMuted as setStoredNotificationsMuted,
 } from '@/lib/supabase'
 
-export type { WorkItem, Video, Product, Audience, WorkCategory, VideoCategory, CareerMilestone, MilestoneCategory }
+export type { WorkItem, Video, Audience, WorkCategory, VideoCategory, CareerMilestone, MilestoneCategory }
 
 export type ProfileBrandingData = {
   name: string
@@ -133,29 +127,6 @@ export type StoredMessage = {
   status: 'unread' | 'read' | 'replied' | 'archived'
 }
 
-export type StoredOrderItem = {
-  id: string
-  name: string
-  price: number
-  qty: number
-  mode: 'buy' | 'rent'
-}
-
-export type StoredOrder = {
-  id: string
-  created_at: string
-  customer_name: string
-  customer_email?: string
-  customer_phone: string
-  customer_location?: string
-  items: StoredOrderItem[]
-  subtotal: number
-  currency: string
-  status: 'pending' | 'confirmed' | 'fulfilled' | 'cancelled' | 'processing' | 'completed'
-  rental_dates?: string
-  notes?: string
-}
-
 export type PortfolioState = {
   profile: ProfileBrandingData
   hero: HeroData
@@ -163,17 +134,15 @@ export type PortfolioState = {
   about: AboutData
   works: WorkItem[]
   videos: Video[]
-  products: Product[]
   audiences: Audience[]
   testimonials: TestimonialItem[]
   faqs: FaqItem[]
   contact: ContactData
   messages: StoredMessage[]
-  orders: StoredOrder[]
   adminPin: string
 }
 
-const STORAGE_KEY = 'farah_portfolio_state_v4'
+const STORAGE_KEY = 'farah_portfolio_state_v5'
 const SYNC_EVENT_KEY = 'farah_portfolio_sync_event'
 
 const INITIAL_STATE: PortfolioState = {
@@ -216,7 +185,7 @@ const INITIAL_STATE: PortfolioState = {
     bio1:
       'Over the past 6+ years in primary and preparatory classrooms, I have observed that traditional rote drills often create anxiety for emerging bilingual learners. My response was to build physical, tactile learning aids: rotating phonics wheels that make sound blending intuitive, oversized action dice for dynamic speaking games, and character-driven storytelling kits.',
     bio2:
-      'Beyond daily classroom instruction, I design print-ready worksheets, guide teachers through hands-on material making workshops, and provide classroom prop sets for rent across schools and tutoring centers in Tunisia.',
+      'Beyond daily classroom instruction, I design print-ready worksheets, guide teachers through hands-on material making workshops, and provide classroom pedagogical guidance across schools and tutoring centers in Tunisia.',
     portraitImage: '/images/farah-portrait.png',
     manifestoQuote:
       'When a child touches a word, moves a syllable with their hands, and acts out a story, English stops being a school subject and becomes their voice.',
@@ -241,10 +210,6 @@ const INITIAL_STATE: PortfolioState = {
   })),
   videos: DEFAULT_VIDEOS.map((v) => ({
     ...v,
-    isActive: true,
-  })),
-  products: DEFAULT_PRODUCTS.map((p) => ({
-    ...p,
     isActive: true,
   })),
   audiences: DEFAULT_AUDIENCES.map((a) => ({
@@ -275,7 +240,6 @@ const INITIAL_STATE: PortfolioState = {
     openForWorkshops: true,
   },
   messages: [],
-  orders: [],
   adminPin: 'farah2026',
 }
 
@@ -315,12 +279,6 @@ interface PortfolioContextType {
   toggleVideoActive: (id: string) => void
   deleteVideo: (id: string) => void
 
-  // Products CRUD
-  addProduct: (product: Omit<Product, 'id'>) => void
-  updateProduct: (id: string, product: Partial<Product>) => void
-  toggleProductActive: (id: string) => void
-  deleteProduct: (id: string) => void
-
   // Audiences CRUD
   addAudience: (audience: Omit<Audience, 'id'>) => void
   updateAudience: (id: string, audience: Partial<Audience>) => void
@@ -341,7 +299,7 @@ interface PortfolioContextType {
   toggleFaqActive: (id: string) => void
   deleteFaq: (id: string) => void
 
-  // Messages & Orders
+  // Messages
   addMessage: (msg: {
     name: string
     email: string
@@ -352,10 +310,6 @@ interface PortfolioContextType {
   }) => void
   markMessageRead: (id: string, status?: StoredMessage['status']) => void
   deleteMessage: (id: string) => void
-
-  addOrder: (order: Omit<StoredOrder, 'id' | 'created_at'>) => void
-  updateOrderStatus: (id: string, status: StoredOrder['status']) => void
-  deleteOrder: (id: string) => void
 
   // Admin PIN & Backups
   updateAdminPin: (newPin: string) => void
@@ -393,7 +347,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       contact: newState.contact,
       works: newState.works,
       videos: newState.videos,
-      products: newState.products,
       audiences: newState.audiences,
       testimonials: newState.testimonials,
       faqs: newState.faqs,
@@ -414,7 +367,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     // Step A: Load from localStorage immediately (fast 0ms paint)
     let current = INITIAL_STATE
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
+      const stored = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('farah_portfolio_state_v4')
       if (stored) {
         const parsed = JSON.parse(stored)
         const parsedMilestones = parsed.about?.milestones
@@ -441,10 +394,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             ...v,
             isActive: v.isActive !== undefined ? v.isActive : true,
           })),
-          products: (parsed.products || INITIAL_STATE.products).map((p: Product) => ({
-            ...p,
-            isActive: p.isActive !== undefined ? p.isActive : true,
-          })),
           audiences: (parsed.audiences || INITIAL_STATE.audiences).map((a: Audience) => ({
             ...a,
             isActive: a.isActive !== undefined ? a.isActive : true,
@@ -459,7 +408,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             isActive: f.isActive !== undefined ? f.isActive : true,
           })),
           messages: parsed.messages || [],
-          orders: parsed.orders || [],
         }
         setState(current)
       }
@@ -472,10 +420,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     // Step B: Fetch latest Cloud State from Supabase (for mobile & multi-device sync)
     async function loadCloudState() {
       try {
-        const [cloudSettings, cloudMessages, cloudOrders] = await Promise.all([
+        const [cloudSettings, cloudMessages] = await Promise.all([
           fetchPortfolioSettingsFromDb(),
           fetchContactMessages(),
-          fetchOrders(),
         ])
 
         // If cloud database has no data yet (0 rows), seed with baseline defaults
@@ -492,7 +439,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             contact: INITIAL_STATE.contact,
             works: INITIAL_STATE.works,
             videos: INITIAL_STATE.videos,
-            products: INITIAL_STATE.products,
             audiences: INITIAL_STATE.audiences,
             testimonials: INITIAL_STATE.testimonials,
             faqs: INITIAL_STATE.faqs,
@@ -520,13 +466,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             contact: cloudSettings?.contact ? { ...prev.contact, ...(cloudSettings.contact || {}) } : prev.contact,
             works: Array.isArray(cloudSettings?.works) && cloudSettings.works.length > 0 ? (cloudSettings.works as WorkItem[]) : prev.works,
             videos: Array.isArray(cloudSettings?.videos) && cloudSettings.videos.length > 0 ? (cloudSettings.videos as Video[]) : prev.videos,
-            products: Array.isArray(cloudSettings?.products) && cloudSettings.products.length > 0 ? (cloudSettings.products as Product[]) : prev.products,
             audiences: Array.isArray(cloudSettings?.audiences) && cloudSettings.audiences.length > 0 ? (cloudSettings.audiences as Audience[]) : prev.audiences,
             testimonials: Array.isArray(cloudSettings?.testimonials) && cloudSettings.testimonials.length > 0 ? (cloudSettings.testimonials as TestimonialItem[]) : prev.testimonials,
             faqs: Array.isArray(cloudSettings?.faqs) && cloudSettings.faqs.length > 0 ? (cloudSettings.faqs as FaqItem[]) : prev.faqs,
             adminPin: (cloudSettings?.admin_pin as string) || prev.adminPin,
             messages: cloudMessages && cloudMessages.length > 0 ? (cloudMessages as StoredMessage[]) : prev.messages,
-            orders: cloudOrders && cloudOrders.length > 0 ? (cloudOrders as StoredOrder[]) : prev.orders,
           }
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
@@ -551,7 +495,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
 
     const handleStorageEvent = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && e.newValue) {
+      if ((e.key === STORAGE_KEY || e.key === 'farah_portfolio_state_v4') && e.newValue) {
         try {
           setState(JSON.parse(e.newValue))
         } catch {
@@ -569,7 +513,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // 3. Supabase Realtime Subscription Integration across all tables
+  // 3. Supabase Realtime Subscription Integration across active tables
   useEffect(() => {
     const client = getSupabase()
     if (!client) {
@@ -578,7 +522,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
 
     const channel = client
-      .channel('public_realtime_portfolio_v4')
+      .channel('public_realtime_portfolio_v5')
       // Listen to new contact messages
       .on(
         'postgres_changes' as any,
@@ -639,62 +583,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           }
         },
       )
-      // Listen to new shop orders
-      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'orders' }, (payload: any) => {
-        if (payload.eventType === 'INSERT') {
-          const newOrder = payload.new as StoredOrder
-          setState((prev) => {
-            const exists = prev.orders.some(
-              (o) =>
-                o.id === newOrder.id ||
-                (o.customer_phone === newOrder.customer_phone &&
-                  o.subtotal === newOrder.subtotal &&
-                  o.customer_name === newOrder.customer_name),
-            )
-
-            let updated: StoredOrder[]
-            if (exists) {
-              updated = prev.orders.map((o) =>
-                o.customer_phone === newOrder.customer_phone &&
-                o.subtotal === newOrder.subtotal &&
-                o.customer_name === newOrder.customer_name
-                  ? newOrder
-                  : o,
-              )
-            } else {
-              updated = [newOrder, ...prev.orders]
-            }
-
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, orders: updated }))
-            } catch {}
-            return { ...prev, orders: updated }
-          })
-
-          sendDeviceNotification(`🛍️ New Order: ${newOrder.customer_name}`, {
-            body: `Total: ${newOrder.subtotal} TND (${newOrder.customer_phone})`,
-            icon: '/images/farah-portrait.png',
-          })
-        } else if (payload.eventType === 'UPDATE') {
-          const updatedOrder = payload.new as StoredOrder
-          setState((prev) => {
-            const updated = prev.orders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, orders: updated }))
-            } catch {}
-            return { ...prev, orders: updated }
-          })
-        } else if (payload.eventType === 'DELETE') {
-          const oldOrder = payload.old as { id: string }
-          setState((prev) => {
-            const updated = prev.orders.filter((o) => o.id !== oldOrder.id)
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, orders: updated }))
-            } catch {}
-            return { ...prev, orders: updated }
-          })
-        }
-      })
       // Listen to portfolio settings (hero, about, contact, stats)
       .on(
         'postgres_changes' as any,
@@ -711,7 +599,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
                 contact: newSettings.contact ? { ...prev.contact, ...(newSettings.contact as Partial<ContactData>) } : prev.contact,
                 works: Array.isArray(newSettings.works) ? (newSettings.works as WorkItem[]) : prev.works,
                 videos: Array.isArray(newSettings.videos) ? (newSettings.videos as Video[]) : prev.videos,
-                products: Array.isArray(newSettings.products) ? (newSettings.products as Product[]) : prev.products,
                 audiences: Array.isArray(newSettings.audiences) ? (newSettings.audiences as Audience[]) : prev.audiences,
                 testimonials: Array.isArray(newSettings.testimonials) ? (newSettings.testimonials as TestimonialItem[]) : prev.testimonials,
                 faqs: Array.isArray(newSettings.faqs) ? (newSettings.faqs as FaqItem[]) : prev.faqs,
@@ -791,41 +678,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
               localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, videos: updated }))
             } catch {}
             return { ...prev, videos: updated }
-          })
-        }
-      })
-      // Listen to products table
-      .on('postgres_changes' as any, { event: '*', schema: 'public', table: 'products' }, (payload: any) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const row = payload.new as any
-          const item: Product = {
-            id: row.id,
-            name: row.name,
-            category: row.category,
-            image: row.image,
-            description: row.description,
-            buyPrice: row.buy_price != null ? Number(row.buy_price) : undefined,
-            rentPrice: row.rent_price != null ? Number(row.rent_price) : undefined,
-            options: row.options || ['buy'],
-            features: row.features || [],
-            isActive: row.is_active !== false,
-          }
-          setState((prev) => {
-            const exists = prev.products.some((p) => p.id === item.id)
-            const updated = exists ? prev.products.map((p) => (p.id === item.id ? item : p)) : [item, ...prev.products]
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, products: updated }))
-            } catch {}
-            return { ...prev, products: updated }
-          })
-        } else if (payload.eventType === 'DELETE') {
-          const oldRow = payload.old as { id: string }
-          setState((prev) => {
-            const updated = prev.products.filter((p) => p.id !== oldRow.id)
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, products: updated }))
-            } catch {}
-            return { ...prev, products: updated }
           })
         }
       })
@@ -1185,62 +1037,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     [broadcastAndPersist],
   )
 
-  // --- Products CRUD ---
-  const addProduct = useCallback(
-    (productData: Omit<Product, 'id'>) => {
-      setState((prev) => {
-        const newProduct: Product = {
-          ...productData,
-          id: `prod_${Date.now()}`,
-          isActive: productData.isActive !== undefined ? productData.isActive : true,
-        }
-        const newState = { ...prev, products: [newProduct, ...prev.products] }
-        broadcastAndPersist(newState)
-        return newState
-      })
-    },
-    [broadcastAndPersist],
-  )
-
-  const updateProduct = useCallback(
-    (id: string, updates: Partial<Product>) => {
-      setState((prev) => {
-        const updatedProducts = prev.products.map((p) => (p.id === id ? { ...p, ...updates } : p))
-        const newState = { ...prev, products: updatedProducts }
-        broadcastAndPersist(newState)
-        return newState
-      })
-    },
-    [broadcastAndPersist],
-  )
-
-  const toggleProductActive = useCallback(
-    (id: string) => {
-      setState((prev) => {
-        const updatedProducts = prev.products.map((p) =>
-          p.id === id ? { ...p, isActive: p.isActive === false ? true : false } : p,
-        )
-        const newState = { ...prev, products: updatedProducts }
-        broadcastAndPersist(newState)
-        return newState
-      })
-    },
-    [broadcastAndPersist],
-  )
-
-  const deleteProduct = useCallback(
-    (id: string) => {
-      deleteTableItemInDb('products', id)
-      setState((prev) => {
-        const updatedProducts = prev.products.filter((p) => p.id !== id)
-        const newState = { ...prev, products: updatedProducts }
-        broadcastAndPersist(newState)
-        return newState
-      })
-    },
-    [broadcastAndPersist],
-  )
-
   // --- Audiences CRUD ---
   const addAudience = useCallback(
     (audienceData: Omit<Audience, 'id'>) => {
@@ -1441,7 +1237,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     [broadcastAndPersist],
   )
 
-  // --- Messages & Orders Management ---
+  // --- Messages Management ---
   const addMessage = useCallback(
     (msgData: {
       name: string
@@ -1500,59 +1296,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => {
       const updated = prev.messages.filter((m) => m.id !== id)
       const newState = { ...prev, messages: updated }
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
-      } catch {}
-      return newState
-    })
-  }, [])
-
-  const addOrder = useCallback((orderData: Omit<StoredOrder, 'id' | 'created_at'>) => {
-    submitOrderRequest({
-      customer_name: orderData.customer_name,
-      customer_email: orderData.customer_email,
-      customer_phone: orderData.customer_phone,
-      customer_location: orderData.customer_location,
-      items: orderData.items,
-      subtotal: orderData.subtotal,
-      currency: orderData.currency,
-      status: orderData.status,
-      rental_dates: orderData.rental_dates,
-      notes: orderData.notes,
-    })
-
-    setState((prev) => {
-      const newOrder: StoredOrder = {
-        ...orderData,
-        id: `ord_${Date.now()}`,
-        created_at: new Date().toISOString(),
-      }
-      const updated = [newOrder, ...prev.orders]
-      const newState = { ...prev, orders: updated }
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
-      } catch {}
-      return newState
-    })
-  }, [])
-
-  const updateOrderStatus = useCallback((id: string, status: StoredOrder['status']) => {
-    updateOrderInDb(id, status)
-    setState((prev) => {
-      const updated = prev.orders.map((o) => (o.id === id ? { ...o, status } : o))
-      const newState = { ...prev, orders: updated }
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
-      } catch {}
-      return newState
-    })
-  }, [])
-
-  const deleteOrder = useCallback((id: string) => {
-    deleteOrderInDb(id)
-    setState((prev) => {
-      const updated = prev.orders.filter((o) => o.id !== id)
-      const newState = { ...prev, orders: updated }
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
       } catch {}
@@ -1631,10 +1374,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       updateVideo,
       toggleVideoActive,
       deleteVideo,
-      addProduct,
-      updateProduct,
-      toggleProductActive,
-      deleteProduct,
       addAudience,
       updateAudience,
       toggleAudienceActive,
@@ -1652,9 +1391,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       addMessage,
       markMessageRead,
       deleteMessage,
-      addOrder,
-      updateOrderStatus,
-      deleteOrder,
       updateAdminPin,
       resetToDefaults,
       exportDataJson,
@@ -1687,10 +1423,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       updateVideo,
       toggleVideoActive,
       deleteVideo,
-      addProduct,
-      updateProduct,
-      toggleProductActive,
-      deleteProduct,
       addAudience,
       updateAudience,
       toggleAudienceActive,
@@ -1708,9 +1440,6 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       addMessage,
       markMessageRead,
       deleteMessage,
-      addOrder,
-      updateOrderStatus,
-      deleteOrder,
       updateAdminPin,
       resetToDefaults,
       exportDataJson,

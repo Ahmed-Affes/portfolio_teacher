@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { ShoppingBag, Sparkles, Heart } from 'lucide-react'
+import { Sparkles, Heart } from 'lucide-react'
 import { NAV_ITEMS } from '@/lib/data'
-import { useCart } from '@/components/cart-provider'
 import { HeaderMusicButton } from '@/components/ambient-music'
 import { usePortfolio } from '@/lib/portfolio-context'
 import { cn } from '@/lib/utils'
@@ -12,7 +11,6 @@ import { cn } from '@/lib/utils'
 export function SiteHeader() {
   const [active, setActive] = useState('home')
   const [scrolled, setScrolled] = useState(false)
-  const { count, openCart } = useCart()
   const { state } = usePortfolio()
 
   const profile = state.profile || {
@@ -118,28 +116,14 @@ export function SiteHeader() {
           })}
         </ul>
 
-        {/* Action Buttons: Cart + Ambient Music + Contact */}
+        {/* Action Buttons: Ambient Music + Contact */}
         <div className="flex shrink-0 items-center gap-2">
           <HeaderMusicButton />
-
-          <button
-            type="button"
-            onClick={openCart}
-            aria-label={`Open cart, ${count} items`}
-            className="relative flex size-9 items-center justify-center rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#A7F3D0] text-[#2D1F1D] shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:scale-105 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all sm:size-10 cursor-pointer"
-          >
-            <ShoppingBag className="size-4" />
-            {count > 0 && (
-              <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full border border-[#2D1F1D]/40 bg-[#FF7D6B] px-1 py-0.5 text-[0.65rem] font-black text-white shadow-xs animate-pulse-gentle">
-                {count}
-              </span>
-            )}
-          </button>
 
           <a
             href="#contact"
             onClick={(e) => handleNav('contact', e)}
-            className="hidden rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FF7D6B] px-4 py-1.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FF6B6B] hover:scale-105 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all sm:inline-flex sm:text-sm"
+            className="rounded-full border-[1.5px] border-[#2D1F1D]/40 bg-[#FF7D6B] px-4 py-1.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0px_rgba(45,31,29,0.3)] hover:bg-[#FF6B6B] hover:scale-105 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all inline-flex sm:text-sm"
           >
             Say Hello! 🌸
           </a>

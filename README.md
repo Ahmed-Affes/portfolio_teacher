@@ -1,6 +1,6 @@
 # Farah Affes — English Educator & DIY Material Designer
 
-A modern, responsive, and interactive educator portfolio and educational resource shop built with **Next.js 16 (Turbopack)**, **React 19**, **Tailwind CSS v4**, and **Lucide Icons**.
+A modern, responsive, and interactive educator portfolio and pedagogical craft showcase built with **Next.js 16 (Turbopack)**, **React 19**, **Tailwind CSS v4**, and **Lucide Icons**.
 
 ---
 
@@ -9,10 +9,12 @@ A modern, responsive, and interactive educator portfolio and educational resourc
 - 🎓 **Educator Showcase**: Overview of teaching philosophy, classroom instruction, and linguistics expertise.
 - 🎨 **Portfolio & Visual Aids Gallery**: Interactive filtered gallery showcasing educational posters, workshop flyers, and classroom moments with image lightbox previews.
 - 🎥 **Video Lessons Hub**: Dedicated mini-lesson player with modal video previews for pronunciation and grammar tips.
-- 🛍️ **Resource & DIY Material Hub**: Shop interface for printable worksheets, DIY phonics wheels, vocabulary dice, and tactile story kits with purchase and local rental options.
-- 🛒 **Interactive Cart System**: Slide-out cart drawer with local storage persistence and automated order draft generation via email.
+- 🎒 **Audience Pathways**: Clear target audience blueprints for Primary Learners, Middle Schoolers, Parents, and Fellow Educators.
+- ⭐ **Endorsements & Testimonials**: Community feedback, student success stories, and educator reviews.
+- 💡 **Pedagogy & Atelier FAQ**: Interactive collapsible accordion addressing workshop bookings, material design, and teaching methods.
 - 📬 **Interactive Contact System**: Direct inquiry form with real-time validation, plus WhatsApp and direct email contact options.
 - 📱 **Fully Responsive & Accessible**: Optimized for mobile, tablet, and desktop screens with smooth scrolling, navigation tracking, and back-to-top button.
+- 🛠️ **Realtime Admin Studio**: Dedicated content management dashboard with PIN authentication and Supabase database synchronization.
 
 ---
 
@@ -23,7 +25,7 @@ A modern, responsive, and interactive educator portfolio and educational resourc
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Type Checking**: [TypeScript 5](https://www.typescriptlang.org/)
-- **Linting**: [ESLint 9](https://eslint.org/)
+- **Database / Realtime**: [Supabase](https://supabase.com/)
 
 ---
 
@@ -64,18 +66,13 @@ npm run build
 npm start
 ```
 
-### Linting
-
-```bash
-npm run lint
-```
-
 ---
 
 ## 📁 Project Structure
 
 ```
 ├── app/
+│   ├── admin/              # Atelier Admin Studio CMS
 │   ├── globals.css         # Global Tailwind v4 styles and color tokens
 │   ├── layout.tsx          # Root layout with fonts, metadata, and analytics
 │   └── page.tsx            # Main portfolio one-page landing layout
@@ -83,13 +80,12 @@ npm run lint
 │   ├── ui/                 # Reusable UI primitives (buttons, etc.)
 │   ├── about.tsx           # Educator bio and highlights
 │   ├── back-to-top.tsx     # Floating scroll-to-top button
-│   ├── cart-drawer.tsx     # Slide-out shopping cart drawer
-│   ├── cart-provider.tsx   # React context for shopping cart state
 │   ├── contact.tsx         # Contact form and channels
 │   ├── faq.tsx             # Collapsible FAQ section
 │   ├── hero.tsx            # Hero section with headline and statistics
+│   ├── mobile-bottom-nav.tsx # Mobile navigation bar & quick drawer
 │   ├── providers.tsx       # Root React context providers wrapper
-│   ├── resource-shop.tsx   # DIY prop and printable downloads store
+│   ├── scroll-paper-plane.tsx # Interactive origami flight waypoints
 │   ├── section-heading.tsx # Consistent section headers
 │   ├── site-footer.tsx     # Footer navigation and contact info
 │   ├── site-header.tsx     # Sticky header with active section tracking
@@ -99,13 +95,12 @@ npm run lint
 │   ├── who-i-serve.tsx     # Target audience breakdown
 │   └── work-showcase.tsx   # Filterable teaching gallery with lightbox
 ├── lib/
-│   ├── data.ts             # Portfolio content, products, and links
+│   ├── data.ts             # Portfolio content, milestones, and metadata
+│   ├── portfolio-context.tsx # Global state management & real-time sync
+│   ├── supabase.ts         # Supabase client & real-time API helpers
 │   └── utils.ts            # Class name merge utilities (clsx & tailwind-merge)
-├── public/                 # Static assets, images, and icons
-├── eslint.config.mjs       # ESLint 9 configuration
-├── next.config.mjs         # Next.js configuration
+├── public/                 # Static assets, images, audio, and icons
 ├── package.json            # Project dependencies and scripts
-├── postcss.config.mjs      # PostCSS configuration
 └── tsconfig.json           # TypeScript configuration
 ```
 

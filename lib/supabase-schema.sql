@@ -22,22 +22,6 @@ CREATE TABLE IF NOT EXISTS public.contact_messages (
     status TEXT DEFAULT 'unread'
 );
 
--- Material & Resource Orders (Buy & Rent)
-CREATE TABLE IF NOT EXISTS public.orders (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    customer_name TEXT DEFAULT 'Guest',
-    customer_email TEXT DEFAULT 'Not provided',
-    customer_phone TEXT NOT NULL,
-    customer_location TEXT DEFAULT 'Sfax, Tunisia',
-    items JSONB NOT NULL DEFAULT '[]'::jsonb,
-    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
-    currency TEXT DEFAULT 'TND',
-    status TEXT DEFAULT 'pending',
-    rental_dates TEXT,
-    notes TEXT
-);
-
 -- Portfolio Dynamic Settings & Content
 CREATE TABLE IF NOT EXISTS public.portfolio_settings (
     id TEXT PRIMARY KEY DEFAULT 'current_state',
@@ -48,7 +32,6 @@ CREATE TABLE IF NOT EXISTS public.portfolio_settings (
     contact JSONB NOT NULL DEFAULT '{}'::jsonb,
     works JSONB NOT NULL DEFAULT '[]'::jsonb,
     videos JSONB NOT NULL DEFAULT '[]'::jsonb,
-    products JSONB NOT NULL DEFAULT '[]'::jsonb,
     audiences JSONB NOT NULL DEFAULT '[]'::jsonb,
     testimonials JSONB NOT NULL DEFAULT '[]'::jsonb,
     faqs JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -86,22 +69,6 @@ CREATE TABLE IF NOT EXISTS public.videos (
     sort_order INT DEFAULT 0
 );
 
--- Shop Products (Buy & Rent)
-CREATE TABLE IF NOT EXISTS public.products (
-    id TEXT PRIMARY KEY,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    name TEXT NOT NULL,
-    category TEXT NOT NULL,
-    image TEXT NOT NULL,
-    description TEXT NOT NULL,
-    buy_price NUMERIC(10, 2),
-    rent_price NUMERIC(10, 2),
-    options JSONB DEFAULT '["buy"]'::jsonb,
-    features JSONB DEFAULT '[]'::jsonb,
-    is_active BOOLEAN DEFAULT true NOT NULL,
-    sort_order INT DEFAULT 0
-);
-
 -- Community Testimonials
 CREATE TABLE IF NOT EXISTS public.testimonials (
     id TEXT PRIMARY KEY,
@@ -128,11 +95,9 @@ CREATE TABLE IF NOT EXISTS public.faqs (
 -- 3. ENABLE ROW LEVEL SECURITY (RLS)
 -- ------------------------------------------------------------------------------
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.portfolio_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.works ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.videos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
 
@@ -146,10 +111,6 @@ BEGIN
     DROP POLICY IF EXISTS "Public access on contact_messages" ON public.contact_messages;
     CREATE POLICY "Public access on contact_messages" ON public.contact_messages FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
-    -- orders
-    DROP POLICY IF EXISTS "Public access on orders" ON public.orders;
-    CREATE POLICY "Public access on orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
-
     -- portfolio_settings
     DROP POLICY IF EXISTS "Public access on portfolio_settings" ON public.portfolio_settings;
     CREATE POLICY "Public access on portfolio_settings" ON public.portfolio_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
@@ -161,10 +122,6 @@ BEGIN
     -- videos
     DROP POLICY IF EXISTS "Public access on videos" ON public.videos;
     CREATE POLICY "Public access on videos" ON public.videos FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
-
-    -- products
-    DROP POLICY IF EXISTS "Public access on products" ON public.products;
-    CREATE POLICY "Public access on products" ON public.products FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
     -- testimonials
     DROP POLICY IF EXISTS "Public access on testimonials" ON public.testimonials;
@@ -183,11 +140,9 @@ DECLARE
     tbl text;
     tables_to_add text[] := ARRAY[
         'contact_messages',
-        'orders',
         'portfolio_settings',
         'works',
         'videos',
-        'products',
         'testimonials',
         'faqs'
     ];

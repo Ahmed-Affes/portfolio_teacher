@@ -6,7 +6,6 @@ export type SectionTheme =
   | 'about'
   | 'work'
   | 'videos'
-  | 'shop'
   | 'serve'
   | 'testimonials'
   | 'faq'

@@ -58,7 +58,7 @@ export function WhoIServe() {
       <div className="section-inner section-stack">
         <Reveal>
           <SectionHeading
-            number="05"
+            number="04"
             eyebrow="Target Audiences 🧸"
             title="Tailored support for every learning stage"
             intro="Specialized resources and collaborative services designed for students, parents, and fellow teachers in Sfax and beyond."

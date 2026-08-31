@@ -35,7 +35,7 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: 'Farah Affes — English Educator & DIY Learning Material Designer',
   description:
-    'Empowering learners through interactive English education and creative DIY materials. Explore posters, workshops, printable resources, and handmade classroom props to buy or rent.',
+    'Empowering learners through interactive English education, pedagogical workshops, printable worksheets, and handcrafted classroom learning aids.',
   keywords: [
     'English teacher',
     'educational content designer',

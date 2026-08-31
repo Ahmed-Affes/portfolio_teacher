@@ -6,7 +6,6 @@ import {
   BookOpen,
   Palette,
   Video,
-  ShoppingBag,
   GraduationCap,
   Star,
   HelpCircle,
@@ -26,7 +25,6 @@ export const ALL_NAV_ITEMS = [
   { id: 'about', label: 'Storybook', icon: BookOpen, color: 'bg-[#A7F3D0]' },
   { id: 'work', label: 'Crafts', icon: Palette, color: 'bg-[#FFE68C]' },
   { id: 'videos', label: 'Lessons', icon: Video, color: 'bg-[#FFB5B5]' },
-  { id: 'shop', label: 'Shop', icon: ShoppingBag, color: 'bg-[#DDD6FE]' },
   { id: 'serve', label: 'Audience', icon: GraduationCap, color: 'bg-[#FED7AA]' },
   { id: 'testimonials', label: 'Reviews', icon: Star, color: 'bg-[#FFE68C]' },
   { id: 'faq', label: 'FAQ', icon: HelpCircle, color: 'bg-[#A7F3D0]' },
@@ -76,7 +74,7 @@ export function MobileBottomNav() {
   }
 
   // Primary quick bar items on mobile
-  const primaryItems = ALL_NAV_ITEMS.slice(0, 5)
+  const primaryItems = ALL_NAV_ITEMS.slice(0, 4)
 
   return (
     <>
@@ -109,8 +107,8 @@ export function MobileBottomNav() {
               </button>
             </div>
 
-            {/* 3x3 Grid of All 9 Navigation Sections */}
-            <div className="mt-4 grid grid-cols-3 gap-2.5">
+            {/* Grid of All 8 Navigation Sections */}
+            <div className="mt-4 grid grid-cols-4 gap-2">
               {ALL_NAV_ITEMS.map((item) => {
                 const Icon = item.icon
                 const isSelected = active === item.id
@@ -121,7 +119,7 @@ export function MobileBottomNav() {
                     type="button"
                     onClick={(e) => handleNav(item.id, e)}
                     className={cn(
-                      'flex flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] p-3 text-center transition-all duration-200 cursor-pointer',
+                      'flex flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] p-2.5 text-center transition-all duration-200 cursor-pointer',
                       isSelected
                         ? 'border-[#FFC837] bg-[#FFC837] text-[#2D1F1D] shadow-[0_4px_14px_rgba(255,200,55,0.4)] scale-105 font-black'
                         : 'border-[#5A3822]/60 bg-[#2D1F1D] text-[#FAF5EC] hover:bg-white/10 font-bold',
@@ -137,7 +135,7 @@ export function MobileBottomNav() {
                     >
                       <Icon className="size-4" />
                     </span>
-                    <span className="text-[0.72rem] leading-tight">
+                    <span className="text-[0.68rem] leading-tight">
                       {item.label}
                     </span>
                   </button>
@@ -216,7 +214,7 @@ export function MobileBottomNav() {
               )
             })}
 
-            {/* Menu / All 9 Sections Trigger */}
+            {/* Menu / All 8 Sections Trigger */}
             <li className="flex-1">
               <button
                 type="button"
@@ -231,7 +229,7 @@ export function MobileBottomNav() {
               >
                 <Menu className="size-4 shrink-0 stroke-[2.5]" />
                 <span className="mt-0.5 text-[0.62rem] leading-none tracking-tight">
-                  More (9)
+                  More (8)
                 </span>
               </button>
             </li>

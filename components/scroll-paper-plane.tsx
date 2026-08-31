@@ -16,11 +16,10 @@ const SECTIONS: SectionWaypoint[] = [
   { id: 'about', label: 'About Farah', number: '01', icon: '🌸' },
   { id: 'work', label: 'Craft Showcase', number: '02', icon: '✂️' },
   { id: 'videos', label: 'Video Lessons', number: '03', icon: '🎬' },
-  { id: 'shop', label: 'Resource Shop', number: '04', icon: '🛍️' },
-  { id: 'serve', label: 'Who I Serve', number: '05', icon: '🧸' },
-  { id: 'testimonials', label: 'Endorsements', number: '06', icon: '💬' },
-  { id: 'faq', label: 'Atelier FAQ', number: '07', icon: '💡' },
-  { id: 'contact', label: 'Get in Touch', number: '08', icon: '💌' },
+  { id: 'serve', label: 'Who I Serve', number: '04', icon: '🧸' },
+  { id: 'testimonials', label: 'Endorsements', number: '05', icon: '💬' },
+  { id: 'faq', label: 'Atelier FAQ', number: '06', icon: '💡' },
+  { id: 'contact', label: 'Get in Touch', number: '07', icon: '💌' },
 ]
 
 export function ScrollPaperPlane() {

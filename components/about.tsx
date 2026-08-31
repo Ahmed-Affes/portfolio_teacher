@@ -18,7 +18,7 @@ import {
   Award,
   Compass,
   Mail,
-  ShoppingBag,
+  Palette,
 } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
@@ -852,11 +852,11 @@ export function About() {
               <span>Book a Workshop / Commission 🌸</span>
             </a>
             <a
-              href="#shop"
+              href="#work"
               className="w-full rounded-lg border border-[#2D1F1D] bg-white hover:bg-[#FFE68C] py-1.5 px-2.5 text-[0.72rem] font-black text-[#2D1F1D] shadow-[1.5px_1.5px_0px_#2D1F1D] flex items-center justify-center gap-1 transition-all"
             >
-              <ShoppingBag className="size-3 text-[#059669]" />
-              <span>Explore Prop Atelier &amp; Rentals ✂️</span>
+              <Palette className="size-3 text-[#059669]" />
+              <span>Explore Craft &amp; Prop Gallery ✂️</span>
             </a>
           </div>
         </div>
@@ -1134,10 +1134,10 @@ export function About() {
               Book a Workshop / Commission 🌸
             </a>
             <a
-              href="#shop"
+              href="#work"
               className="block w-full rounded-xl border-[1.5px] border-[#2D1F1D] bg-white py-2.5 text-xs font-black text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] min-h-[44px] flex items-center justify-center touch-manipulation"
             >
-              Explore Props Atelier ✂️
+              Explore Craft Showcase ✂️
             </a>
           </div>
         </div>

@@ -101,28 +101,7 @@ export interface ContactMessage {
   status?: 'unread' | 'read' | 'replied' | 'archived'
 }
 
-export interface OrderItem {
-  id: string
-  name: string
-  price: number
-  qty: number
-  mode: 'buy' | 'rent'
-}
 
-export interface OrderRequest {
-  id?: string
-  created_at?: string
-  customer_name?: string
-  customer_email?: string
-  customer_phone: string
-  customer_location?: string
-  items: OrderItem[]
-  subtotal: number
-  currency?: string
-  status?: 'pending' | 'processing' | 'confirmed' | 'fulfilled' | 'completed' | 'cancelled'
-  rental_dates?: string
-  notes?: string
-}
 
 /**
  * Helper to submit a contact message to Supabase
@@ -161,55 +140,6 @@ export async function submitContactMessage(message: ContactMessage) {
 }
 
 /**
- * Helper to submit an order request to Supabase
- */
-export async function submitOrderRequest(order: OrderRequest) {
-  const client = getSupabase()
-  if (!client) {
-    return { success: false, fallback: true, error: 'Supabase credentials not configured' }
-  }
-
-  try {
-    const payload = {
-      customer_name: order.customer_name || 'Guest',
-      customer_email: order.customer_email || 'Not provided',
-      customer_phone: order.customer_phone,
-      customer_location: order.customer_location || 'Sfax, Tunisia',
-      items: order.items,
-      subtotal: order.subtotal,
-      currency: order.currency || 'TND',
-      status: 'pending',
-      rental_dates: order.rental_dates || null,
-      notes: order.notes || null,
-    }
-
-    const { data, error } = await client.from('orders').insert([payload]).select()
-
-    if (error) {
-      console.warn('Full order insert error, attempting base order payload:', error.message)
-      const basePayload = {
-        customer_name: order.customer_name || 'Guest',
-        customer_email: order.customer_email || 'Not provided',
-        customer_phone: order.customer_phone,
-        items: order.items,
-        subtotal: order.subtotal,
-        currency: order.currency || 'TND',
-        status: 'pending',
-        notes: `${order.customer_location ? `Location: ${order.customer_location}. ` : ''}${order.rental_dates ? `Rental: ${order.rental_dates}. ` : ''}${order.notes || ''}`,
-      }
-      const { data: baseData, error: baseErr } = await client.from('orders').insert([basePayload]).select()
-      if (baseErr) throw baseErr
-      return { success: true, data: baseData }
-    }
-
-    return { success: true, data }
-  } catch (err) {
-    console.error('Failed to submit order request:', err)
-    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' }
-  }
-}
-
-/**
  * Helper to fetch latest contact messages from Supabase
  */
 export async function fetchContactMessages(): Promise<ContactMessage[]> {
@@ -229,25 +159,7 @@ export async function fetchContactMessages(): Promise<ContactMessage[]> {
   }
 }
 
-/**
- * Helper to fetch latest orders from Supabase
- */
-export async function fetchOrders(): Promise<OrderRequest[]> {
-  const client = getSupabase()
-  if (!client) return []
-  try {
-    const { data, error } = await client
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false })
 
-    if (error) throw error
-    return (data as OrderRequest[]) || []
-  } catch (err) {
-    console.warn('Failed to fetch orders from Supabase:', err)
-    return []
-  }
-}
 
 /**
  * Update message status in Supabase
@@ -281,37 +193,7 @@ export async function deleteContactMessageInDb(id: string) {
   }
 }
 
-/**
- * Update order status in Supabase
- */
-export async function updateOrderInDb(id: string, status: string) {
-  const client = getSupabase()
-  if (!client) return { success: false }
-  try {
-    const { error } = await client.from('orders').update({ status }).eq('id', id)
-    if (error) throw error
-    return { success: true }
-  } catch (err) {
-    console.warn('Failed to update order in Supabase:', err)
-    return { success: false }
-  }
-}
 
-/**
- * Delete order from Supabase
- */
-export async function deleteOrderInDb(id: string) {
-  const client = getSupabase()
-  if (!client) return { success: false }
-  try {
-    const { error } = await client.from('orders').delete().eq('id', id)
-    if (error) throw error
-    return { success: true }
-  } catch (err) {
-    console.warn('Failed to delete order in Supabase:', err)
-    return { success: false }
-  }
-}
 
 /**
  * Sync entire portfolio settings & individual collections to Supabase
@@ -378,22 +260,7 @@ export async function syncPortfolioSettingsToDb(payload: Record<string, unknown>
       await client.from('videos').upsert(videoRows, { onConflict: 'id' })
     }
 
-    if (Array.isArray(payload.products) && payload.products.length > 0) {
-      const productRows = (payload.products as any[]).map((p, idx) => ({
-        id: p.id || `prod_${idx}`,
-        name: p.name,
-        category: p.category,
-        image: p.image,
-        description: p.description,
-        buy_price: p.buyPrice ?? null,
-        rent_price: p.rentPrice ?? null,
-        options: p.options || ['buy'],
-        features: p.features || [],
-        is_active: p.isActive !== false,
-        sort_order: idx,
-      }))
-      await client.from('products').upsert(productRows, { onConflict: 'id' })
-    }
+
 
     if (Array.isArray(payload.testimonials) && payload.testimonials.length > 0) {
       const testimonialRows = (payload.testimonials as any[]).map((t, idx) => ({
@@ -433,12 +300,11 @@ export async function fetchPortfolioSettingsFromDb() {
   const client = getSupabase()
   if (!client) return null
   try {
-    const [settingsRes, worksRes, videosRes, productsRes, testimonialsRes, faqsRes] =
+    const [settingsRes, worksRes, videosRes, testimonialsRes, faqsRes] =
       await Promise.all([
         client.from('portfolio_settings').select('*').eq('id', 'current_state').maybeSingle(),
         client.from('works').select('*').order('sort_order', { ascending: true }),
         client.from('videos').select('*').order('sort_order', { ascending: true }),
-        client.from('products').select('*').order('sort_order', { ascending: true }),
         client.from('testimonials').select('*').order('sort_order', { ascending: true }),
         client.from('faqs').select('*').order('sort_order', { ascending: true }),
       ])
@@ -478,22 +344,7 @@ export async function fetchPortfolioSettingsFromDb() {
           }))
         : settings.videos || null
 
-    // Map products
-    const products =
-      productsRes.data && productsRes.data.length > 0
-        ? productsRes.data.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            category: p.category,
-            image: p.image,
-            description: p.description,
-            buyPrice: p.buy_price != null ? Number(p.buy_price) : undefined,
-            rentPrice: p.rent_price != null ? Number(p.rent_price) : undefined,
-            options: p.options || ['buy'],
-            features: p.features || [],
-            isActive: p.is_active !== false,
-          }))
-        : settings.products || null
+
 
     // Map testimonials
     const testimonials =
@@ -524,7 +375,6 @@ export async function fetchPortfolioSettingsFromDb() {
       ...settings,
       works,
       videos,
-      products,
       testimonials,
       faqs,
     }
@@ -537,7 +387,7 @@ export async function fetchPortfolioSettingsFromDb() {
 /**
  * Delete item from specific table in Supabase
  */
-export async function deleteTableItemInDb(table: 'works' | 'videos' | 'products' | 'testimonials' | 'faqs', id: string) {
+export async function deleteTableItemInDb(table: 'works' | 'videos' | 'testimonials' | 'faqs', id: string) {
   const client = getSupabase()
   if (!client) return { success: false }
   try {

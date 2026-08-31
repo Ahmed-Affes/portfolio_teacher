@@ -10,7 +10,7 @@ self.addEventListener('activate', function (event) {
 
 // Handle Web Push protocol events (e.g. background cloud triggers)
 self.addEventListener('push', function (event) {
-  let data = { title: '📬 New Alert — Farah Affes Studio', body: 'New inquiry or order received!' }
+  let data = { title: '📬 New Alert — Farah Affes Studio', body: 'New message or inquiry received!' }
   if (event.data) {
     try {
       data = event.data.json()

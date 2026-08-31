@@ -37,10 +37,10 @@ export function Faq() {
           <Reveal>
             <div className="flex flex-col items-start">
               <SectionHeading
-                number="07"
+                number="06"
                 eyebrow="Got Questions? 💡"
                 title="Everything you need to know"
-                intro="Answers about handmade prop rentals, printable digital downloads, and custom teacher workshops."
+                intro="Answers about teaching methodology, tactile props, and teacher training workshops."
                 typewriterIntro
               />
 
@@ -59,7 +59,7 @@ export function Faq() {
                         <h4 className="font-sans text-sm sm:text-lg font-black text-[#2D1F1D]">
                           Atelier Help Desk
                         </h4>
-                        <p className="text-[0.68rem] sm:text-xs font-bold text-[#6B5550]">Quick Answers &amp; Custom Orders</p>
+                        <p className="text-[0.68rem] sm:text-xs font-bold text-[#6B5550]">Quick Answers &amp; Inquiries</p>
                       </div>
                     </div>
 

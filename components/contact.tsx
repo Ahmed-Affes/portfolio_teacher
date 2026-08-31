@@ -32,7 +32,7 @@ import {
 type Errors = Partial<Record<'name' | 'email' | 'message', string>>
 
 const ROLES = ['Student 🎒', 'Parent 💖', 'Teacher / Educator 📚', 'Other 🎨']
-const TOPICS = ['Buy materials 🛒', 'Rent for workshop 🔄', 'Custom project ✂️', 'General question 🌸']
+const TOPICS = ['Teacher Training 🎒', 'Custom Prop Commission ✂️', 'School Collaboration 🏫', 'General Question 🌸']
 
 const TRUST_STATS = [
   { value: '<24h', label: 'Response time' },
@@ -138,7 +138,7 @@ export function Contact() {
       <div className="section-inner section-stack">
         <Reveal>
           <SectionHeading
-            number="08"
+            number="07"
             eyebrow="Say Hello &amp; Collaborate 💌"
             title="Let’s create joyful learning experiences"
             intro="Have a project in mind, need custom teaching materials, or want to host a hands-on crafting workshop? Reach out today!"
@@ -390,7 +390,7 @@ export function Contact() {
                       onBlur={() => handleBlur('message')}
                       aria-invalid={!!errors.message}
                       aria-describedby={errors.message ? 'message-error' : undefined}
-                      placeholder="Tell me about your students, workshop date, or material request..."
+                      placeholder="Tell me about your students, workshop goals, or collaboration idea..."
                       className={cn('resize-none', inputClass, errors.message && 'border-[#FF5A5A] bg-[#FFF5F5]')}
                     />
                     {errors.message && (
