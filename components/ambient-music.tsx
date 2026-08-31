@@ -132,10 +132,10 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let savedTrackId = 'joyful-atelier'
-    let pref = 'playing'
+    let pref = 'paused'
     try {
       savedTrackId = localStorage.getItem('farah_music_track') || 'joyful-atelier'
-      pref = localStorage.getItem('farah_music_pref') || 'playing'
+      pref = localStorage.getItem('farah_music_pref') || 'paused'
     } catch {}
 
     const found = MUSIC_TRACKS.find((t) => t.id === savedTrackId)
@@ -147,7 +147,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       audioRef.current.volume = volume
     }
 
-    if (pref === 'paused') {
+    if (pref !== 'playing') {
       setIsPlaying(false)
       return
     }
@@ -163,7 +163,6 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener('click', tryPlay)
       window.removeEventListener('keydown', tryPlay)
       window.removeEventListener('touchstart', tryPlay)
-      window.removeEventListener('scroll', tryPlay)
     }
 
     playAudio()
@@ -171,13 +170,11 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('click', tryPlay, { once: true })
     window.addEventListener('keydown', tryPlay, { once: true })
     window.addEventListener('touchstart', tryPlay, { once: true })
-    window.addEventListener('scroll', tryPlay, { once: true })
 
     return () => {
       window.removeEventListener('click', tryPlay)
       window.removeEventListener('keydown', tryPlay)
       window.removeEventListener('touchstart', tryPlay)
-      window.removeEventListener('scroll', tryPlay)
     }
   }, [playAudio, volume, isMuted])
 

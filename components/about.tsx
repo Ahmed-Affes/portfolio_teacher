@@ -324,7 +324,33 @@ export function About() {
   // Keyboard navigation for turning book pages & chapter shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (lightboxData) return
+      if (lightboxData) {
+        if (e.key === 'Escape') {
+          setLightboxData(null)
+          return
+        }
+        const photos =
+          lightboxData.milestone.images && lightboxData.milestone.images.length > 0
+            ? lightboxData.milestone.images
+            : [lightboxData.milestone.image || '/images/farah-portrait.png']
+        if (photos.length > 1) {
+          if (e.key === 'ArrowLeft') {
+            setLightboxData({
+              ...lightboxData,
+              photoIndex: (lightboxData.photoIndex - 1 + photos.length) % photos.length,
+            })
+            return
+          }
+          if (e.key === 'ArrowRight') {
+            setLightboxData({
+              ...lightboxData,
+              photoIndex: (lightboxData.photoIndex + 1) % photos.length,
+            })
+            return
+          }
+        }
+        return
+      }
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
       if (e.key === 'ArrowRight' && safeIdx < totalSpreads - 1) {
         turnToSpread(safeIdx + 1)

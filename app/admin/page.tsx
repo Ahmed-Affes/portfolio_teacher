@@ -263,7 +263,8 @@ export default function AdminPage() {
   // Handle PIN Login
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (enteredPin === state.adminPin || enteredPin === 'farah2026' || enteredPin === 'admin') {
+    const targetPin = state.adminPin || 'farah2026'
+    if (enteredPin === targetPin) {
       setIsAuthenticated(true)
       setPinError(false)
       try {

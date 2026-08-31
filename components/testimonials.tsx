@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GraduationCap, MessageSquarePlus, Quote, Send, Star, X, Heart } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
 import { SectionHeading } from '@/components/section-heading'
@@ -29,6 +29,17 @@ export function Testimonials() {
   const [reviewRating, setReviewRating] = useState<number>(5)
   const [includeRating, setIncludeRating] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!isReviewModalOpen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsReviewModalOpen(false)
+    document.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [isReviewModalOpen])
 
   const activeTestimonials = testimonials.filter((t) => t.isActive !== false)
 

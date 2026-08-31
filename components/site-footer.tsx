@@ -118,7 +118,18 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t-2 border-[#2D1F1D]/10 pt-6 text-xs font-bold text-[#6B5550] sm:flex-row">
-          <p>© {new Date().getFullYear()} Farah Affes Studio. All rights reserved.</p>
+          <div className="flex items-center gap-3">
+            <p>© {new Date().getFullYear()} Farah Affes Studio. All rights reserved.</p>
+            <span className="text-[#2D1F1D]/30">•</span>
+            <Link
+              href="/admin"
+              className="flex items-center gap-1 text-[#6B5550]/70 hover:text-[#2D1F1D] transition-colors"
+              title="Atelier Admin Studio"
+            >
+              <Lock className="size-3 text-[#6B5550]" />
+              <span>Teacher Portal</span>
+            </Link>
+          </div>
           <p className="text-center handwriting text-base text-[#FF7D6B] font-bold sm:text-right">
             Handmade with love &amp; imagination in Sfax 🌸
           </p>

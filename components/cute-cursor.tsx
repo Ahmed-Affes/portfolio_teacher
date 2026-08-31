@@ -95,8 +95,11 @@ export function CuteCursor() {
       * {
         cursor: url("data:image/svg+xml,${DEFAULT_SUN_SVG}") 4 4, auto !important;
       }
-      button, a, input, textarea, select, [role="button"], .cursor-pointer, .interactive-hover {
+      button, a, select, [role="button"], .cursor-pointer, .interactive-hover {
         cursor: url("data:image/svg+xml,${POINTER_SUN_SVG}") 4 4, pointer !important;
+      }
+      input, textarea {
+        cursor: text !important;
       }
     `
 
