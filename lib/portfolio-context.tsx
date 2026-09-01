@@ -372,7 +372,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         const parsed = JSON.parse(stored)
         const parsedMilestones = parsed.about?.milestones
         const resolvedMilestones =
-          Array.isArray(parsedMilestones) && parsedMilestones.length >= DEFAULT_MILESTONES.length
+          Array.isArray(parsedMilestones)
             ? parsedMilestones
             : DEFAULT_MILESTONES.map((m) => ({ ...m, isActive: true }))
 
@@ -449,9 +449,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         setState((prev) => {
           const cloudMilestones = (cloudSettings?.about as any)?.milestones
           const resolvedCloudMilestones =
-            Array.isArray(cloudMilestones) && cloudMilestones.length >= DEFAULT_MILESTONES.length
+            Array.isArray(cloudMilestones)
               ? cloudMilestones
-              : prev.about.milestones && prev.about.milestones.length >= DEFAULT_MILESTONES.length
+              : Array.isArray(prev.about?.milestones)
                 ? prev.about.milestones
                 : DEFAULT_MILESTONES.map((m) => ({ ...m, isActive: true }))
 
@@ -838,7 +838,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const addMilestone = useCallback(
     (milestoneData: Omit<CareerMilestone, 'id'>) => {
       setState((prev) => {
-        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const currentMilestones = Array.isArray(prev.about?.milestones)
+          ? prev.about.milestones
+          : DEFAULT_MILESTONES
         const newMilestone: CareerMilestone = {
           ...milestoneData,
           id: `m_${Date.now()}`,
@@ -859,7 +861,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const updateMilestone = useCallback(
     (id: string, updates: Partial<CareerMilestone>) => {
       setState((prev) => {
-        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const currentMilestones = Array.isArray(prev.about?.milestones)
+          ? prev.about.milestones
+          : DEFAULT_MILESTONES
         const updated = currentMilestones.map((m) => (m.id === id ? { ...m, ...updates } : m))
         const nextAbout = { ...prev.about, milestones: updated }
         const newState = { ...prev, about: nextAbout }
@@ -873,7 +877,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const toggleMilestoneActive = useCallback(
     (id: string) => {
       setState((prev) => {
-        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const currentMilestones = Array.isArray(prev.about?.milestones)
+          ? prev.about.milestones
+          : DEFAULT_MILESTONES
         const updated = currentMilestones.map((m) =>
           m.id === id ? { ...m, isActive: m.isActive === false } : m,
         )
@@ -889,7 +895,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const deleteMilestone = useCallback(
     (id: string) => {
       setState((prev) => {
-        const currentMilestones = prev.about.milestones || DEFAULT_MILESTONES
+        const currentMilestones = Array.isArray(prev.about?.milestones)
+          ? prev.about.milestones
+          : DEFAULT_MILESTONES
         const updated = currentMilestones.filter((m) => m.id !== id)
         const nextAbout = { ...prev.about, milestones: updated }
         const newState = { ...prev, about: nextAbout }

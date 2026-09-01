@@ -451,7 +451,7 @@ export default function AdminPage() {
                 id: 'about',
                 label: 'Career & Life Story',
                 icon: BookOpen,
-                badge: state.about.milestones && state.about.milestones.length >= DEFAULT_MILESTONES.length ? state.about.milestones.length : DEFAULT_MILESTONES.length,
+                badge: Array.isArray(state.about.milestones) ? state.about.milestones.length : DEFAULT_MILESTONES.length,
               },
               { id: 'works', label: 'Craft Gallery', icon: Palette, badge: state.works.length },
               { id: 'videos', label: 'Video Lessons', icon: Video, badge: state.videos.length },
@@ -1086,7 +1086,7 @@ export default function AdminPage() {
                           Career &amp; Life Journey Milestones
                         </h3>
                         <span className="rounded-full border border-[#2D1F1D] bg-[#FFE68C] px-2 py-0.5 text-xs font-black text-[#2D1F1D]">
-                          {state.about.milestones && state.about.milestones.length >= DEFAULT_MILESTONES.length ? state.about.milestones.length : DEFAULT_MILESTONES.length} items
+                          {Array.isArray(state.about.milestones) ? state.about.milestones.length : DEFAULT_MILESTONES.length} items
                         </span>
                       </div>
                       <p className="font-hand text-xs font-bold text-[#6B5550] mt-1">
@@ -1119,50 +1119,11 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* Search & Category Filter Toolbar */}
-                  <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-                    <div className="relative flex-1 max-w-md">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-[#6B5550]" />
-                      <input
-                        type="text"
-                        value={milestoneSearch}
-                        onChange={(e) => setMilestoneSearch(e.target.value)}
-                        placeholder="Search milestone title, school, or organization..."
-                        className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white pl-8 pr-3 py-2 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
-                      />
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {[
-                        { id: 'all', label: 'All (11)', emoji: '🌟' },
-                        { id: 'education', label: 'Education (2)', emoji: '🎓' },
-                        { id: 'career', label: 'Teaching (4)', emoji: '💼' },
-                        { id: 'life', label: 'Atelier (3)', emoji: '✂️' },
-                        { id: 'achievement', label: 'Workshops (2)', emoji: '🏆' },
-                      ].map((tab) => (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => setMilestoneCategoryFilter(tab.id as any)}
-                          className={cn(
-                            'flex items-center gap-1 rounded-xl border-2 px-2.5 py-1 text-xs font-black transition-all cursor-pointer',
-                            milestoneCategoryFilter === tab.id
-                              ? 'border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
-                              : 'border-transparent text-[#6B5550] hover:bg-[#FAF5EC]',
-                          )}
-                        >
-                          <span>{tab.emoji}</span>
-                          <span>{tab.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Milestones Card Grid */}
+                  {/* Milestones Card Grid & Filter Toolbar */}
                   {(() => {
                     const rawList = state.about.milestones
                     const milestonesList =
-                      rawList && rawList.length >= DEFAULT_MILESTONES.length
+                      Array.isArray(rawList)
                         ? rawList
                         : DEFAULT_MILESTONES.map((m) => ({ ...m, isActive: true }))
                     const filtered = milestonesList.filter((m) => {
@@ -1173,25 +1134,63 @@ export default function AdminPage() {
                         m.title.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
                         m.organization.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
                         m.period.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
+                        m.categoryLabel.toLowerCase().includes(milestoneSearch.toLowerCase()) ||
                         m.description.toLowerCase().includes(milestoneSearch.toLowerCase())
-
                       return matchesCategory && matchesSearch
                     })
 
-                    if (filtered.length === 0) {
-                      return (
-                        <div className="rounded-2xl border-2 border-dashed border-[#2D1F1D]/30 bg-[#FAF5EC] p-8 text-center">
-                          <p className="text-2xl">🌱</p>
-                          <p className="font-sans text-xs font-black text-[#2D1F1D] mt-2">
-                            No journey milestones found matching your search.
-                          </p>
-                        </div>
-                      )
-                    }
-
                     return (
-                      <div className="space-y-3">
-                        {filtered.map((milestone) => {
+                      <>
+                        {/* Search & Category Filter Toolbar */}
+                        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+                          <div className="relative flex-1 max-w-md">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-[#6B5550]" />
+                            <input
+                              type="text"
+                              value={milestoneSearch}
+                              onChange={(e) => setMilestoneSearch(e.target.value)}
+                              placeholder="Search milestone title, school, or organization..."
+                              className="w-full rounded-xl border-2 border-[#2D1F1D] bg-white pl-8 pr-3 py-2 text-xs font-bold text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D] outline-none"
+                            />
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {[
+                              { id: 'all', label: `All (${milestonesList.length})`, emoji: '🌟' },
+                              { id: 'education', label: `Education (${milestonesList.filter((m) => m.category === 'education').length})`, emoji: '🎓' },
+                              { id: 'career', label: `Teaching (${milestonesList.filter((m) => m.category === 'career').length})`, emoji: '💼' },
+                              { id: 'life', label: `Atelier (${milestonesList.filter((m) => m.category === 'life').length})`, emoji: '✂️' },
+                              { id: 'achievement', label: `Workshops (${milestonesList.filter((m) => m.category === 'achievement').length})`, emoji: '🏆' },
+                            ].map((tab) => (
+                              <button
+                                key={tab.id}
+                                type="button"
+                                onClick={() => setMilestoneCategoryFilter(tab.id as any)}
+                                className={cn(
+                                  'flex items-center gap-1 rounded-xl border-2 px-2.5 py-1 text-xs font-black transition-all cursor-pointer',
+                                  milestoneCategoryFilter === tab.id
+                                    ? 'border-[#2D1F1D] bg-[#FFE68C] text-[#2D1F1D] shadow-[2px_2px_0px_#2D1F1D]'
+                                    : 'border-transparent text-[#6B5550] hover:bg-[#FAF5EC]',
+                                )}
+                              >
+                                <span>{tab.emoji}</span>
+                                <span>{tab.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Milestones Cards Grid */}
+                        {filtered.length === 0 ? (
+                          <div className="rounded-2xl border-2 border-dashed border-[#2D1F1D]/30 bg-[#FAF5EC] p-8 text-center">
+                            <p className="text-2xl">🌱</p>
+                            <p className="font-sans text-xs font-black text-[#2D1F1D] mt-2">
+                              No journey milestones found matching your search.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {filtered.map((milestone) => {
                           const photos =
                             milestone.images && milestone.images.length > 0
                               ? milestone.images
@@ -1306,9 +1305,11 @@ export default function AdminPage() {
                           </div>
                         )
                       })}
-                    </div>
-                  )
-                })()}
+                          </div>
+                        )}
+                      </>
+                    )
+                  })()}
                 </div>
               </div>
             )}

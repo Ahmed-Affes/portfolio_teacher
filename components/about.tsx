@@ -176,15 +176,12 @@ export function About() {
   const { state } = usePortfolio()
   const { about, contact } = state
 
-  // Retrieve active milestones with guaranteed fallback to default CAREER_MILESTONES
+  // Retrieve active milestones with fallback to default CAREER_MILESTONES if not yet configured
   const rawMilestones =
-    about?.milestones && about.milestones.length >= CAREER_MILESTONES.length
+    Array.isArray(about?.milestones)
       ? about.milestones
       : CAREER_MILESTONES
-  const allMilestones: CareerMilestone[] =
-    rawMilestones.length > 0
-      ? rawMilestones.filter((m) => m.isActive !== false)
-      : CAREER_MILESTONES
+  const allMilestones: CareerMilestone[] = rawMilestones.filter((m) => m.isActive !== false)
 
   // Build the book spreads including milestone pages and dedicated chapter transition pages
   const bookSpreads: BookSpread[] = []
@@ -192,10 +189,7 @@ export function About() {
 
   CHAPTER_CONFIG.forEach((chapter, chapIdx) => {
     const chapterMilestones = allMilestones.filter((m) => m.category === chapter.id)
-    const milestonesToRender =
-      chapterMilestones.length > 0
-        ? chapterMilestones
-        : allMilestones.filter((m) => m.category === 'education')
+    const milestonesToRender = chapterMilestones
 
     milestonesToRender.forEach((milestone, mIdx) => {
       bookSpreads.push({
